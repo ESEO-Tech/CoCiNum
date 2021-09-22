@@ -1,0 +1,1145 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Modélisation par graphe d'états</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="sequentiel-activite.html">&larr;&nbsp;Activité : circuits logiques séquentiels</a>
+    
+    
+        <a href="automates-mathematiques.html">Définition mathématique des automates finis&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Modélisation par graphe d'états</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#automatiser-le-parcours-dun-labyrinthe">Automatiser le parcours d’un labyrinthe</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#strategie-de-fonctionnement-du-robot-autonome">Stratégie de fonctionnement du robot autonome</a></li>
+            
+                
+                <li><a href="#combinatoire-ou-sequentiel">Combinatoire ou séquentiel ?</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#etats-et-transitions">États et transitions</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#etat-recherche-dun-mur">État Recherche d’un mur</a></li>
+            
+                
+                <li><a href="#etat-suivi-dun-mur">État Suivi d’un mur</a></li>
+            
+                
+                <li><a href="#etat-rotation-a-gauche">État Rotation à gauche</a></li>
+            
+                
+                <li><a href="#etat-rotation-a-droite">État Rotation à droite</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#graphe-detats">Graphe d’états</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#actions-associees-uniquement-aux-etats-machine-de-moore">Actions associées uniquement aux états : machine de Moore</a></li>
+            
+                
+                <li><a href="#actions-conditionnees-par-les-entrees-machine-de-mealy">Actions conditionnées par les entrées : machine de Mealy</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#resume">Résumé</a></li>
+            
+            
+        </ul>
+            
+    
+    <p>Un automate fini est un modèle qui représente le comportement d’un système
+comme un ensemble d’états et de transitions.</p>
+<p>La modélisation par automates est un outil très polyvalent qui est utilisé,
+sous différentes formes, dans de nombreuses branches de l’informatique, de
+l’électronique, ou des systèmes de production.</p>
+<p>Dans ce chapitre, nous introduisons l’utilisation d’automates pour réaliser
+des fonction logiques séquentielles à l’aide de circuits logiques,
+mais les notions présentées ici sont facilement transposables dans d’autres domaines.</p>
+<section><h1 id="automatiser-le-parcours-dun-labyrinthe" tabindex="-1">Automatiser le parcours d’un labyrinthe</h1>
+<p>Nous allons poursuivre le développement de la partie commande de notre robot.
+Il s’agit à présent de lui faire parcourir un labyrinthe de manière autonome.</p>
+<p>Une stratégie simple de parcours du labyrinthe consiste à toujours garder le contact avec le mur gauche jusqu’à atteindre la sortie
+(voir figure ci-dessous) – naturellement, on peut tout aussi bien choisir le mur droit, l’essentiel étant de suivre toujours le même mur
+pendant toute la durée du parcours.
+Cette stratégie ne fonctionne que dans le cas de labyrinthes dits <em>parfaits</em>,
+dans lesquels il n’y a pas de risque que le robot tourne en rond sans jamais trouver la sortie.</p>
+<p><a href="labyrinthe.svg"><img src="labyrinthe.svg" alt="Stratégie de parcours du labyrinthe" width="700px"></a></p>
+<p>Pour remplir cette mission, le robot disposera de nouveau capteurs associés aux signaux d’entrée suivants&nbsp;:</p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">CA</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal">A</span></span></span></span> (<em>Capteur Avant</em>) détecte la présence d’un obstacle à l’avant du robot.</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>G</mi></mrow><annotation encoding="application/x-tex">CG</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal">CG</span></span></span></span> (<em>Capteur Gauche</em>) détecte la présence d’un obstacle à gauche du robot.</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">CD</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span> (<em>Capteur Droit</em>) détecte la présence d’un obstacle à droite du robot.</li>
+</ul>
+<p>Rappelons que nous travaillons sur un modèle de robot très simplifié.
+Si vous tentez de réaliser un tel robot, vous vous rendrez compte rapidement que de nombreux problèmes mécaniques
+n’ont pas été pris en compte, comme par exemple les frottements et la difficulté de faire
+tourner le robot de précisément 90 degrés.</p>
+</section><section><h2 id="strategie-de-fonctionnement-du-robot-autonome" tabindex="-1">Stratégie de fonctionnement du robot autonome</h2>
+<p>Détaillons les situations qui peuvent se présenter au cours d’un parcours du labyrinthe
+en appliquant la stratégie de la <em>main gauche</em> présentée plus haut (les numéros font référence
+au schéma du labyrinthe)&nbsp;:</p>
+<ol>
+<li>Au démarrage, le robot peut se situer n’importe où.
+Il avance en ligne droite à la recherche d’un mur.
+Si le premier mur détecté est à gauche, le robot continue en ligne droite le long de ce mur&nbsp;;
+si le premier mur détecté est à l’avant, le robot effectue un quart de tour à droite de telle sorte que le mur
+se retrouve sur sa gauche, ensuite il continue en ligne droite le long de ce mur.</li>
+<li>Tant qu’il voit un mur sur sa gauche, le robot avance en ligne droite.</li>
+<li>Dès qu’il n’y a plus de mur sur sa gauche, le robot effectue un quart de tour à gauche.</li>
+<li>Si des murs sont détectés à l’avant et à gauche, le robot effectue un quart de tour à droite.</li>
+</ol>
+</section><section><h2 id="combinatoire-ou-sequentiel" tabindex="-1">Combinatoire ou séquentiel&nbsp;?</h2>
+<p>Confronté aux mêmes stimuli, le robot pourra réagir de différentes manières au cours du temps.
+Par exemple, lorsqu’il n’y a pas de mur sur sa gauche ni à l’avant, le robot peut avoir
+deux comportements différents&nbsp;:
+au démarrage, il poursuit en ligne droite (1)&nbsp;; en fonctionnement normal, il tourne à gauche (3).
+La partie commande du robot autonome réalise donc une fonction logique <strong>séquentielle</strong>.</p>
+<p>Pour développer ce circuit, nous devons donc suivre une méthode différente de
+<a href="combinatoire-synthese-logique.html">celle que nous avons exposée dans le cas du robot télécommandé</a>.
+Ici, les commandes des moteurs dépendront non seulement des entrées (les capteurs),
+mais aussi de l’<em>état</em> dans lequel se trouve le robot.</p>
+</section><section><h1 id="etats-et-transitions" tabindex="-1">États et transitions</h1>
+<p>Au cours du temps, le robot déroule une séquence d’actions dont l’enchaînement dépend des informations
+qu’il reçoit de ses capteurs.
+Ces actions sont décomposées en <em>activités</em> élémentaires (suivre un mur, effectuer un quart de tour à droite, attendre, etc).
+À chaque instant, le robot doit posséder une connaissance de l’activité à effectuer&nbsp;:
+on dit qu’il se trouve dans un certain <em>état</em>.
+En fonction des informations en provenance de ses capteurs, il doit décider s’il continue l’activité en cours
+(s’il reste dans le même état) ou s’il passe à une autre activité (s’il passe dans un autre état).
+On appelle <em>transition</em> le passage possible entre un état et un autre.</p>
+<p>La figure ci-dessous donne quatre scénarios de fonctionnement du robot et met en évidence
+quatre états représentés par des rectangles arrondis.
+Les transitions sont représentées par des flèches à côté desquelles nous avons indiqué les conditions qui déterminent
+le passage d’un état à un autre.</p>
+<p><a href="robot-scenario-avec-etat.svg"><img src="robot-scenario-avec-etat.svg" alt="Commande du robot autonome~: évolution de l'état et actions" class="vfill"></a></p>
+</section><section><h2 id="etat-recherche-dun-mur" tabindex="-1">État <em>Recherche d’un mur</em></h2>
+<p>C’est l’état initial du robot.
+Si un mur est détecté devant lui (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>A</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">CA = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>), il passe dans l’état <em>Rotation à droite</em>.
+Si la voie est libre devant lui (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>A</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">CA = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span></span></span></span>) et si un mur est détecté à sa gauche (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>G</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">CG = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal">CG</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>),
+il passe dans l’état <em>Suivi d’un mur</em>.
+Dans les autres cas, il se déplace en ligne droite (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>G</mi><mi>A</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">MGA = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal">MG</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>D</mi><mi>A</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">MDA = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>) jusqu’à détecter
+la présence d’un mur devant lui ou sur sa gauche.</p>
+</section><section><h2 id="etat-suivi-dun-mur" tabindex="-1">État <em>Suivi d’un mur</em></h2>
+<p>Le robot se déplace en ligne droite (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>G</mi><mi>A</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">MGA = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal">MG</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>D</mi><mi>A</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">MDA = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>) jusqu’à ce qu’il perde le mur situé à sa gauche
+ou jusqu’à ce qu’il rencontre un mur devant lui.
+S’il n’y a pas de mur sur sa gauche (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>G</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">CG = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal">CG</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span></span></span></span>), il passe dans l’état <em>Rotation à gauche</em>.
+Sinon, si un mur est détecté devant lui (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>A</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">CA = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>), il passe dans l’état <em>Rotation à droite</em>.</p>
+</section><section><h2 id="etat-rotation-a-gauche" tabindex="-1">État <em>Rotation à gauche</em></h2>
+<p>Le robot tourne sur place dans le sens anti-horaire (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>G</mi><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">MGR = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">MGR</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>D</mi><mi>A</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">MDA = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>) jusqu’à avoir accompli un quart de tour.
+Nous ne détaillerons pas la technique utilisée pour déterminer si le robot a bien tourné de 90 degrés.
+Pour le moment, nous supposerons qu’il existe un signal <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">FR</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">FR</span></span></span></span> qui passe à 1 pour indiquer la fin de la rotation.</p>
+<p>À la fin de la rotation (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">FR = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">FR</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>), le robot peut avoir perdu le contact avec le mur.
+Par sécurité, nous lui imposons de retourner dans l’état <em>Recherche d’un mur</em>.</p>
+</section><section><h2 id="etat-rotation-a-droite" tabindex="-1">État <em>Rotation à droite</em></h2>
+<p>Le robot tourne sur place dans le sens horaire (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>G</mi><mi>A</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">MGA = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal">MG</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>D</mi><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">MDR = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>) jusqu’à avoir accompli un quart de tour (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">FR = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">FR</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>).
+Ensuite, il passe dans l’état <em>Recherche d’un mur</em>.
+Si tout se passe comme prévu, cette recherche aboutit immédiatement et le robot passe
+ensuite à l’état <em>Suivi d’un mur</em>.</p>
+<div class="info">
+<p>Le comportement de notre robot peut être défini par un <a href="https://fr.wikipedia.org/wiki/Automate_fini">automate fini</a>.
+On utilise également le terme <em>machine à état fini</em> (en anglais <em>Finite-State Machine</em>, ou <em>FSM</em>)
+car il s’agit d’un système qui possède un nombre <em>fini</em> d’états.</p>
+<p>Il existe d’autres types de systèmes qui peuvent prendre un nombre infini d’états, mais ce n’est pas l’objet de ce cours.
+Si vous entendez parler de <em>machine à états</em> (<em>state machine</em>) sans plus de précision, il s’agit le plus souvent
+d’un automate fini.</p>
+</div>
+</section><section><h1 id="graphe-detats" tabindex="-1">Graphe d’états</h1>
+<p>Un graphe d’états est une représentation des états que peut prendre un système et des transitions entre ces états.
+Sur la figure ci-dessous, nous indiquons les symboles utilisés dans les graphes d’états de ce document.</p>
+<p><a href="fsm-legende.svg"><img src="fsm-legende.svg" alt="Légende des graphes d'états" class="hfill"></a></p>
+<p>Un état est représenté par une ellipse avec en haut son nom et en bas les éventuelles actions
+que le système doit effectuer lorsqu’il se trouve dans cet état.
+Les actions correspondent généralement à l’activation de sorties booléennes.</p>
+<p>Une transition est représentée par une flèche entre un état d’origine et un état destination.
+À côté de la flèche, on indique sous quelle condition la transition peut être franchie
+et quelles actions doivent être effectuées si cette condition est vraie.
+La condition est typiquement une expression booléenne&nbsp;;
+si aucune condition n’est précisée, cela signifie que la transition doit toujours être franchie
+(condition toujours vraie).</p>
+</section><section><h2 id="actions-associees-uniquement-aux-etats-machine-de-moore" tabindex="-1">Actions associées uniquement aux états&nbsp;: machine de Moore</h2>
+<p>La figure ci-dessous propose un premier graphe d’états représentant le comportement du robot.
+Ici, les actions effectuées par le robot ne dépendent que de l’état dans lequel il se trouve&nbsp;:
+ce type d’automate est couramment appelé une <a href="https://fr.wikipedia.org/wiki/Machine_de_Moore">machine de Moore</a>.</p>
+<p><a href="robot-fsm-moore.svg"><img src="robot-fsm-moore.svg" alt="Graphe d'états du robot autonome (Moore)" class="vfill"></a></p>
+<p>Par convention, nous n’indiquons pas explicitement les remises à zéro des sorties.
+Par exemple, dans l’état <em>Recherche d’un mur</em>, nous aurons <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>G</mi><mi>A</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">MGA = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal">MG</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>D</mi><mi>A</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">MDA = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>G</mi><mi>R</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">MGR = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">MGR</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span></span></span></span> et <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>D</mi><mi>R</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">MDR = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span></span></span></span>.</p>
+<p>Les conditions associées aux transitions sortant d’un même état doivent couvrir tous les cas
+(il doit toujours exister un état de destination) et être mutuellement exclusives
+(l’état de destination doit être unique).</p>
+</section><section><h2 id="actions-conditionnees-par-les-entrees-machine-de-mealy" tabindex="-1">Actions conditionnées par les entrées&nbsp;: machine de Mealy</h2>
+<p>Nous pouvons également décider que les actions effectuées par le robot dépendront de la valeur de ses capteurs.
+Par exemple, dans les états <em>Recherche d’un mur</em> et <em>Suivi d’un mur</em>, nous ne ferons avancer le robot que s’il
+n’y a pas d’obstacle devant lui (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>A</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">CA = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span></span></span></span>).
+Dans les états <em>Rotation à gauche</em> et <em>Rotation à droite</em>, le robot ne tournera que si l’indicateur de fin
+de rotation est à zéro.
+Ce type d’automate est couramment appelé une <a href="https://fr.wikipedia.org/wiki/Machine_de_Mealy">machine de Mealy</a>.</p>
+<p>Sur le graphe d’états, ces <em>actions conditionnées</em> sont placées sur les transitions.
+Une barre oblique sépare la condition de franchissement d’une transition et les actions correspondantes.
+Pour faciliter la lisibilité, nous avons représenté les actions en rouge sur la figure ci-dessous.</p>
+<p><a href="robot-fsm-mealy.svg"><img src="robot-fsm-mealy.svg" alt="Graphe d'états du robot autonome (Mealy)" class="vfill"></a></p>
+<div class="info">
+<h1 id="resume" tabindex="-1">Résumé</h1>
+<p>Un <em>automate fini</em> est un modèle qui représente le comportement d’un système comme un ensemble d’<em>états</em> et de <em>transitions</em>.</p>
+<p>Une <em>transition</em> définit sous quelle condition le système peut passer d’un état d’origine à un état de destination.</p>
+<p>Dans une <em>machine de Moore</em>, les actions que le système doit effectuer ne dépendent que de son état courant.
+Sur le graphe d’états, elles sont représentées dans les états.</p>
+<p>Dans une <em>machine de Mealy</em>, les actions que le système doit effectuer dépendent de son état courant et de la valeur des entrées.
+Sur le graphe d’états, les actions qui dépendent des entrées sont placées le long des transitions.</p>
+</div>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="sequentiel-activite.html">&larr;&nbsp;Activité : circuits logiques séquentiels</a>
+    
+    
+        <a href="automates-mathematiques.html">Définition mathématique des automates finis&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="automates-modelisation.html" class="current">Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

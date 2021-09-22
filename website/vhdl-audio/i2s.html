@@ -1,0 +1,1747 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Sortie audio I<sup>2</sup>S</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="preparation.html">&larr;&nbsp;Préparation de l'environnement de travail</a>
+    
+    
+        <a href="producteur-consommateur.html">Connecter producteurs et consommateurs : le protocole ready/valid&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Sortie audio I<sup>2</sup>S</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#le-module-pmodi2s">Le module PmodI2S</a></li>
+            
+                
+                <li><a href="#lentite-i2stransmitter">L’entité I2STransmitter</a></li>
+            
+                
+                <li><a href="#realisation-du-transmetteur-i2s">Réalisation du transmetteur I2S</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#horloge-masterclko">Horloge master_clk_o</a></li>
+            
+                
+                <li><a href="#horloge-serialclko">Horloge serial_clk_o</a></li>
+            
+                
+                <li><a href="#horloge-leftrightclko">Horloge left_right_clk_o</a></li>
+            
+                
+                <li><a href="#sortie-serialdatao">Sortie serial_data_o</a></li>
+            
+                
+                <li><a href="#sortie-readyo">Sortie ready_o</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#application-de-demonstration">Application de démonstration</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#configurer-un-generateur-dhorloge">Configurer un générateur d’horloge</a></li>
+            
+                
+                <li><a href="#configurer-les-blocs-de-memoire">Configurer les blocs de mémoire</a></li>
+            
+                
+                <li><a href="#synthetiser-et-implementer-le-circuit">Synthétiser et implémenter le circuit</a></li>
+            
+                
+                <li><a href="#configurer-le-fpga">Configurer le FPGA</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#implementation-de-reference">Implémentation de référence</a></li>
+            
+            
+        </ul>
+            
+    
+    <p><a href="https://en.wikipedia.org/wiki/I%C2%B2S">I<sup>2</sup>S (Inter-IC Sound)</a> est un standard de bus de données permettant de connecter des équipements audio numériques.
+Typiquement, un équipement transmetteur envoie les échantillons d’un signal audio, codés en binaire, vers un équipement récepteur.
+Ce bus possède les caractéristiques suivantes&nbsp;:</p>
+<ul>
+<li>Les données sont transmises en série sur un fil (<em>serial data</em>).</li>
+<li>La transmission bit à bit est synchrone sur une horloge (<em>serial clock</em>).</li>
+<li>Un signal de sélection (appelé <em>word select</em> ou <em>left-right clock</em>) indique si les données courantes concernent la voie gauche ou droite.</li>
+</ul>
+<p>Dans le cas d’un signal audio stéréo, le signal de sélection est un signal carré qui permet de transmettre en alternance
+les échantillons de la voie gauche (<em>left-right clock</em> à <code>'0'</code>) et de la voie droite (<em>left-right clock</em> à <code>'1'</code>).</p>
+<p><a href="I2S-bus.svg"><img src="I2S-bus.svg" alt="Schéma de principe d'un système avec transmetteur et récepteur I2S" width="600px"></a></p>
+<p>Le document suivant contient la spécification complète du bus I<sup>2</sup>S&nbsp;:</p>
+<div class="download">
+<ul>
+<li><a href="../assets/datasheets/PmodI2S-I2SBUS.pdf"><i class="fa fa-download"></i>Philips Semiconductors – I<sup>2</sup>S Specification</a></li>
+</ul>
+</div>
+<section><h1 id="le-module-pmodi2s" tabindex="-1">Le module PmodI2S</h1>
+<p>Le <a href="https://reference.digilentinc.com/pmod:pmod:I2S">module PmodI2S de Digilent</a>
+est une sortie audio stéréo compatible avec les connecteurs Pmod des cartes à FPGA du même constructeur.
+Il est construit autour du convertisseur numérique/analogique Cirrus Logic CS4344, dont l’interface respecte le standard I<sup>2</sup>S.
+Ce convertisseur possède également une entrée horloge <em>master clock</em> qui sera fournie par le FPGA.</p>
+<p>Dans ce projet, le FPGA jouera le rôle de transmetteur et le module PmodI2S jouera le rôle de récepteur.
+Le FPGA devra donc contenir la logique nécessaire à la transmission de données en respectant le standard I<sup>2</sup>S.</p>
+<p><a href="I2S-PmodI2S.svg"><img src="I2S-PmodI2S.svg" alt="Connexion entre le FPGA et le module PmodI2S" width="700px"></a></p>
+<p>Les documentations correspondantes sont disponibles ci-dessous&nbsp;:</p>
+<div class="download">
+<ul>
+<li><a href="../assets/datasheets/PmodI2S_rm.pdf"><i class="fa fa-download"></i>Digilent – PmodI2S Reference Manual</a></li>
+<li><a href="../assets/datasheets/PmodI2S-cs4344.pdf"><i class="fa fa-download"></i>Cirrus Logic – CS4344/5/6/8 10-pin, 24-Bit, 192 kHz Stereo D/A Converter</a></li>
+</ul>
+</div>
+</section><section><h1 id="lentite-i2stransmitter" tabindex="-1">L’entité <code>I2STransmitter</code></h1>
+<p>Vous allez développer l’entité <code>I2STransmitter</code> qui sera chargée de transmettre des données audio stéréo vers un récepteur I<sup>2</sup>S.
+Cette entité sera conçue de manière à être réutilisable dans une grande variété de projets&nbsp;:
+elle sera indépendante de la carte à FPGA, du type de récepteur ou des caractéristiques des signaux audio.</p>
+<p><a href="I2STransmitter-entity.svg"><img src="I2STransmitter-entity.svg" alt="Interface de l'entité I2STransmitter" width="550px"></a></p>
+<p>Cette entité possédera les paramètres génériques suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Paramètre</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>CLK_FREQUENCY_HZ</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">La fréquence du signal d’horloge global du système, en Hz</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>MASTER_FREQUENCY_HZ</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">La fréquence du signal d’horloge maître à destination du récepteur, en Hz</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SAMPLE_RATE_HZ</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">La fréquence d’échantillonage du signal audio, en Hz</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BITS_PER_SAMPLE</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">Le nombre de bits par échantillon du signal audio</td>
+</tr>
+</tbody>
+</table>
+<p>Et voici la liste de ses ports&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Port</th>
+<th style="text-align:left">Direction</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>clk_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge global du système</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>reset_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">La commande de réinitialisation du système</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>valid_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Indique qu’un nouvel échantillon est disponible</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ready_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Indique que le transmetteur est prêt à recevoir un nouvel échantillon</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>left_data_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Vecteur logique signé</td>
+<td style="text-align:left">La valeur d’un échantillon audio pour la voie gauche</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>right_data_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Vecteur logique signé</td>
+<td style="text-align:left">La valeur d’un échantillon audio pour la voie droite</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>master_clk_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge maître à destination du récepteur</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>serial_clk_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge série à destination du récepteur</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>serial_data_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Les données série à destination du récepteur</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>left_right_clk_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge sélectionnant la voie gauche ou droite</td>
+</tr>
+</tbody>
+</table>
+<div class="info">
+<p>Pour les valeurs logiques, on utilise le type <code>std_logic</code> du package
+<code>ieee.std_logic_1164</code>.</p>
+<p>Pour les vecteurs logiques représentant des nombres signés, on utilise
+le type <code>signed</code> du package <code>ieee.numeric_std</code>.</p>
+</div>
+</section><section><h1 id="realisation-du-transmetteur-i2s" tabindex="-1">Réalisation du transmetteur I<sup>2</sup>S</h1>
+<p>Au cours de son fonctionnement, l’entité <code>I2STransmitter</code> reçoit des échantillons
+audio codés en binaire sur ses ports <code>left_data_i</code> et <code>right_data_i</code>.
+Lorsque le transmetteur commence à traiter une paire d’échantillons, il met
+à <code>'1'</code> la sortie <code>ready_o</code> pour demander l’échantillon suivant.</p>
+<p>Les valeurs de <code>left_data_i</code> et <code>right_data_i</code> sont transmises à tour de rôle sur la
+sortie <code>serial_data_o</code>.
+La transmission s’effectue bit par bit, en commençant par le bit de poids fort,
+au rythme de l’horloge <code>serial_clk_o</code>.</p>
+<p>La sortie <code>left_right_clk_o</code> indique la voie en cours de transmission (<code>'0'</code> pour
+la voie gauche, <code>'1'</code> pour la voie droite).
+C’est un signal carré dont la fréquence est égale à la fréquence d’échantillonnage.</p>
+<p>Un scénario typique de fonctionnement est décrit par le chronogramme suivant&nbsp;:</p>
+<p><a href="I2STransmitter-chronogramme.svg"><img src="I2STransmitter-chronogramme.svg" alt="Chronogramme de fonctionnement de l'entité I2STransmitter"></a></p>
+<p>Dans l’exemple ci-dessus, le transmetteur est paramétré de la manière suivante&nbsp;:</p>
+<ul>
+<li><code>BITS_PER_SAMPLE</code> = 16</li>
+<li><code>MASTER_FREQUENCY_HZ</code> = 128×<code>SAMPLE_RATE_HZ</code></li>
+</ul>
+<p>Pendant une période de <code>left_right_clk_o</code>, on transmet 2×<code>BITS_PER_SAMPLE</code> bits
+(32 dans l’exemple ci-dessus, 16 pour la voie gauche et 16 pour la voie droite).
+Avec cette combinaison de paramètres, un bit dure 4 périodes de <code>master_clk_o</code>.
+Cette valeur a été choisie pour que le chronogramme reste lisible.
+Dans la suite de cette activité, nous travaillerons avec une valeur plus élevée.</p>
+<div class="warning">
+<p>Comme imposé par le standard I<sup>2</sup>S, le signal <code>left_right_clk_o</code> est toujours en avance d’un bit sur <code>serial_data_o</code>.
+Lorsque <code>left_right_clk_o</code> passe à <code>'0'</code> (voie gauche), il reste encore un bit de la voie droite à envoyer.
+Lorsque <code>left_right_clk_o</code> passe à <code>'1'</code> (voie droite), il reste encore un bit de la voie gauche à envoyer.</p>
+</div>
+</section><section><h2 id="horloge-masterclko" tabindex="-1">Horloge <code>master_clk_o</code></h2>
+<p>En fonction de la fréquence de l’horloge <code>clk_i</code> (<code>CLK_FREQUENCY_HZ</code>) et
+de la fréquence souhaitée pour l’horloge <code>master_clk_o</code> (<code>MASTER_FREQUENCY_HZ</code>),
+proposez une expression permettant de calculer
+le nombre de périodes de <code>clk_i</code> dans une période de <code>master_clk_o</code>.</p>
+<p><a href="I2STransmitter-master-clk-chronogramme.svg"><img src="I2STransmitter-master-clk-chronogramme.svg" alt="Génération de master_clk_o"></a></p>
+<p>En respectant les règles de conception de circuits synchrones, complétez le
+fichier <code>I2STransmitter.vhd</code> de manière à produire un signal <code>master_clk_o</code>
+carré à la fréquence souhaitée.</p>
+<div class="info">
+<p>Si vous ne voyez pas comment faire, relisez le cours sur les
+<a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html#diviseurs-de-frequence">diviseurs de fréquence</a>.</p>
+<p>Vérifiez que tous les signaux synchrones sur l’horloge reçoivent une valeur
+initiale.
+Dans ce projet, nous utiliserons une
+<a href="../langage-vhdl/sequentiel-bascules-et-registres.html#reinitialisation-asynchrone">réinitialisation asynchrone</a>
+activée par le signal <code>reset_i</code>.</p>
+</div>
+<h3 id="simulation" tabindex="-1">Simulation</h3>
+<p>Le fichier <code>I2STransmitterTestbench.vhd</code> contient un <em>banc de test</em> pour
+l’entité <code>I2STransmitter</code>.
+Le banc de test est composé d’une entité principale <code>I2STransmitterTestbench</code> et
+d’une architecture qui instancie l’entité <code>I2STransmitter</code>.
+Le rôle de cette architecture est de simuler l’environnement de l’entité
+<code>I2STransmitter</code>&nbsp;:</p>
+<ul>
+<li>Elle génère des signaux de référence sur les entrées <code>clk_i</code>, <code>reset_i</code>, <code>left_data_i</code>
+et <code>right_data_i</code>.</li>
+<li>Elle vérifie les valeurs et le timing des sorties <code>master_clk_o</code>, <code>left_right_clk_o</code>,
+<code>serial_clk_o</code>, <code>serial_data_o</code>, et <code>ready_o</code>.</li>
+<li>Elle affiche des messages dans la console de Vivado lorsque les signaux n’ont
+pas la forme ou les valeurs attendues.</li>
+</ul>
+<div class="info">
+<p>Un banc de test ne décrit pas un circuit, mais l’environnement du circuit à
+tester.
+Pour cette raison, il peut utiliser des instructions <em>non synthétisables</em>
+qui facilitent la description de scénarios de fonctionnement et l’exploitation
+des résultats.</p>
+<p>Pour plus d’explication, vous pouvez vous référer au chapitre <a href="../essentiel-vhdl/simulation.html">VHDL pour la simulation</a>.</p>
+</div>
+<p>Le fichier <code>I2STransmitterTestbench_pkg.vhd</code> contient des déclarations de
+constantes correspondant aux paramètres de fonctionnement de votre entité
+<code>I2STransmitter</code> dans l’environnement de simulation.</p>
+<p>Pour exécuter la simulation, nous fournissons un script qui automatise le
+démarrage du simulateur et l’exécution d’une séquence de commandes&nbsp;:</p>
+<ol>
+<li>Dans le menu <em>Tools</em>, choisissez <em>Run Tcl Script</em>.</li>
+<li>Allez dans le dossier <code>src/I2S</code> et sélectionnez le fichier <code>I2STransmitterTestbench.tcl</code>.</li>
+</ol>
+<p>Au cours de la simulation, le banc de test affiche des messages dans l’onglet
+<em>Tcl Console</em> lorsque le comportement de votre entité n’est pas conforme aux
+attentes.
+À cette étape, vous pouvez obtenir les messages suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Message</th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Incorrect period for <code>master_clk</code></td>
+<td style="text-align:left">La période de <code>master_clk_o</code> n’est pas celle attendue</td>
+</tr>
+<tr>
+<td style="text-align:left">Incorrect duty cycle for <code>master_clk</code></td>
+<td style="text-align:left">Le rapport cyclique de <code>master_clk_o</code> est trop éloigné de 50%</td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="horloge-serialclko" tabindex="-1">Horloge <code>serial_clk_o</code></h2>
+<p>En fonction de <code>MASTER_FREQUENCY_HZ</code>, <code>SAMPLE_RATE_HZ</code> et <code>BITS_PER_SAMPLE</code>, proposez une expression permettant de calculer
+le nombre de périodes de <code>master_clk_o</code> pour une période de <code>serial_clk_o</code>.
+Dans l’exemple ci-dessous, une période de <code>serial_clk_o</code> dure 8 périodes de <code>master_clk_o</code>.</p>
+<p><a href="I2STransmitter-serial-clk-chronogramme.svg"><img src="I2STransmitter-serial-clk-chronogramme.svg" alt="Génération de serial_clk_o"></a></p>
+<p>En respectant les règles de conception de circuits synchrones, complétez l’architecture <code>RTL</code>
+de manière à produire un signal <code>serial_clk_o</code> carré à la fréquence souhaitée.</p>
+<div class="info">
+<p>Appliquez la technique expliquée dans le cours pour
+<a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html#mise-en-cascade-de-diviseurs-de-frequence">mettre en cascade des diviseurs de fréquence</a>.</p>
+</div>
+<p>Dans le fichier <code>I2STransmitterTestbench.vhd</code>, en vous inspirant du processus
+<code>p_check_master_clk</code>, ajoutez un processus de vérification de <code>serial_clk_o</code>.
+Relancez la simulation et validez le fonctionnement du circuit.</p>
+<p>Vérifiez les messages affichés par le banc de test dans l’onglet <em>Tcl Console</em>.
+À cette étape, vous pouvez obtenir les messages suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Message</th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Incorrect period for <code>serial_clk</code></td>
+<td style="text-align:left">La période de <code>serial_clk_o</code> n’est pas celle attendue</td>
+</tr>
+<tr>
+<td style="text-align:left">Incorrect duty cycle for <code>serial_clk</code></td>
+<td style="text-align:left">Le rapport cyclique de <code>serial_clk_o</code> est trop éloigné de 50%</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>serial_clk</code> events are not aligned with falling edges of <code>master_clk</code></td>
+<td style="text-align:left">Les changements de <code>serial_clk_o</code> ne se produisent pas en même temps que les fronts descendants de <code>master_clk_o</code></td>
+</tr>
+</tbody>
+</table>
+<p>Corrigez votre description et relancez le script de simulation jusqu’à ce qu’il
+n’y ait plus d’erreur.</p>
+</section><section><h2 id="horloge-leftrightclko" tabindex="-1">Horloge <code>left_right_clk_o</code></h2>
+<p>La transmission d’une paire d’échantillons nécessite 2×<code>BITS_PER_SAMPLE</code>
+périodes de <code>serial_clk_o</code>.
+Pour tenir à jour l’état d’avancement de la transmission, nous allons réaliser
+un décompteur <code>bit_index_reg</code> indiquant l’indice du bit courant à transmettre.</p>
+<p>Complétez l’architecture <code>RTL</code> de manière à réaliser le décompteur <code>bit_index_reg</code>
+et à produire un signal <code>left_right_clk_o</code> conforme au chronogramme ci-dessous.
+Au démarrage (c’est-à-dire lors de l’activation de l’entrée <code>reset_i</code>),
+on initialisera <code>left_right_clk_o</code> à <code>'0'</code> et <code>bit_index_reg</code> à 0.</p>
+<p><a href="I2STransmitter-left-right-clk-chronogramme.svg"><img src="I2STransmitter-left-right-clk-chronogramme.svg" alt="Génération de left_right_clk_o"></a></p>
+<div class="warning">
+<p>Ce chronogramme représente un exemple de scénario de fonctionnement pour des
+échantillons de 16 bits.
+<code>bit_index_reg</code> est alors un décompteur modulo 32.
+Dans votre architecture, rappelez-vous que le nombre de bits par échantillon
+n’est pas connu a priori&nbsp;: il est défini par le paramètre <code>BITS_PER_SAMPLE</code>.</p>
+<p>Nous n’avons pas représenté <code>clk_i</code>.
+Cependant, toutes les transitions marquées en orange doivent s’effectuer sur des
+fronts montants de <code>clk_i</code>.</p>
+</div>
+<p>Dans le fichier <code>I2STransmitterTestbench.vhd</code>, en vous inspirant du processus
+<code>p_check_master_clk</code>, ajoutez un processus de vérification de <code>left_right_clk_o</code>.
+Relancez la simulation et validez le fonctionnement du circuit.</p>
+<p>Relancez la simulation et validez le fonctionnement du circuit.</p>
+<p>Vérifiez les messages affichés par le banc de test dans l’onglet <em>Tcl Console</em>.
+À cette étape, vous pouvez obtenir les messages suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Message</th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Incorrect period for <code>left_right_clk</code></td>
+<td style="text-align:left">La période de <code>left_right_clk_o</code> n’est pas celle attendue</td>
+</tr>
+<tr>
+<td style="text-align:left">Incorrect duty cycle for <code>left_right_clk</code></td>
+<td style="text-align:left">Le rapport cyclique de <code>left_right_clk_o</code> est trop éloigné de 50%</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>left_right_clk</code> events are not aligned with falling edges of <code>serial_clk</code></td>
+<td style="text-align:left">Les changements de <code>left_right_clk_o</code> ne se produisent pas en même temps que les fronts descendants de <code>serial_clk_o</code></td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="sortie-serialdatao" tabindex="-1">Sortie <code>serial_data_o</code></h2>
+<p>Complétez l’architecture <code>RTL</code> de manière à mémoriser les valeurs de <code>left_data_i</code>
+et <code>right_data_i</code> dans un registre <code>data_reg</code> de largeur 2×<code>BITS_PER_SAMPLE</code> bits.
+La mémorisation s’effectuera à la fin de la transmission du bit d’indice 0,
+si <code>valid_i</code> vaut <code>'1'</code>.</p>
+<p>La sortie <code>serial_data_o</code> reçoit le bit d’indice <code>bit_index_reg</code> du registre <code>data_reg</code>.
+Elle ne doit pas être synchronisée sur <code>clk_i</code>.</p>
+<p><a href="I2STransmitter-data_reg-chronogramme.svg"><img src="I2STransmitter-data_reg-chronogramme.svg" alt="Mémorisation des échantillons"></a></p>
+<p>Dans le fichier <code>I2STransmitterTestbench.vhd</code>, ajoutez un processus chargé de vérifier la valeur de <code>serial_data_o</code>
+à chaque front montant de <code>serial_clk_o</code>.
+Relancez la simulation et validez le fonctionnement du circuit.</p>
+<p>Vérifiez les messages affichés par le banc de test dans l’onglet <em>Tcl Console</em>.
+À cette étape, vous pouvez obtenir le message suivant lorsque la valeur
+de <code>serial_data_o</code> n’est pas correcte&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Message</th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Incorrect value for <code>serial_data</code></td>
+<td style="text-align:left">La valeur de <code>serial_data_o</code> n’est pas celle attendue</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>serial_data</code> events are not aligned with falling edges of <code>serial_clk</code></td>
+<td style="text-align:left">Les changements de <code>serial_data_o</code> ne se produisent pas en même temps que les fronts descendants de <code>serial_clk_o</code></td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="sortie-readyo" tabindex="-1">Sortie <code>ready_o</code></h2>
+<p>Affectez la sortie <code>ready_o</code> de manière à produire une impulsion à chaque fois
+que le transmetteur accepte un nouvel échantillon.
+Chaque impulsion doit coïncider avec la dernière période d’horloge du bit
+d’indice 0.
+Elle ne doit pas être synchronisée sur <code>clk_i</code>.</p>
+<p>Dans le fichier <code>I2STransmitterTestbench.vhd</code>, en vous inspirant du processus
+<code>p_check_master_clk</code>, ajoutez un processus de vérification de <code>ready_o</code>.
+Ici, on regardera la valeur de <code>i2s_ready</code> sur les fronts montants de <code>clk</code>&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> rising_edge(clk) <span class="hljs-keyword">and</span> i2s_ready = <span class="hljs-string">'1'</span>;
+t_rise := now;
+...
+<span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> rising_edge(clk) <span class="hljs-keyword">and</span> i2s_ready = <span class="hljs-string">'0'</span>;
+t_fall := now;
+</code></pre>
+<p>On vérifiera que <code>t_high</code> est égal à la période de <code>clk</code>, et que
+<code>ready_o</code> a la même périodicité que <code>left_right_clk_o</code>.</p>
+<p>Relancez la simulation et validez le fonctionnement du circuit.</p>
+<p>Vérifiez les messages affichés par le banc de test dans l’onglet <em>Tcl Console</em>.
+À cette étape, vous pouvez obtenir les messages suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Message</th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Incorrect pulse duration for <code>ready</code></td>
+<td style="text-align:left"><code>ready_o</code> est à <code>'1'</code> pendant une durée différente d’une période d’horloge</td>
+</tr>
+<tr>
+<td style="text-align:left">Incorrect period for <code>ready</code></td>
+<td style="text-align:left">La période de <code>ready_o</code> n’est pas celle attendue</td>
+</tr>
+</tbody>
+</table>
+</section><section><h1 id="application-de-demonstration" tabindex="-1">Application de démonstration</h1>
+<p>Pour valider le fonctionnement de votre transmetteur I<sup>2</sup>S sur le matériel, nous vous proposons une application
+de démonstration qui joue un extrait audio de quelques secondes.
+Les échantillons audio destinés aux voies gauche et droite seront rangés dans des mémoires en lecture seule.</p>
+<p>L’entité <code>I2SDemo</code> possède les ports suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Port</th>
+<th style="text-align:left">Direction</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>clk_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge global du système, à 100 MHz</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>btn_center_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le bouton de réinitialisation du système</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>led_o</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Une LED indiquant le verrouillage de l’horloge secondaire</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>i2s_master_clk_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge maître à destination du récepteur I<sup>2</sup>S</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>i2s_serial_clk_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge série à destination du récepteur I<sup>2</sup>S</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>i2s_serial_data_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Les données série à destination du récepteur I<sup>2</sup>S</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>i2s_left_right_clk_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge sélectionnant la voie gauche ou droite</td>
+</tr>
+</tbody>
+</table>
+<p>Le circuit est construit autour d’une instance de l’entité <code>I2STransmitter</code> paramétrée de la manière suivante&nbsp;:</p>
+<ul>
+<li>Fréquence d’échantillonnage&nbsp;: 20000 Hz.</li>
+<li>Fréquence de l’horloge <code>master_clk_o</code>&nbsp;: 256 fois la fréquence d’échantillonnage, soit 5,12 MHz.</li>
+<li>Taille des échantillons&nbsp;: 16 bits</li>
+</ul>
+<p>Le rapport 256 n’a pas été choisi au hasard. En effet, le composant I2S CS4344
+supporte un nombre limité de rapports de fréquence entre <em>master clock</em> et
+<em>left-right clock</em>.
+Malheureusement pour nous, en partant de l’horloge <code>clk_i</code> à 100 MHz de la carte
+Basys3, il n’est pas possible de descendre à 5,12 MHz avec un simple circuit
+diviseur de fréquence.
+Nous allons donc utiliser un bloc générateur d’horloge intégré au FPGA
+pour produire un signal d’horloge <em>secondaire</em> <code>audio_clk</code> qui cadencera
+tout le reste du circuit.</p>
+<p>Ce bloc est représenté sous le nom <code>AudioClock</code> sur le schéma ci-dessous.
+Il réalise un <em>boucle à verrouillage de phase</em>, ou <a href="https://en.wikipedia.org/wiki/Phase-locked_loop">PLL pour Phase-Locked Loop</a>,
+capable de synthétiser des horloges par multiplication et division de fréquence.
+Si nous résumons les fréquences d’horloge intervenant dans le système <code>I2SDemo</code>
+nous avons&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Horloge</th>
+<th style="text-align:center">Fréquence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>clk_i</code></td>
+<td style="text-align:center">100 MHz</td>
+</tr>
+<tr>
+<td style="text-align:center">↓</td>
+<td style="text-align:center">×64/125</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>audio_clk</code></td>
+<td style="text-align:center">51,2 MHz</td>
+</tr>
+<tr>
+<td style="text-align:center">↓</td>
+<td style="text-align:center">/10</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>master_clk_o</code></td>
+<td style="text-align:center">5,12 MHz</td>
+</tr>
+<tr>
+<td style="text-align:center">↓</td>
+<td style="text-align:center">/8</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>serial_clk_o</code></td>
+<td style="text-align:center">640 kHz</td>
+</tr>
+<tr>
+<td style="text-align:center">↓</td>
+<td style="text-align:center">/32</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>left_right_clk_o</code></td>
+<td style="text-align:center">20 kHz</td>
+</tr>
+</tbody>
+</table>
+<p><a href="I2SDemo-architecture.svg"><img src="I2SDemo-architecture.svg" alt="Architecture de la démo I2SDemo"></a></p>
+<div class="caption">
+<p><a href="../langage-vhdl/legende.svg" target="_blank"><i class="fas fa-info-circle"></i> Afficher la légende des schémas.</a></p>
+</div>
+<p>Les échantillons audio <code>left_data_i</code> et <code>right_data_i</code> sont lus dans deux mémoires représentées par les
+entités <code>LeftRom</code> et <code>RightRom</code>.
+Ces mémoires sont réalisées à l’aide de blocs de RAM du FPGA configurés de la manière suivante&nbsp;:</p>
+<ul>
+<li>Taille d’une cellule&nbsp;: 8 bits.</li>
+<li>Nombre de cellules&nbsp;: 80000.</li>
+<li>Accès en lecture seule.</li>
+<li>Contenu initial chargé avec des extraits audio de 4 secondes.</li>
+</ul>
+<p>Au cours de son fonctionnement, le circuit parcourt les données enregistrées dans ces deux mémoires.
+Le processus <code>p_rom_address_reg</code> réalise un compteur qui tient à jour l’adresse des
+échantillons à lire en mémoire pour chaque voie.
+Lorsque le transmetteur I<sup>2</sup>S demande un nouvel échantillon (en activant <code>ready_o</code>), l’adresse
+s’incrémente et les mémoires fournissent de nouvelles valeurs.</p>
+<p>Sur le schéma ci-dessus, les rectangles en pointillés représentent des instructions d’affectation concurrentes.
+Elles jouent deux rôles&nbsp;: convertir les types de données (<code>std_logic_vector</code> vers <code>signed</code> et réciproquement)
+et appliquer un facteur d’amplification (×64) aux échantillons audio.</p>
+</section><section><h2 id="configurer-un-generateur-dhorloge" tabindex="-1">Configurer un générateur d’horloge</h2>
+<p>Dans le panneau <em>Flow Navigator</em> de Vivado, ouvrez <em>IP Catalog</em>.
+Dans l’onglet <em>IP Catalog</em>, cherchez le composant dont le nom est <em>Clocking Wizard</em> et
+double-cliquez dessus.
+Renseignez les champs suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Onglet</th>
+<th style="text-align:left">Champ</th>
+<th style="text-align:left">Valeur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Component Name</td>
+<td style="text-align:left"><code>AudioClock</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Clocking Options</td>
+<td style="text-align:left">Input Clock Information, Primary, Input Frequency (MHz)</td>
+<td style="text-align:left">100</td>
+</tr>
+<tr>
+<td style="text-align:left">Output Clocks</td>
+<td style="text-align:left"><code>clk_out1</code>, Output Freq (MHz), Requested</td>
+<td style="text-align:left">51.2</td>
+</tr>
+</tbody>
+</table>
+<p>Pressez <em>OK</em>, puis, dans la boîte de dialogue <em>Generate Output Products</em>, pressez le bouton <em>Generate</em>.
+Vivado va synthétiser un bloc de mémoire. Cette opération peut prendre quelques minutes.</p>
+</section><section><h2 id="configurer-les-blocs-de-memoire" tabindex="-1">Configurer les blocs de mémoire</h2>
+<p>Dans l’onglet <em>IP Catalog</em>, cherchez le composant dont le nom est <em>Block Memory Generator</em> et
+double-cliquez dessus.
+Renseignez les champs suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Onglet</th>
+<th style="text-align:left">Champ</th>
+<th style="text-align:left">Valeur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Component Name</td>
+<td style="text-align:left"><code>LeftRom</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Basic</td>
+<td style="text-align:left">Interface Type</td>
+<td style="text-align:left">Native</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Memory Type</td>
+<td style="text-align:left">Single Port ROM</td>
+</tr>
+<tr>
+<td style="text-align:left">Port A Options</td>
+<td style="text-align:left">Port A Width</td>
+<td style="text-align:left">8</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Port A Depth</td>
+<td style="text-align:left">80000</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Enable Port Type</td>
+<td style="text-align:left">Always Enabled</td>
+</tr>
+<tr>
+<td style="text-align:left">Other Options</td>
+<td style="text-align:left">Load Init File</td>
+<td style="text-align:left">Cocher la case</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Coe File</td>
+<td style="text-align:left"><code>data/weekend.coe</code></td>
+</tr>
+</tbody>
+</table>
+<p>Pressez <em>OK</em>, puis, dans la boîte de dialogue <em>Generate Output Products</em>, pressez le bouton <em>Generate</em>.
+Vivado va synthétiser un bloc de mémoire. Cette opération peut prendre quelques minutes.</p>
+<p>Double-cliquez à nouveau sur <em>Block Memory Generator</em> et créez un deuxième bloc de mémoire
+avec les paramètres suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Onglet</th>
+<th style="text-align:left">Champ</th>
+<th style="text-align:left">Valeur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Component Name</td>
+<td style="text-align:left"><code>RightRom</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Basic</td>
+<td style="text-align:left">Interface Type</td>
+<td style="text-align:left">Native</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Memory Type</td>
+<td style="text-align:left">Single Port ROM</td>
+</tr>
+<tr>
+<td style="text-align:left">Port A Options</td>
+<td style="text-align:left">Port A Width</td>
+<td style="text-align:left">8</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Port A Depth</td>
+<td style="text-align:left">80000</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Enable Port Type</td>
+<td style="text-align:left">Always Enabled</td>
+</tr>
+<tr>
+<td style="text-align:left">Other Options</td>
+<td style="text-align:left">Load Init File</td>
+<td style="text-align:left">Cocher la case</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Coe File</td>
+<td style="text-align:left"><code>data/boccherini.coe</code></td>
+</tr>
+</tbody>
+</table>
+<p>Pressez <em>OK</em>, puis, dans la boîte de dialogue <em>Generate Output Products</em>, pressez le bouton <em>Generate</em>.
+Vivado va synthétiser un bloc de mémoire. Cette opération peut prendre quelques minutes.</p>
+</section><section><h2 id="synthetiser-et-implementer-le-circuit" tabindex="-1">Synthétiser et implémenter le circuit</h2>
+<p>Indiquez que l’entité <code>I2SDemo</code> est l’entité principale du circuit&nbsp;:</p>
+<pre><code class="icon-keyboard language-tcl">set_property top I2SDemo [get_filesets sources_1]
+</code></pre>
+<p>Exécutez cette commande dans la console Tcl pour réduire la gravité de
+certains messages concernant les affectations de broches&nbsp;:</p>
+<pre><code class="icon-keyboard language-tcl">set_msg_config -id {Common <span class="hljs-number">17</span><span class="hljs-number">-55</span>} -new_severity {WARNING}
+</code></pre>
+<p>Générez le fichier binaire à charger dans le FPGA&nbsp;:
+<em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
+<p><img src="../assets/images/langage-vhdl/vivado-generate-bitstream.png" alt="Vivado generate bitstream"></p>
+<p>Vivado va enchaîner toutes les étapes d’analyse des fichiers sources, de synthèse logique, de placement et routage,
+pour terminer par la génération d’un fichier binaire à charger dans le FPGA.</p>
+<p>À la fin des opérations, la boîte de dialogue <em>Bitstream Generation Completed</em> s’affiche.
+Choisissez <em>Open Hardware Manager</em>.</p>
+</section><section><h2 id="configurer-le-fpga" tabindex="-1">Configurer le FPGA</h2>
+<p>Vérifiez que l’interrupteur d’alimentation de votre carte Basys3 est en position <em>OFF</em>.
+Le cavalier situé à côté de l’interrupteur doit être en position <em>USB</em>.</p>
+<p>Branchez le module PmodI2S sur le connecteur <em>JA</em> (en haut sur le côté gauche de la carte)
+et branchez un casque stéréo ou des enceintes sur le connecteur jack.</p>
+<div class="warning">
+<p>Vous ne connaissez pas à l’avance le volume de la sortie audio.
+Ne mettez pas vos écouteurs sur les oreilles avant d’être sûr
+que le son n’est pas trop fort.</p>
+</div>
+<p>Reliez le connecteur micro-USB de la carte à un port USB de votre PC.
+Mettez la carte sous tension.</p>
+<p>En haut du panneau <em>Hardware Manager</em>, pressez <em>Open target</em> et choisissez <em>Auto Connect</em>.</p>
+<p><img src="../assets/images/langage-vhdl/vivado-open-target.png" alt="Vivado open target"></p>
+<p>Pressez ensuite <em>Program Device</em>.</p>
+<p><img src="../assets/images/langage-vhdl/vivado-program-device.png" alt="Vivado program device"></p>
+</section><section><h1 id="implementation-de-reference" tabindex="-1">Implémentation de référence</h1>
+<p>Pour vous éviter de rester bloqués à cette étape, nous fournissons deux fichiers
+de référence&nbsp;:</p>
+<ul>
+<li><code>src/I2S/I2STransmitter-ref.vhd</code> est un fichier source VHDL du transmetteur I2S,
+dont le contenu a été volontairement rendu illisible, et dont les valeurs de paramètres
+génériques ont été figées.
+Nous vous conseillons de ne pas perdre de temps à essayer de le rendre lisible.</li>
+<li><code>ref/I2SDemo-ref.bit</code> est le fichier binaire de l’application de démonstration à
+charger directement dans le FPGA à partir du <em>Hardware Manager</em> de Vivado.
+Effectuez l’action <em>Program Device</em> et choisissez le fichier <code>I2SDemo-ref.bit</code>.</li>
+</ul>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="preparation.html">&larr;&nbsp;Préparation de l'environnement de travail</a>
+    
+    
+        <a href="producteur-consommateur.html">Connecter producteurs et consommateurs : le protocole ready/valid&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="i2s.html" class="current">Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,1091 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Analogique vs numérique</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="index.html">&larr;&nbsp;Représentation des informations</a>
+    
+    
+        <a href="numeration-binaire.html">Numération binaire&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Analogique vs numérique</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#systemes-analogiques">Systèmes analogiques</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#electronique-analogique">Électronique analogique</a></li>
+            
+                
+                <li><a href="#limitations-des-systemes-analogiques">Limitations des systèmes analogiques</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#de-lanalogique-au-numerique">De l’analogique au numérique</a></li>
+            
+                
+                <li><a href="#systemes-numeriques">Systèmes numériques</a></li>
+            
+                
+                <li><a href="#resume">Résumé</a></li>
+            
+            
+        </ul>
+            
+    
+    <section><h1 id="systemes-analogiques" tabindex="-1">Systèmes analogiques</h1>
+<p>Le mot «&nbsp;analogique&nbsp;» vient du grec «&nbsp;analogos&nbsp;» signifiant «&nbsp;qui est en rapport avec, proportionnel&nbsp;».
+Dans un système <a href="https://fr.wikipedia.org/wiki/Analogique">analogique</a>,
+une information est représentée par la variation d’une grandeur physique.
+Par exemple&nbsp;:</p>
+<ul>
+<li>Un thermomètre à mercure ou à alcool représente la température
+par un <strong>niveau de liquide</strong> dans un tube gradué.
+La hauteur du liquide est proportionnelle à la température.</li>
+<li>Dans une voiture, la <strong>position de l’aiguille</strong> du compteur indique la vitesse du véhicule.
+L’aiguille dévie d’un angle proportionnel à la vitesse.</li>
+<li>Sur un disque vinyle, le son est matérialisé par les <strong>ondulations d’un sillon</strong>.
+La forme du sillon reproduit les variations de l’amplitude de l’onde sonore au cours du temps.</li>
+</ul>
+<p><a href="https://commons.wikimedia.org/wiki/File:Vinyl_groove_macro.jpg#/media/File:Vinyl_groove_macro.jpg" title="A macro shot of record grooves, with variation clearly visible - Shane Gavin - sous licence Creative Commons Attribution 2.0"><img src="../assets/images/numerique/Vinyl_groove_macro.jpg" alt="Vue rapprochée du sillon d'un disque vinyle, avec ondulations clairement visibles"></a></p>
+<p>Un <a href="https://fr.wikipedia.org/wiki/Transducteur">transducteur</a> est un dispositif capable
+de convertir une grandeur physique en une autre.
+L’utilisation de transducteurs permet de représenter les informations sous une forme adaptée à leur utilisation.
+Par exemple, un thermomètre rend la température <em>lisible</em> par un être humain.
+Lorsque l’aiguille d’un phonographe parcourt le sillon d’un disque vinyle, elle vibre et produit une onde sonore
+conforme au son original.</p>
+<!-- TODO ajouter une figure : phonographe -->
+</section><section><h2 id="electronique-analogique" tabindex="-1">Électronique analogique</h2>
+<p>Dans un circuit électronique analogique, les informations sont représentées par des grandeurs électriques&nbsp;:
+tension, courant ou impédance.</p>
+<p>L’électronique apparaît comme un moyen universel permettant d’effectuer des traitements sur des informations
+de natures diverses&nbsp;: son, image, etc.
+Par exemple, la photo ci-dessous illustre une chaîne de traitement audio analogique
+composée des éléments suivants&nbsp;:</p>
+<ol>
+<li>Un <a href="https://fr.wikipedia.org/wiki/Guitare_%C3%A9lectrique#Type_de_capteurs">capteur magnétique</a> qui réagit aux vibrations
+des cordes d’une guitare et les transforme en une variation de tension.</li>
+<li>Éventuellement, des dispositifs qui modifient la forme du signal électrique afin de produire des effets sonores
+(<a href="https://fr.wikipedia.org/wiki/Distorsion_%28musique%29">distorsion</a>, <a href="https://fr.wikipedia.org/wiki/Wah-wah">wah-wah</a>, etc).</li>
+<li>Un <a href="https://fr.wikipedia.org/wiki/Amplificateur_%C3%A9lectronique">amplificateur</a> qui augmente l’amplitude du signal.</li>
+<li>Un <a href="https://fr.wikipedia.org/wiki/Haut-parleur">haut-parleur</a> qui réagit aux variations de tension
+en faisant vibrer une membrane. Celle-ci, à son tour, produit une onde sonore.</li>
+</ol>
+<p><a href="https://www.flickr.com/photos/catsper/72303650" title="Gibson SG with Amp - Jackie L Chan - sous licence Creative Commons Attribution 2.0"><img src="Gibson-with-Amp.svg" alt="Guitare électrique, pédale d'effets et amplificateur" class="vfill"></a></p>
+<p>Dans cet exemple, l’utilisation de l’électronique a permis de réaliser des effets
+qui auraient été difficiles, voire impossibles à obtenir par des moyens purement mécaniques.</p>
+</section><section><h2 id="limitations-des-systemes-analogiques" tabindex="-1">Limitations des systèmes analogiques</h2>
+<p>Malgré tous ses avantages, l’électronique analogique souffre de plusieurs défauts&nbsp;:</p>
+<p>Tout d’abord, chaque type de traitement nécessite la réalisation d’un circuit électronique spécialisé.
+Dans les années 1950, des <a href="https://fr.wikipedia.org/wiki/Calculateur_analogique">calculateurs analogiques</a> universels
+ont été développés, mais leur rôle se limitait à résoudre des équations différentielles.</p>
+<p>Ensuite, les informations analogiques peuvent être altérées à cause des imperfections du support sur lequel elles ont été enregistrées
+ou des perturbations du canal de communication à travers lequel elles ont été transmises.
+Il est alors difficile de reconstituer les informations d’origine lorsqu’elles ont été dégradées.</p>
+</section><section><h1 id="de-lanalogique-au-numerique" tabindex="-1">De l’analogique au numérique</h1>
+<p>Dans un système analogique, une information est représentée par une grandeur qui varie
+de façon <strong>continue</strong> dans le temps ou dans l’espace, et qui peut prendre <strong>une infinité de
+valeurs possibles</strong> dans un intervalle donné.</p>
+<p>Imaginons, par exemple, que nous souhaitions faire des relevés de température dans notre
+logement afin de faire des statistiques pour optimiser le système de chauffage.
+Nous disposons pour cela d’un thermomètre, d’un crayon et d’une grande feuille de papier.</p>
+<p>Si nous travaillons de manière analogique, nous allons devoir nous installer devant le thermomètre et dessiner
+précisément la courbe de température sans quitter le thermomètre du regard et sans jamais lever le crayon.
+Nous pouvons aussi utiliser un thermographe (photo ci-dessous) qui fera ce travail automatiquement.
+Ensuite, pour déterminer la température moyenne sur un intervalle de temps, nous devrons trouver un moyen de
+mesurer l’aire sous la courbe, que nous diviserons par la durée.</p>
+<p><a href="https://commons.wikimedia.org/wiki/File%3AThermograph_hg.jpg" title="Thermograph with registration diagrams - Hannes Grobe - sous licence Creative Commons Attribution 3.0"><img src="../assets/images/numerique/Thermograph_hg.jpg" alt="Thermographe"></a></p>
+<p>En réalité, pour ce type d’application, nous pouvons nous contenter de relever la température à intervalles réguliers,
+par exemple tous les quarts d’heure.
+Nous choisissons également avec quelle précision nous effectuons les relevés&nbsp;:
+par exemple, nous pouvons noter la valeur de la température en degrés en omettant les chiffres après la virgule.
+Nous obtenons un tableau de nombres à partir duquel nous pouvons calculer la température moyenne.
+Il suffit d’additionner les valeurs relevées et de diviser la somme par le nombre de points de mesure.</p>
+<!-- TODO ajouter une figure : tableau de températures, courbe -->
+<p>La <a href="https://fr.wikipedia.org/wiki/Num%C3%A9risation">numérisation</a> d’une information analogique
+consiste ainsi à effectuer les deux opérations suivantes&nbsp;:</p>
+<ul>
+<li><a href="https://fr.wikipedia.org/wiki/%C3%89chantillonnage_%28signal%29">Échantillonnage</a>&nbsp;:
+sélectionner les valeurs situées à des points de mesure régulièrement espacés.</li>
+<li><a href="https://fr.wikipedia.org/wiki/Quantification_%28signal%29">Quantification</a>&nbsp;:
+prendre une valeur approchée de chaque échantillon.</li>
+</ul>
+</section><section><h1 id="systemes-numeriques" tabindex="-1">Systèmes numériques</h1>
+<p>Dans un système <a href="https://fr.wikipedia.org/wiki/Num%C3%A9rique">numérique</a>, les informations sont représentées
+par des <strong>suites discrètes de nombres</strong>.
+Ces nombres ont une <strong>précision finie</strong>.</p>
+<p>Ces propriétés facilitent énormément l’exploitation des informations pour effectuer des calculs,
+pour les stocker ou pour les transmettre à travers des réseaux de communication.
+Un système numérique se définit simplement comme un système capable de traiter des suites de nombres.
+La signification de ces nombres dépend de l’application&nbsp;:</p>
+<ul>
+<li>Un texte est représenté comme une séquence de nombres entiers, chacun correspondant à un caractère
+conformément à un <a href="https://fr.wikipedia.org/wiki/Codage_des_caract%C3%A8res">système de codage</a>.</li>
+<li>Un son est représenté comme une séquence de nombres entiers proportionnels
+à l’amplitude de l’onde sonore à des instants successifs.</li>
+<li>Une image est représentée comme un tableau à deux dimensions dont chaque élément est un triplet d’entiers
+indiquant les quantités de <a href="https://fr.wikipedia.org/wiki/Rouge_vert_bleu">rouge, vert et bleu</a> de chaque pixel.</li>
+<li>Une vidéo est représentée comme l’assemblage d’une séquence d’images, d’une bande son et éventuellement du texte des sous-titres.</li>
+</ul>
+<p>Dans un ordinateur, les programmes eux-mêmes sont représentés par des séquences de nombres.
+L’ordinateur (y compris les smartphones, les tablettes tactiles, les robots) apparaît donc comme une machine
+universelle capable d’effectuer des calculs, d’interagir avec son environnement, de mémoriser des informations et de communiquer.
+La même machine peut effectuer différentes tâches en fonction du programme qu’elle exécute.</p>
+<p>Enfin, les informations numériques se prêtent également à des traitements qui faciliteront leur stockage et leur transmission&nbsp;:</p>
+<ul>
+<li>La <a href="https://fr.wikipedia.org/wiki/Compression_de_donn%C3%A9es">compression de données</a> permet de mieux exploiter
+la capacité des supports de stockage et la bande passante des canaux de communication.</li>
+<li>Les <a href="https://fr.wikipedia.org/wiki/Code_correcteur">codes correcteurs</a> permettent de reconstituer les données
+d’origine lorsqu’elles ont été altérées par un canal de communication perturbé.</li>
+</ul>
+<div class="info">
+<h1 id="resume" tabindex="-1">Résumé</h1>
+<p>Dans un système <a href="https://fr.wikipedia.org/wiki/Analogique">analogique</a>,
+une information est représentée par la variation d’une grandeur physique.
+La tension, le courant ou l’impédance sont les grandeurs utilisées dans les
+circuits électroniques analogiques.</p>
+<p>Dans un système <a href="https://fr.wikipedia.org/wiki/Num%C3%A9rique">numérique</a>,
+les informations sont représentées par des suites discrètes de nombres avec
+une précision finie.</p>
+</div>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="index.html">&larr;&nbsp;Représentation des informations</a>
+    
+    
+        <a href="numeration-binaire.html">Numération binaire&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="analogique-vs-numerique.html" class="current">Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

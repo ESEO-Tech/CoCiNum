@@ -1,0 +1,1758 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Expressions</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="declarations.html">&larr;&nbsp;Déclarations</a>
+    
+    
+        <a href="simulation.html">VHDL pour la simulation&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Expressions</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#valeurs-litterales">Valeurs littérales</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#valeur-de-type-bit-ou-stdlogic">Valeur de type bit ou std_logic</a></li>
+            
+                
+                <li><a href="#valeur-de-type-bitvector-ou-stdlogicvector">Valeur de type bit_vector ou std_logic_vector</a></li>
+            
+                
+                <li><a href="#valeur-de-type-boolean">Valeur de type boolean</a></li>
+            
+                
+                <li><a href="#valeur-entiere">Valeur entière</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#tableaux">Tableaux</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#valeur-de-type-tableau">Valeur de type tableau</a></li>
+            
+                
+                <li><a href="#acces-a-un-element-de-tableau">Accès à un élément de tableau</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#types-structures">Types structurés</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#valeur-de-type-structure">Valeur de type structuré</a></li>
+            
+                
+                <li><a href="#acces-a-un-champ-dune-valeur-de-type-structure">Accès à un champ d’une valeur de type structuré</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#operateurs">Opérateurs</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#operateurs-logiques">Opérateurs logiques</a></li>
+            
+                
+                <li><a href="#operateurs-arithmetiques">Opérateurs arithmétiques</a></li>
+            
+                
+                <li><a href="#operateurs-relationnels">Opérateurs relationnels</a></li>
+            
+                
+                <li><a href="#operateur-de-concatenation-de-tableaux">Opérateur de concaténation de tableaux</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#intervalles">Intervalles</a></li>
+            
+                
+                <li><a href="#appel-de-fonction">Appel de fonction</a></li>
+            
+                
+                <li><a href="#typage-des-expressions">Typage des expressions</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#expressions-qualifiees">Expressions qualifiées</a></li>
+            
+                
+                <li><a href="#conversion-de-type">Conversion de type</a></li>
+            
+                
+                <li><a href="#fonctions-de-conversion">Fonctions de conversion</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#attributs">Attributs</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#attributs-sur-les-types-scalaires">Attributs sur les types scalaires</a></li>
+            
+                
+                <li><a href="#attributs-sur-les-tableaux">Attributs sur les tableaux</a></li>
+            
+                
+                <li><a href="#attributs-sur-les-signaux">Attributs sur les signaux</a></li>
+            
+            
+        </ul>
+            
+        </ul>
+            
+    
+    <section><h1 id="valeurs-litterales" tabindex="-1">Valeurs littérales</h1>
+</section><section><h2 id="valeur-de-type-bit-ou-stdlogic" tabindex="-1">Valeur de type <code>bit</code> ou <code>std_logic</code></h2>
+<p>La valeur d’un bit s’écrit entre apostrophes.
+Les valeurs disponibles sont les suivantes&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><code>bit</code></th>
+<th style="text-align:left"><code>std_logic</code></th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>'U'</code></td>
+<td style="text-align:left">L’état d’un signal <em>non initialisé</em></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>'0'</code></td>
+<td style="text-align:left"><code>'0'</code></td>
+<td style="text-align:left">La valeur binaire 0</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>'1'</code></td>
+<td style="text-align:left"><code>'1'</code></td>
+<td style="text-align:left">La valeur binaire 1</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>'X'</code></td>
+<td style="text-align:left">Une valeur indéterminée (conflit entre <code>'0'</code> et <code>'1'</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>'Z'</code></td>
+<td style="text-align:left">L’état <em>haute impédance</em> en logique à trois états</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>'L'</code></td>
+<td style="text-align:left">La valeur binaire 0 <em>faible</em> (à travers une résistance de tirage <em>pull-down</em>)</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>'H'</code></td>
+<td style="text-align:left">La valeur binaire 1 <em>faible</em> (à travers une résistance de tirage <em>pull-up</em>)</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>'W'</code></td>
+<td style="text-align:left">Une valeur indéterminée <em>faible</em> (conflit entre <code>'L'</code> et <code>'H'</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>'-'</code></td>
+<td style="text-align:left">Une valeur indifférente</td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="valeur-de-type-bitvector-ou-stdlogicvector" tabindex="-1">Valeur de type <code>bit_vector</code> ou <code>std_logic_vector</code></h2>
+<p>La valeur d’un vecteur de bits s’écrit entre guillemets.
+L’ordre des bits entre les guillemets correspond à l’ordre des indices
+dans le type vecteur utilisé.
+La base par défaut est le binaire&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">signal</span> a : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">7</span>);
+<span class="hljs-keyword">signal</span> b : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+...
+a &lt;= <span class="hljs-string">"11001000"</span>; <span class="hljs-comment">-- a(0) &lt;= '1'; a(1) &lt;= '1'; a(2) &lt;= '0'; ...</span>
+b &lt;= <span class="hljs-string">"11001000"</span>; <span class="hljs-comment">-- b(7) &lt;= '1'; b(6) &lt;= '1'; b(5) &lt;= '0'; ...</span>
+</code></pre>
+<p>Il est également possible d’écrire un vecteur en hexadécimal
+en ajoutant la lettre «&nbsp;<code>x</code>&nbsp;» avant le premier guillemet.
+La taille du vecteur doit être multiple de 4&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">signal</span> b : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+...
+b &lt;= x<span class="hljs-string">"C8"</span>;
+</code></pre>
+</section><section><h2 id="valeur-de-type-boolean" tabindex="-1">Valeur de type <code>boolean</code></h2>
+<p>Le type <code>boolean</code> définit les valeurs <code>true</code> (vrai) et <code>false</code> (faux).</p>
+</section><section><h2 id="valeur-entiere" tabindex="-1">Valeur entière</h2>
+<p>Les valeurs entières s’écrivent par défaut en décimal&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">signal</span> value : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> -<span class="hljs-number">40000000</span> <span class="hljs-keyword">to</span> <span class="hljs-number">39999999</span>;
+...
+value &lt;= <span class="hljs-number">10427123</span>;
+</code></pre>
+<p>Pour améliorer la lisibilité des grands nombres, il est possible d’insérer des
+caractères «&nbsp;_&nbsp;» entre les chiffres sans que cela modifie la valeur
+totale&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">signal</span> value : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> -<span class="hljs-number">40_000_000</span> <span class="hljs-keyword">to</span> <span class="hljs-number">39_999_999</span>;
+...
+value &lt;= <span class="hljs-number">10_427_123</span>;
+</code></pre>
+<p>Une valeur entière peut être écrite dans une autre base en respectant la
+syntaxe suivante, où <code>base</code> est un littéral entier écrit en décimal&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">base</span>#<span class="hljs-non-terminal">valeur</span>#
+</code></pre>
+<p>Dans l’exemple ci-dessous, la valeur 10 427 123 a été écrite en hexadécimal (9F1AF3)&nbsp;:</p>
+<pre><code class="language-vhdl">value &lt;= <span class="hljs-number">16#9F1AF3#</span>;
+</code></pre>
+</section><section><h1 id="tableaux" tabindex="-1">Tableaux</h1>
+</section><section><h2 id="valeur-de-type-tableau" tabindex="-1">Valeur de type tableau</h2>
+<p>On peut écrire directement une valeur de type tableau comme une liste
+d’expressions entre parenthèses et séparées par des virgules&nbsp;:</p>
+<pre><code class="language-vhdl-syntax">(<span class="hljs-non-terminal">expression</span>, ... <span class="hljs-non-terminal">expression</span>)
+</code></pre>
+<p>La notation par association indique explicitement les indices
+(à gauche de chaque flèche) et les valeurs (à droite de chaque flèche)
+qui leurs sont affectées.
+Le mot-clé <code>others</code> permet d’affecter une valeur à tous les indices qui n’ont
+pas été mentionnés précédemment&nbsp;:</p>
+<pre><code class="language-vhdl-syntax">(<span class="hljs-non-terminal">expression</span> =&gt; <span class="hljs-non-terminal">expression</span>, ... <span class="hljs-keyword">others</span> =&gt; <span class="hljs-non-terminal">expression</span>)
+</code></pre>
+<p>Exemple&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">type</span> color_vec_t <span class="hljs-keyword">is</span> <span class="hljs-keyword">array</span>(<span class="hljs-number">1</span> <span class="hljs-keyword">to</span> <span class="hljs-number">3</span>) <span class="hljs-keyword">of</span> <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">255</span>;
+
+<span class="hljs-keyword">constant</span> PINK      : color_vec_t := (<span class="hljs-number">255</span>, <span class="hljs-number">192</span>, <span class="hljs-number">203</span>);
+<span class="hljs-keyword">constant</span> TURQUOISE : color_vec_t := (<span class="hljs-number">1</span> =&gt; <span class="hljs-number">64</span>, <span class="hljs-number">2</span> =&gt; <span class="hljs-number">224</span>, <span class="hljs-number">3</span> =&gt; <span class="hljs-number">208</span>);
+<span class="hljs-keyword">constant</span> RED       : color_vec_t := (<span class="hljs-number">1</span> =&gt; <span class="hljs-number">255</span>, <span class="hljs-keyword">others</span> =&gt; <span class="hljs-number">0</span>); <span class="hljs-comment">-- (255, 0, 0)</span>
+<span class="hljs-keyword">constant</span> GREEN     : color_vec_t := (<span class="hljs-number">2</span> =&gt; <span class="hljs-number">255</span>, <span class="hljs-keyword">others</span> =&gt; <span class="hljs-number">0</span>); <span class="hljs-comment">-- (0, 255, 0)</span>
+<span class="hljs-keyword">constant</span> BLUE      : color_vec_t := (<span class="hljs-number">3</span> =&gt; <span class="hljs-number">255</span>, <span class="hljs-keyword">others</span> =&gt; <span class="hljs-number">0</span>); <span class="hljs-comment">-- (0, 0, 255)</span>
+<span class="hljs-keyword">constant</span> WHITE     : color_vec_t := (<span class="hljs-keyword">others</span> =&gt; <span class="hljs-number">255</span>);         <span class="hljs-comment">-- (255, 255, 255)</span>
+<span class="hljs-keyword">constant</span> BLACK     : color_vec_t := (<span class="hljs-keyword">others</span> =&gt; <span class="hljs-number">0</span>);           <span class="hljs-comment">-- (0, 0, 0)</span>
+</code></pre>
+</section><section><h2 id="acces-a-un-element-de-tableau" tabindex="-1">Accès à un élément de tableau</h2>
+<p>L’accès à un élément de tableau s’effectue en indiquant la liste des indices
+entre parenthèses et séparés par des virgules.</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">nom du tableau</span>(<span class="hljs-non-terminal">expression</span>, ... <span class="hljs-non-terminal">expression</span>)
+</code></pre>
+<p>L’accès à un sous-tableau (une <em>tranche</em>) est possible en indiquant des <a href="#intervalles">intervalles</a>
+à la place des indices.
+Dans l’exemple ci-dessous, nous séparons un vecteur de 32 bits en quatre vecteurs
+de 8 bits&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">signal</span> c :        : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">31</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+<span class="hljs-keyword">signal</span> r, v, b, a : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+...
+r &lt;= c(<span class="hljs-number">31</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">24</span>);
+v &lt;= c(<span class="hljs-number">23</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">16</span>);
+b &lt;= c(<span class="hljs-number">15</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">8</span>);
+a &lt;= c(<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+</code></pre>
+</section><section><h1 id="types-structures" tabindex="-1">Types structurés</h1>
+</section><section><h2 id="valeur-de-type-structure" tabindex="-1">Valeur de type structuré</h2>
+<p>Comme pour les tableaux, on peut écrire une valeur d’un type structuré
+comme une liste d’expressions entre parenthèses et séparées par des virgules&nbsp;:</p>
+<pre><code class="language-vhdl-syntax">(<span class="hljs-non-terminal">expression</span>, ... <span class="hljs-non-terminal">expression</span>)
+</code></pre>
+<p>La notation par association indique explicitement les noms des champs
+(à gauche de chaque flèche) et les valeurs (à droite de chaque flèche)
+qui leur sont affectées.
+Le mot-clé <code>others</code> permet d’affecter une valeur à tous les champs qui n’ont
+pas été mentionnés précédemment, à condition qu’ils soient tous de même type&nbsp;:</p>
+<pre><code class="language-vhdl-syntax">(<span class="hljs-non-terminal">nom</span> =&gt; <span class="hljs-non-terminal">expression</span>, ... <span class="hljs-keyword">others</span> =&gt; <span class="hljs-non-terminal">expression</span>)
+</code></pre>
+<p>Exemple&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">type</span> color_rec_t <span class="hljs-keyword">is</span> <span class="hljs-keyword">record</span>
+    rouge, vert, bleu : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">255</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">record</span>;
+
+<span class="hljs-keyword">constant</span> PINK      : color_rec_t := (<span class="hljs-number">255</span>, <span class="hljs-number">192</span>, <span class="hljs-number">203</span>);
+<span class="hljs-keyword">constant</span> TURQUOISE : color_rec_t := (rouge  =&gt; <span class="hljs-number">64</span>,  vert   =&gt; <span class="hljs-number">224</span>, bleu =&gt; <span class="hljs-number">208</span>);
+<span class="hljs-keyword">constant</span> RED       : color_rec_t := (rouge  =&gt; <span class="hljs-number">255</span>, <span class="hljs-keyword">others</span> =&gt; <span class="hljs-number">0</span>);
+<span class="hljs-keyword">constant</span> GREEN     : color_rec_t := (vert   =&gt; <span class="hljs-number">255</span>, <span class="hljs-keyword">others</span> =&gt; <span class="hljs-number">0</span>);
+<span class="hljs-keyword">constant</span> BLUE      : color_rec_t := (bleu   =&gt; <span class="hljs-number">255</span>, <span class="hljs-keyword">others</span> =&gt; <span class="hljs-number">0</span>);
+<span class="hljs-keyword">constant</span> WHITE     : color_rec_t := (<span class="hljs-keyword">others</span> =&gt; <span class="hljs-number">255</span>);
+<span class="hljs-keyword">constant</span> BLACK     : color_rec_t := (<span class="hljs-keyword">others</span> =&gt; <span class="hljs-number">0</span>);
+</code></pre>
+</section><section><h2 id="acces-a-un-champ-dune-valeur-de-type-structure" tabindex="-1">Accès à un champ d’une valeur de type structuré</h2>
+<p>L’accès à un champ s’effectue à l’aide d’un point comme ceci&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">nom de la donnée</span>.<span class="hljs-non-terminal">nom du champ</span>
+</code></pre>
+<p>Exemple&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">signal</span> c         : color_rec_t;
+<span class="hljs-keyword">signal</span> luminance : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">765</span>;
+...
+luminance &lt;= c.red + c.green + c.blue;
+</code></pre>
+</section><section><h1 id="operateurs" tabindex="-1">Opérateurs</h1>
+<p>Les expressions sont évaluées de la gauche vers la droite.
+Les opérateurs de plus forte priorité sont appliqués en premier.
+Il est possible d’ajouter des parenthèses autour des sous-expressions
+lorsque c’est nécessaire pour des questions de priorité, ou pour améliorer la lisibilité.</p>
+<p>Dans le tableau ci-dessous, nous avons classé les opérateurs les plus courants
+par priorité décroissante.
+Les opérateurs situés sur la même ligne on la même priorité.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Catégorie</th>
+<th style="text-align:left">Opérateurs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Autres opérateurs</td>
+<td style="text-align:left"><code>**</code>, <code>not</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Opérateurs multiplicatifs</td>
+<td style="text-align:left"><code>*</code>, <code>/</code>, <code>mod</code>, <code>rem</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Signes</td>
+<td style="text-align:left"><code>+</code>, <code>-</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Opérateurs additifs</td>
+<td style="text-align:left"><code>+</code>, <code>-</code>, <code>&amp;</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Opérateurs relationnels</td>
+<td style="text-align:left"><code>=</code>, <code>/=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Opérateurs logiques</td>
+<td style="text-align:left"><code>and</code>, <code>or</code>, <code>xor</code>, <code>nand</code>, <code>nor</code>, <code>xnor</code></td>
+</tr>
+</tbody>
+</table>
+<div class="info">
+<p>Cette liste n’est pas exhaustive. Nous n’avons représenté que les
+principaux opérateurs pris en charge par les outils de synthèse.</p>
+</div>
+</section><section><h2 id="operateurs-logiques" tabindex="-1">Opérateurs logiques</h2>
+<p>Les opérateurs ci-dessous s’appliquent aux booléens et aux valeurs logiques
+(<code>bit</code>, <code>bit_vector</code>, <code>std_logic</code> et <code>std_logic_vector</code>).</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Opérateur</th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>not</code></td>
+<td style="text-align:left">Négation</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>and</code></td>
+<td style="text-align:left">Et</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>or</code></td>
+<td style="text-align:left">Ou (inclusif)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>xor</code></td>
+<td style="text-align:left">Ou exclusif</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>nand</code></td>
+<td style="text-align:left">Non-et</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>nor</code></td>
+<td style="text-align:left">Non-ou</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>xnor</code></td>
+<td style="text-align:left">Non-ou exclusif</td>
+</tr>
+</tbody>
+</table>
+<p>À l’exception de <code>not</code>, qui a une priorité plus élevée que les autres,
+il n’est pas possible de mélanger des opérateurs logiques dans une même expression.
+Dans l’exemple ci-dessous, les parenthèses sont obligatoires&nbsp;:</p>
+<pre><code class="language-vhdl">y &lt;= (a <span class="hljs-keyword">and</span> b) <span class="hljs-keyword">or</span> (c <span class="hljs-keyword">and</span> d);
+</code></pre>
+</section><section><h2 id="operateurs-arithmetiques" tabindex="-1">Opérateurs arithmétiques</h2>
+<p>Les opérateurs ci-dessous s’appliquent aux entiers et aux types vecteurs
+<code>signed</code> et <code>unsigned</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Opérateur</th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>+</code></td>
+<td style="text-align:left">Signe positif ou addition</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>-</code></td>
+<td style="text-align:left">Signe négatif ou soustraction</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>*</code></td>
+<td style="text-align:left">Multiplication</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>/</code></td>
+<td style="text-align:left">Division</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>mod</code></td>
+<td style="text-align:left">Modulo</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>rem</code></td>
+<td style="text-align:left">Reste</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>**</code></td>
+<td style="text-align:left">Puissance</td>
+</tr>
+</tbody>
+</table>
+<div class="warning">
+<p>Pour synthétiser un circuit, les opérateurs <code>/</code>, <code>mod</code> et <code>rem</code> sont soumis à des restrictions.</p>
+<ul>
+<li>Le diviseur (opérande de droite) doit être une constante.</li>
+<li>Si le dividende (opérande de gauche) n’est pas une constante,
+alors le diviseur doit être une puissance de deux.</li>
+</ul>
+</div>
+</section><section><h2 id="operateurs-relationnels" tabindex="-1">Opérateurs relationnels</h2>
+<p>Les opérateurs suivants produisent un résultat de type <code>boolean</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Opérateur</th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>=</code></td>
+<td style="text-align:left">Est égal à…</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>/=</code></td>
+<td style="text-align:left">Est différent de…</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>&lt;</code></td>
+<td style="text-align:left">Est strictement inférieur à…</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>&lt;=</code></td>
+<td style="text-align:left">Est inférieur ou égal à…</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>&gt;</code></td>
+<td style="text-align:left">Est strictement supérieur à…</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>&gt;=</code></td>
+<td style="text-align:left">Est supérieur ou égal à…</td>
+</tr>
+</tbody>
+</table>
+<div class="warning">
+<p>Ne pas confondre l’opérateur d’affectation de signal <code>&lt;=</code> avec
+l’opérateur de comparaison «&nbsp;Est inférieur ou égal à…&nbsp;».</p>
+</div>
+</section><section><h2 id="operateur-de-concatenation-de-tableaux" tabindex="-1">Opérateur de concaténation de tableaux</h2>
+<p>L’opérateur <code>&amp;</code> sert à concaténer des tableaux.
+Il ne faut pas le confondre avec l’opérateur logique <code>and</code>&nbsp;:</p>
+<pre><code class="language-vhdl">x &lt;= <span class="hljs-string">"1100"</span>;
+y &lt;= <span class="hljs-string">"0101"</span>;
+z &lt;= x &amp; y;   <span class="hljs-comment">-- z vaut "11000101"</span>
+t &lt;= x <span class="hljs-keyword">and</span> y; <span class="hljs-comment">-- t vaut "0100"</span>
+</code></pre>
+</section><section><h1 id="intervalles" tabindex="-1">Intervalles</h1>
+<p>Les intervalles sont utilisés dans différentes situations&nbsp;:</p>
+<ul>
+<li>Pour restreindre les valeurs d’un <a href="types.html#types-entiers">type entier</a>.</li>
+<li>Pour contraindre les indices d’un <a href="declarations.html#type-tableau">type tableau</a>.</li>
+<li>Pour extraire <a href="#acces-a-un-element-de-tableau">une partie d’un tableau</a>.</li>
+<li>Pour indiquer la séquence de valeurs parcourue par un compteur de <a href="instructions-sequentielles.html#instruction-for">boucle <code>for</code></a>
+ou <a href="instructions-concurrentes.html#generation-iterative"><code>for...generate</code></a>.</li>
+</ul>
+<p>Un intervalle peut prendre l’une des formes suivantes selon que les indices
+sont parcourus dans le sens croissant (<code>to</code>) ou décroissant (<code>downto</code>)&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">expression</span> <span class="hljs-keyword">to</span> <span class="hljs-non-terminal">expression</span>
+<span class="hljs-non-terminal">expression</span> <span class="hljs-keyword">downto</span> <span class="hljs-non-terminal">expression</span>
+</code></pre>
+<p>Pour un type tableau ou un objet de type tableau, l’<a href="#attributs">attribut</a> <code>range</code>
+retourne l’intervalle de définition des indices.
+L’attribut <code>reverse_range</code> retourne le même intervalle parcouru dans l’ordre inverse.</p>
+<p>Dans l’exemple ci-dessous, le type <code>signed_byte_t</code> a le même intervalle d’indices
+que le type <code>byte_t</code> (7 downto 0).
+Le signal <code>n</code> est de type entier compris entre 0 et 7;</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">subtype</span> byte_t        <span class="hljs-keyword">is</span> <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+<span class="hljs-keyword">subtype</span> signed_byte_t <span class="hljs-keyword">is</span> <span class="hljs-built_in">signed</span>(byte_t<span class="hljs-symbol">'range</span>);
+
+<span class="hljs-keyword">signal</span> s : signed_byte_t;
+<span class="hljs-keyword">signal</span> n : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> s<span class="hljs-symbol">'reverse_range</span>;
+</code></pre>
+</section><section><h1 id="appel-de-fonction" tabindex="-1">Appel de fonction</h1>
+<p>L’appel de <a href="declarations.html#sous-programmes">fonction</a> s’écrit en indiquant le nom de la fonction, suivi
+de la liste des arguments entre parenthèses et séparés par des virgules.</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">nom de la fonction</span>(<span class="hljs-non-terminal">expression</span>, ... <span class="hljs-non-terminal">expression</span>)
+</code></pre>
+<p>La notation par association fait correspondre chaque nom de paramètre avec sa valeur&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">nom de la fonction</span>(<span class="hljs-non-terminal">nom de paramètre</span> =&gt; <span class="hljs-non-terminal">expression</span>, ... <span class="hljs-non-terminal">nom de paramètre</span> =&gt; <span class="hljs-non-terminal">expression</span>)
+</code></pre>
+</section><section><h1 id="typage-des-expressions" tabindex="-1">Typage des expressions</h1>
+</section><section><h2 id="expressions-qualifiees" tabindex="-1">Expressions qualifiées</h2>
+<p>Une expression qualifiée permet de lever une ambiguïté sur le type du
+résultat d’une expression.
+Elle s’écrit de la manière suivante&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">nom de type</span>'(<span class="hljs-non-terminal">expression</span>)
+<span class="hljs-non-terminal">nom de type</span>'<span class="hljs-non-terminal">valeur de type tableau</span>
+<span class="hljs-non-terminal">nom de type</span>'<span class="hljs-non-terminal">valeur de type structuré</span>
+</code></pre>
+<p>Par exemple, à première vue, il n’est pas possible de savoir si <code>"0011"</code>
+est de type <code>bit_vector</code> ou <code>std_logic_vector</code>.
+De même, l’expression <code>(50, 10, 30)</code> peut aussi bien être de
+type <code>color_vec_t</code> que de type <code>color_rec_t</code>, ou encore de n’importe quel
+autre type tableau d’entiers.
+Lorsque c’est nécessaire, on peut écrire, par exemple&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-built_in">std_logic_vector</span>'(<span class="hljs-string">"0011"</span>)
+color_rec_t'(<span class="hljs-number">50</span>, <span class="hljs-number">10</span>, <span class="hljs-number">30</span>)
+</code></pre>
+<p>Dans l’exemple ci-dessous, le tableau <code>(r, v, b)</code> n’est pas affecté
+à un signal ou une variable.
+Son type ne peut pas être identifié avec certitude.</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">type</span> color_enum_t <span class="hljs-keyword">is</span> (NOIR, ROUGE, VERT, BLEU, JAUNE, MAGENTA, CYAN, BLANC);
+
+<span class="hljs-keyword">signal</span> c       : color_enum_t;
+<span class="hljs-keyword">signal</span> r, v, b : <span class="hljs-built_in">std_logic</span>;
+...
+<span class="hljs-keyword">with</span> (r, v, b) <span class="hljs-keyword">select</span>
+    c &lt;= NOIR    <span class="hljs-keyword">when</span> <span class="hljs-string">"000"</span>,
+         ROUGE   <span class="hljs-keyword">when</span> <span class="hljs-string">"100"</span>,
+         VERT    <span class="hljs-keyword">when</span> <span class="hljs-string">"010"</span>,
+         BLEU    <span class="hljs-keyword">when</span> <span class="hljs-string">"001"</span>,
+         JAUNE   <span class="hljs-keyword">when</span> <span class="hljs-string">"110"</span>,
+         MAGENTA <span class="hljs-keyword">when</span> <span class="hljs-string">"101"</span>,
+         CYAN    <span class="hljs-keyword">when</span> <span class="hljs-string">"011"</span>,
+         BLANC   <span class="hljs-keyword">when</span> <span class="hljs-keyword">others</span>;
+</code></pre>
+<p>On peut alors écrire&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">with</span> <span class="hljs-built_in">std_logic_vector</span>'(r, v, b) <span class="hljs-keyword">select</span>
+    ...
+</code></pre>
+</section><section><h2 id="conversion-de-type" tabindex="-1">Conversion de type</h2>
+<p>Une conversion de type permet de traiter une valeur d’un certain type
+comme si elle était d’un autre type, à condition que ces deux types soient
+<em>compatibles</em>.
+En VHDL, la conversion de type ressemble à un appel de fonction dans lequel,
+à la place d’un nom de fonction, on indique le nom du type de destination&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">nom de type</span>(<span class="hljs-non-terminal">expression</span>)
+</code></pre>
+<p>Par exemple, le paquetage <code>numeric_std</code> définit les types <code>signed</code> et <code>unsigned</code>
+comme des sous-types de <code>std_logic_vector</code>.
+Les opérations arithmétiques définies sur les types <code>signed</code> et <code>unsigned</code>
+ne sont pas applicables directement aux valeurs de type <code>std_logic_vector</code>,
+pour lesquelles on ne sait pas s’il faut appliquer les règles de calcul pour des
+nombres signés ou non signés.
+Dans l’exemple ci-dessous&nbsp;:</p>
+<ol>
+<li>L’opérateur <code>+</code> n’est pas défini pour le type <code>std_logic_vector</code>.</li>
+<li>On force l’utilisation de l’opérateur <code>+</code> pour le type <code>signed</code>,
+mais son résultat est de type <code>signed</code> et ne peut pas être affecté à <code>s</code>
+qui est de type <code>std_logic_vector</code>.</li>
+<li>On convertit le résultat de l’addition vers le type <code>std_logic_vector</code>
+avant de l’affecter à <code>s</code>.</li>
+</ol>
+<pre><code class="language-vhdl"><span class="hljs-keyword">signal</span> a, b, s : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+...
+s &lt;= a + b;                                  <span class="hljs-comment">-- Incorrect (1)</span>
+s &lt;= <span class="hljs-built_in">signed</span>(a) + <span class="hljs-built_in">signed</span>(b);                  <span class="hljs-comment">-- Incorrect (2)</span>
+s &lt;= <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-built_in">signed</span>(a) + <span class="hljs-built_in">signed</span>(b)) <span class="hljs-comment">-- Correct   (3)</span>
+</code></pre>
+</section><section><h2 id="fonctions-de-conversion" tabindex="-1">Fonctions de conversion</h2>
+<p>Une fonction de conversion réalise une transformation d’une valeur d’un certain
+type en une valeur d’un autre type <em>incompatible</em> avec le premier.</p>
+<p>Par exemple, le type <code>signed</code> et le type <code>integer</code> sont incompatibles&nbsp;:
+le premier est un type tableau tandis que le second est défini comme un intervalle
+de valeurs.
+Pour effectuer des conversions entre vecteurs et entiers,
+ou entre vecteurs de même nature, le paquetage <code>numeric_std</code> définit les fonctions
+suivantes&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Fonction</th>
+<th style="text-align:left">Type de <code>x</code></th>
+<th style="text-align:left">Type du résultat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>to_integer(x)</code></td>
+<td style="text-align:left"><code>signed</code> ou <code>unsigned</code></td>
+<td style="text-align:left"><code>integer</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>to_signed(x, n)</code></td>
+<td style="text-align:left"><code>integer</code></td>
+<td style="text-align:left"><code>signed(n - 1 downto 0)</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>to_unsigned(x, n)</code></td>
+<td style="text-align:left"><code>integer</code></td>
+<td style="text-align:left"><code>unsigned(n - 1 downto 0)</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>resize(x, n)</code></td>
+<td style="text-align:left"><code>signed</code> ou <code>unsigned</code></td>
+<td style="text-align:left"><code>signed(n - 1 downto 0)</code> ou<br> <code>unsigned(n - 1 downto 0)</code></td>
+</tr>
+</tbody>
+</table>
+</section><section><h1 id="attributs" tabindex="-1">Attributs</h1>
+<p>Les attributs permettent d’obtenir des informations supplémentaires sur un
+élément.
+La syntaxe générale d’un attribut est&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">objet</span>'<span class="hljs-non-terminal">nom de l'attribut</span>
+<span class="hljs-non-terminal">objet</span>'<span class="hljs-non-terminal">nom de l'attribut</span>(<span class="hljs-non-terminal">expression</span>)
+</code></pre>
+<div class="info">
+<p>Dans cette section, nous nous intéressons uniquement aux attributs qui sont
+acceptés par les outils de synthèse.</p>
+</div>
+</section><section><h2 id="attributs-sur-les-types-scalaires" tabindex="-1">Attributs sur les types scalaires</h2>
+<p>Les types scalaires sont les <a href="types.html#types-entiers">types entiers</a>
+et les <a href="declarations.html#type-enumere">types énumérés</a>.
+Pour un type scalaire <code>T</code>, VHDL définit les attributs suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Attribut</th>
+<th style="text-align:left">Type du résultat</th>
+<th style="text-align:left">Valeur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>T'left</code></td>
+<td style="text-align:left"><code>T</code></td>
+<td style="text-align:left">La valeur la plus à gauche de son intervalle de définition, ou la première valeur pour un type énuméré.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>T'right</code></td>
+<td style="text-align:left"><code>T</code></td>
+<td style="text-align:left">La valeur la plus à droite de son intervalle de définition, ou la dernière valeur pour un type énuméré.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>T'low</code></td>
+<td style="text-align:left"><code>T</code></td>
+<td style="text-align:left">La plus petite valeur de ce type.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>T'high</code></td>
+<td style="text-align:left"><code>T</code></td>
+<td style="text-align:left">La plus grande valeur de ce type.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>T'ascending</code></td>
+<td style="text-align:left"><code>boolean</code></td>
+<td style="text-align:left"><code>true</code> si l’intervalle des valeurs est croissant, <code>false</code> s’il est décroissant.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>T'pos(x)</code></td>
+<td style="text-align:left"><code>integer</code></td>
+<td style="text-align:left">La position de la valeur <code>x</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>T'val(n)</code></td>
+<td style="text-align:left"><code>T</code></td>
+<td style="text-align:left">La valeur située en position <code>n</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>T'succ(x)</code></td>
+<td style="text-align:left"><code>T</code></td>
+<td style="text-align:left">La valeur immédiatement supérieure à <code>x</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>T'pred(x)</code></td>
+<td style="text-align:left"><code>T</code></td>
+<td style="text-align:left">La valeur immédiatement inférieure à <code>x</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>T'leftof(x)</code></td>
+<td style="text-align:left"><code>T</code></td>
+<td style="text-align:left">La valeur située à gauche de <code>x</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>T'rightof(x)</code></td>
+<td style="text-align:left"><code>T</code></td>
+<td style="text-align:left">La valeur située à droite de <code>x</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Comme les types entiers peuvent être définis avec des intervalles croissants
+(<code>to</code>) ou décroissants (<code>downto</code>),
+ces attributs doivent distinguer deux systèmes de classement selon que l’on
+s’intéresse aux valeurs (<code>low</code>, <code>high</code>, <code>pred</code>, <code>succ</code>) ou à l’ordre dans
+lequel le type est défini (<code>left</code>, <code>right</code>, <code>leftof</code>, <code>rightof</code>).</p>
+<p>Les attributs <code>pos</code> et <code>val</code> permettent d’effectuer des conversions
+entre types énumérés et entiers&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">type</span> color_enum_t <span class="hljs-keyword">is</span> (BLACK, RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN, WHITE);
+
+<span class="hljs-keyword">signal</span> c1, c2 : color_enum_t;
+<span class="hljs-keyword">signal</span> n1, n2 : <span class="hljs-built_in">natural</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">7</span>;
+...
+n1 &lt;= color_enum_t<span class="hljs-symbol">'pos</span>(c1):
+c2 &lt;= color_enum_t<span class="hljs-symbol">'val</span>(n2);
+</code></pre>
+</section><section><h2 id="attributs-sur-les-tableaux" tabindex="-1">Attributs sur les tableaux</h2>
+<p>Cest attributs s’appliquent aussi bien aux types tableaux qu’aux valeurs
+de type tableau.
+Pour les tableaux multidimensionnels, la plupart des attributs acceptent
+un paramètre <code>n</code> qui indique le numéro de la dimension (1 pour la dimension la plus à gauche).
+Ce paramètre peut être omis pour les tableaux à une dimension&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">type</span> vec3d_t <span class="hljs-keyword">is</span> <span class="hljs-keyword">array</span>(<span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">2</span>) <span class="hljs-keyword">of</span> <span class="hljs-built_in">integer</span>;
+
+<span class="hljs-comment">-- Les deux écritures suivantes sont équivalentes</span>
+<span class="hljs-keyword">constant</span> M : <span class="hljs-built_in">positive</span> := vec3d_t<span class="hljs-symbol">'length</span>;
+<span class="hljs-keyword">constant</span> N : <span class="hljs-built_in">positive</span> := vec3d_t<span class="hljs-symbol">'length</span>(<span class="hljs-number">1</span>);
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Attribut</th>
+<th style="text-align:left">Type du résultat</th>
+<th style="text-align:left">Valeur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>A'left(n)</code></td>
+<td style="text-align:left"><code>integer</code></td>
+<td style="text-align:left">L’indice le plus à gauche pour la dimension <code>n</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>A'right(n)</code></td>
+<td style="text-align:left"><code>integer</code></td>
+<td style="text-align:left">L’indice le plus à droite pour la dimension <code>n</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>A'low(n)</code></td>
+<td style="text-align:left"><code>integer</code></td>
+<td style="text-align:left">L’indice le plus petit pour la dimension <code>n</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>A'high(n)</code></td>
+<td style="text-align:left"><code>integer</code></td>
+<td style="text-align:left">L’indice le plus grand pour la dimension <code>n</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>A'ascending(n)</code></td>
+<td style="text-align:left"><code>boolean</code></td>
+<td style="text-align:left"><code>true</code> si l’intervalle des indices pour la dimension <code>n</code> est croissant, <code>false</code> sinon.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>A'length(n)</code></td>
+<td style="text-align:left"><code>integer</code></td>
+<td style="text-align:left">La taille du tableau pour la dimension <code>n</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>A'range(n)</code></td>
+<td style="text-align:left"><code>integer</code></td>
+<td style="text-align:left">L’intervalle des indices pour la dimension <code>n</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>A'reverse_range(n)</code></td>
+<td style="text-align:left"><code>integer</code></td>
+<td style="text-align:left">L’intervalle des indices pour la dimension <code>n</code>, parcouru dans le sens inverse.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>A'element</code></td>
+<td style="text-align:left">Type</td>
+<td style="text-align:left">Le type des éléments du tableau (VHDL-2002 ou versions ultérieures).</td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="attributs-sur-les-signaux" tabindex="-1">Attributs sur les signaux</h2>
+<p>La plupart des attributs disponibles pour les signaux ne sont utilisables
+qu’en simulation.
+Le seul attribut reconnu par les outils de synthèse est&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Attribut</th>
+<th style="text-align:left">Type du résultat</th>
+<th style="text-align:left">Valeur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>s'event</code></td>
+<td style="text-align:left"><code>boolean</code></td>
+<td style="text-align:left"><code>true</code> si <code>s</code> vient de changer de valeur, <code>false</code> sinon.</td>
+</tr>
+</tbody>
+</table>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="declarations.html">&larr;&nbsp;Déclarations</a>
+    
+    
+        <a href="simulation.html">VHDL pour la simulation&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="expressions.html" class="current">Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

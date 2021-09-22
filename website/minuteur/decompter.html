@@ -1,0 +1,1091 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Décompter les secondes</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+    
+</nav>
+
+    
+                <h1>Décompter les secondes</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#lentite-compteur">L’entité Compteur</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#completer-la-description-du-compteur">Compléter la description du compteur</a></li>
+            
+                
+                <li><a href="#verifier-la-syntaxe">Vérifier la syntaxe</a></li>
+            
+                
+                <li><a href="#simuler-le-fonctionnement-du-compteur">Simuler le fonctionnement du compteur</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#mise-en-place-des-compteurs-dans-le-minuteur">Mise en place des compteurs dans le minuteur</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#completer-la-description-du-minuteur">Compléter la description du minuteur</a></li>
+            
+                
+                <li><a href="#verifier-la-syntaxe-1">Vérifier la syntaxe</a></li>
+            
+                
+                <li><a href="#simuler-le-fonctionnement-du-circuit">Simuler le fonctionnement du circuit</a></li>
+            
+            
+        </ul>
+            
+        </ul>
+            
+    
+    <p>L’étape suivante consiste à mettre en place les compteurs nécessaires au décompte des secondes et minutes.
+Nous aurons besoin de quatre compteurs en cascade, un pour chaque chiffre du temps mesuré&nbsp;:</p>
+<ul>
+<li>Le compteur du chiffre des unités des secondes (modulo 10).</li>
+<li>Le compteur du chiffre des dizaines des secondes (modulo 6).</li>
+<li>Le compteur du chiffre des unités des minutes (modulo 10).</li>
+<li>Le compteur du chiffre des dizaines des minutes (modulo 10).</li>
+</ul>
+<p>Nous allons faire l’hypothèse que l’entrée <code>clk</code> du minuteur est reliée à un oscillateur de fréquence 1 kHz.
+Celui-ci constituera la seule référence pour la mesure du temps.</p>
+<p>Lors du décompte, il faudra commander la mise à jour des compteurs de temps une fois toutes les mille périodes d’horloge.
+Pour ce faire, nous utiliserons un compteur modulo 1000 placé en amont du compteur des unités des secondes.</p>
+<section><h1 id="lentite-compteur" tabindex="-1">L’entité Compteur</h1>
+<p>Nous allons créer une entité <code>Compteur</code> que nous pourrons réutiliser pour chacun des compteurs présentés
+plus haut. Nous avons représenté ses entrées/sorties ci-dessous&nbsp;:</p>
+<p><a href="compteur-entite.svg"><img src="compteur-entite.svg" alt="L'entité Compteur"></a></p>
+<p>Les instances de l’entité <code>Compteur</code> pourront compter soit dans le sens croissant
+(en activant l’entrée <code>inc</code>), soit dans le sens décroissant (en activant l’entrée <code>dec</code>).</p>
+<p>Le paramètre générique <code>VALEUR_MAX</code> permet de régler la valeur maximale que pourra prendre chaque compteur.
+Pour créer un compteur modulo 10, il suffit de fixer <code>VALEUR_MAX</code> à 9.</p>
+<p>La sortie <code>valeur</code> donne la valeur instantanée du compteur.</p>
+<p>La sortie <code>cycle</code> passe à <code>'1'</code> pendant une période d’horloge
+à chaque fois que le compteur s’apprête à commencer un nouveau cycle de comptage, c’est-à-dire&nbsp;:</p>
+<ul>
+<li>lorsque <code>inc</code> vaut <code>'1'</code> et <code>valeur</code> est égale à <code>VALEUR_MAX</code>,</li>
+<li>lorsque <code>dec</code> vaut <code>'1'</code> et <code>valeur</code> est égale à 0.</li>
+</ul>
+<p>La figure ci-dessous représente une architecture possible pour ce compteur&nbsp;:</p>
+<p><a href="compteur-architecture.svg"><img src="compteur-architecture.svg" alt="Architecture du compteur/décompteur"></a></p>
+<p><a href="../langage-vhdl/legende.svg" target="_blank">Afficher la légende des schémas.</a></p>
+</section><section><h2 id="completer-la-description-du-compteur" tabindex="-1">Compléter la description du compteur</h2>
+<p>Ouvrez le fichier <code>Compteur.vhd</code>&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur
+gedit src/Compteur.vhd &amp;
+</code></pre>
+<p>Dans le fichier <code>Compteur.vhd</code>, complétez l’architecture en vous conformant
+au schéma ci-dessus.
+Nous vous recommandons de procéder dans cet ordre&nbsp;:</p>
+<ol>
+<li>Commencez par la gestion des sorties <code>valeur</code> et <code>cycle</code>.
+Utilisez deux <a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-de-signal">instructions d’affectation concurrentes</a>&nbsp;:
+une <a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-simple">affectation simple</a> pour <code>valeur</code>
+et une <a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-conditionnelle">affectation conditionnelle</a> pour <code>cycle</code>.</li>
+<li>Ajoutez ensuite le <a href="../essentiel-vhdl/instructions-concurrentes.html#processus">processus</a> <code>p_valeur_reg</code> qui assure la mise à jour
+du signal <code>valeur_reg</code> (voir à ce sujet la page <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html">Compteurs et diviseurs de fréquence</a>).</li>
+</ol>
+<p>Expliquez l’intérêt d’utiliser un signal intermédiaire <code>valeur_reg</code>
+au lieu de manipuler directement le port <code>valeur</code>.</p>
+</section><section><h2 id="verifier-la-syntaxe" tabindex="-1">Vérifier la syntaxe</h2>
+<p>Dans un terminal, exécutez les commandes suivantes.
+La commande <code>cd</code> peut être omise si vous êtes déjà dans le dossier <code>Minuteur</code>.</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur/
+ghdl -a src/Compteur.vhd
+</code></pre>
+<p>Si nécessaire, modifiez le fichier <code>Compteur.vhd</code> jusqu’à ce qu’il n’y ait
+plus de message d’erreur.</p>
+</section><section><h2 id="simuler-le-fonctionnement-du-compteur" tabindex="-1">Simuler le fonctionnement du compteur</h2>
+<p>Démarrez la simulation en utilisant les commandes suivantes&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur/tests/Compteur
+make
+</code></pre>
+<div class="info">
+<p>Cette commande n’ouvre pas de nouvelle fenêtre.
+Elle exécute un scénario de test et enregistre les séquences de valeurs des signaux.</p>
+</div>
+<p>Une fois la simulation terminée, affichez les chronogrammes&nbsp;:</p>
+<pre><code class="icon-term language-bash">gtkwave -S Compteur.tcl sim_build/Compteur.ghw
+</code></pre>
+<p>Observez l’évolution des valeurs des signaux.
+S’ils sont conformes au comportement attendu, vous pouvez passer à la suite.
+Dans le cas contraire, corrigez la description du compteur et relancez
+la simulation jusqu’à ce que vous obteniez des chronogrammes corrects.</p>
+</section><section><h1 id="mise-en-place-des-compteurs-dans-le-minuteur" tabindex="-1">Mise en place des compteurs dans le minuteur</h1>
+<p>Sur la figure ci-dessous, nous avons représenté la mise en cascade de cinq compteurs.
+Pour le moment, la sortie <code>cycle</code> de chaque compteur est reliée à l’entrée <code>dec</code> du suivant.
+À l’exception du compteur modulo 1000 (tout en bas de la figure), leurs entrées <code>inc</code> sont toutes à <code>'0'</code>.
+Pour le moment, ce circuit réalise un décompte sur une durée non réglable de cent minutes.</p>
+<p>Les sorties des compteurs des minutes et secondes sont reliées aux entrées des décodeurs sept segments
+par l’intermédiaire des signaux <code>minutes_dizaine</code>, <code>minutes_unite</code>, <code>secondes_dizaine</code>
+et <code>secondes_unite</code>.</p>
+<p><a href="minuteur-etape2.svg"><img src="minuteur-etape2.svg" alt="Instanciation des compteurs"></a></p>
+<p><a href="../langage-vhdl/legende.svg" target="_blank">Afficher la légende des schémas.</a></p>
+<div class="warning">
+<p>Sur la figure, vous observez qu’entre la sortie <code>cycle</code> d’un compteur
+et l’entrée <code>dec</code> du suivant, il y a toujours deux signaux reliés ensemble
+(par exemple, <code>cycle_minutes_unite</code> et <code>dec_minutes_dizaine</code>).</p>
+<p>En principe, un seul signal serait suffisant.
+Nous avons procédé de cette manière car dans la suite du développement,
+nous allons insérer entre ces signaux les éléments nécessaires au réglage du temps.</p>
+</div>
+</section><section><h2 id="completer-la-description-du-minuteur" tabindex="-1">Compléter la description du minuteur</h2>
+<p>Dans le fichier <code>Minuteur.vhd</code>, complétez l’architecture de manière à reproduire
+la structure de la figure.</p>
+<p>Vous devrez retirer les affectations des signaux <code>minutes_dizaine</code>,
+<code>minutes_unite</code>, <code>secondes_dizaine</code> et <code>secondes_unite</code>.</p>
+</section><section><h2 id="verifier-la-syntaxe-1" tabindex="-1">Vérifier la syntaxe</h2>
+<p>Dans un terminal, exécutez les commandes suivantes.
+La commande <code>cd</code> peut être omise si vous êtes déjà dans le dossier <code>Minuteur</code>.</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur/
+ghdl -a src/Compteur.vhd src/Decodeur7Segments.vhd src/Minuteur.vhd
+</code></pre>
+<p>Si nécessaire, modifiez le fichier <code>Minuteur.vhd</code> jusqu’à ce qu’il n’y ait
+plus de message d’erreur.</p>
+</section><section><h2 id="simuler-le-fonctionnement-du-circuit" tabindex="-1">Simuler le fonctionnement du circuit</h2>
+<p>Démarrez la simulation en utilisant les commandes suivantes&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur/tests/Minuteur
+make
+</code></pre>
+<p>Pour arrêter la simulation, refermez la fenêtre contenant les afficheurs sept segments.
+Il est alors possible de regarder les chronogrammes plus en détail.</p>
+<pre><code class="icon-term language-bash">gtkwave -S Minuteur.tcl sim_build/Minuteur.ghw
+</code></pre>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

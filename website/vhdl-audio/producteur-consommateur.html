@@ -1,0 +1,1110 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Connecter producteurs et consommateurs : le protocole ready/valid</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="i2s.html">&larr;&nbsp;Sortie audio I<sup>2</sup>S</a>
+    
+    
+        <a href="virgule-fixe.html">Arithmétique en virgule fixe&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Connecter producteurs et consommateurs : le protocole ready/valid</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#producteurs-et-consommateurs">Producteurs et consommateurs</a></li>
+            
+                
+                <li><a href="#le-protocole-readyvalid">Le protocole ready/valid</a></li>
+            
+                
+                <li><a href="#debit-et-architecture-en-pipeline">Débit et architecture en pipeline</a></li>
+            
+            
+        </ul>
+            
+    
+    <section><h1 id="producteurs-et-consommateurs" tabindex="-1">Producteurs et consommateurs</h1>
+<p>Dans un système typique de traitement du signal, un <em>flux</em> de données traverse
+une chaîne de fonctions qui <em>consomment</em> des échantillons d’entrée et <em>produisent</em>
+des échantillons de sortie de manière synchronisée.
+Par exemple, dans la structure du vocodeur que nous devons développer,
+le contrôleur d’entrée audio et les oscillateurs sont des <em>producteurs</em>,
+le contrôleur de sortie audio est un <em>consommateur</em>, et les autres fonctions
+jouent les deux rôles à la fois.</p>
+<p><a href="Vocoder-principe.svg"><img src="Vocoder-principe.svg" alt="Schéma de principe du système" width="100%"></a></p>
+<p>Lorsque ces fonctions sont réalisées en matériel, il faut prévoir des signaux
+de contrôle pour que chaque composant sache à quel moment il doit travailler.
+Il faut également tenir compte du fait que le temps d’exécution d’un pas de
+calcul peut être différent selon les composants.
+On peut envisager deux stratégies de synchronisation :</p>
+<ul>
+<li>Mettre en place un composant <em>chef d’orchestre</em> qui organisera l’activité de tous les producteurs et consommateurs de façon <em>globale</em>.</li>
+<li>Établir un protocole qui permettra aux producteurs et aux consommateurs de se synchroniser entre eux de façon <em>locale</em>.</li>
+</ul>
+<p>Dans ce projet, nous allons choisir la seconde stratégie.</p>
+<div class="info">
+<p>Dans ce document, nous choisissons d’utiliser les termes «&nbsp;producteur&nbsp;»
+et «&nbsp;consommateur&nbsp;», mais selon les auteurs, les mêmes concepts pourront
+être désignés sous d’autres noms, en français comme en anglais&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Producteur (<em>producer</em>)</th>
+<th style="text-align:left">Consommateur (<em>consumer</em>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Émetteur (<em>transmitter</em>, <em>sender</em>)</td>
+<td style="text-align:left">Récepteur (<em>receiver</em>)</td>
+</tr>
+<tr>
+<td style="text-align:left">Source (<em>source</em>)</td>
+<td style="text-align:left">Destination (<em>destination</em>, <em>sink</em>)</td>
+</tr>
+<tr>
+<td style="text-align:left">Maître (<em>master</em>)</td>
+<td style="text-align:left">Esclave (<em>slave</em>)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section><section><h1 id="le-protocole-readyvalid" tabindex="-1">Le protocole <em>ready/valid</em></h1>
+<p>Il s’agit d’une technique de synchronisation très répandue qui repose sur le
+principe de la <em>poignée de mains</em> (<em>handshake</em>).
+Pour qu’un échange de données entre un producteur et un consommateur s’accomplisse,
+il faut que le producteur ait une donnée disponible et que le consommateur soit
+prêt à la recevoir.
+Ces deux conditions sont représentées par les signaux <code>valid</code> et <code>ready</code>.</p>
+<p><a href="ready-valid.svg"><img src="ready-valid.svg" alt="Schéma de principe du système" width="600px"></a></p>
+<div class="info">
+<p>Le protocole proposé ici s’inspire de l’interface <a href="https://en.wikipedia.org/wiki/Advanced_eXtensible_Interface">AXI (Advanced eXtensible Interface)</a>
+spécifiée par ARM et très utilisée dans le développement de SoC.</p>
+</div>
+<p>À chaque instant, la liaison entre producteur et consommateur peut se trouver
+dans l’un des états suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><code>valid</code></th>
+<th style="text-align:center"><code>ready</code></th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:left">Le producteur et le consommateur sont occupés ou inactifs.</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:left">Le producteur présente une nouvelle donnée. Il attend que le consommateur l’accepte.</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:left">Le consommateur est prêt à recevoir une nouvelle donnée. Il attend que le producteur la fournisse.</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:left"><em>Handshake</em>, le producteur présente une nouvelle donnée et le consommateur l’accepte.</td>
+</tr>
+</tbody>
+</table>
+<p>Le chronogramme ci-dessous illustre plusieurs exemples d’échanges de données
+respectant ce protocole.</p>
+<p><a href="ready-valid-chronogramme.svg"><img src="ready-valid-chronogramme.svg" alt="Exemples de transactions ready/valid" width="100%"></a></p>
+<p>Le producteur et le consommateur échantillonnent les signaux <code>ready</code> et <code>valid</code>
+sur les fronts d’un même signal d’horloge.
+Si le producteur laisse <code>valid</code> à 1 après le <em>handshake</em>, cela signifie qu’il
+a encore une nouvelle donnée disponible (exemples 4 et 6).
+Selon les situations, le consommateur peut se déclarer prêt à recevoir une nouvelle
+donnée avant (exemples 2 et 5), après (exemples 1 et 4), ou pendant (exemples 3 et 6)
+le cycle d’horloge où <code>valid</code> devient actif.</p>
+<p>Dans la spécification de l’interface AXI, le producteur est tenu de respecter
+les deux règles suivantes&nbsp;:</p>
+<ul>
+<li>Lorsqu’une nouvelle donnée est disponible, le producteur doit mettre <code>valid</code> à 1 dès que possible sans attendre que le consommateur soit prêt.
+Si cette règle n’était pas respectée, on risquerait d’avoir des producteurs et des consommateurs
+qui s’attendent mutuellement indéfiniment.</li>
+<li>Quand <code>valid</code> vaut 1, le producteur n’a pas le droit de le remettre à 0 avant le <em>handshake</em>.</li>
+</ul>
+</section><section><h1 id="debit-et-architecture-en-pipeline" tabindex="-1">Débit et architecture en pipeline</h1>
+<p>Considérons un circuit composé de quatre composant connectés en cascade
+comme sur le schéma ci-dessous&nbsp;:</p>
+<p><a href="ready-valid-pipeline.svg"><img src="ready-valid-pipeline.svg" alt="Exemples de chaîne de composants" width="100%"></a></p>
+<p>Supposons que le comportement de chaque composant est géré par une machine à états
+comportant les états suivants&nbsp;:</p>
+<ul>
+<li><code>R</code> (pour les consommateurs)&nbsp;: le composant met sa sortie <code>ready</code> à 1 et
+attend une nouvelle donnée.</li>
+<li><code>B</code>&nbsp;: le composant est occupé (<em>busy</em>). Il reste dans cet état pendant quelques
+périodes d’horloge selon la quantité de travail qu’il doit effectuer.
+Ses sorties <code>ready</code> et <code>valid</code> sont à 0.</li>
+<li><code>V</code> (pour les producteurs)&nbsp;: le composant produit une nouvelle donnée.
+Il met sa sortie <code>valid</code> à 1 et attend que le consommateur soit prêt.</li>
+</ul>
+<p>Voici une traduction sous forme de graphes d’états du comportement des trois
+types de composants. Au démarrage, les consommateurs sont tous dans l’état
+<code>R</code>, prêts à recevoir une nouvelle donnée.</p>
+<p><a href="ready-valid-fsm.svg"><img src="ready-valid-fsm.svg" alt="Machines à états producteurs et consommateurs" width="100%"></a></p>
+<p>Observons à présent un exemple de scénario de fonctionnement avec quatre
+composants&nbsp;:</p>
+<p><a href="ready-valid-pipeline-chronogramme.svg"><img src="ready-valid-pipeline-chronogramme.svg" alt="Exemples de scénario en pipeline" width="100%"></a></p>
+<p>Après un temps de démarrage représenté en jaune, le système se met à travailler
+à un rythme régulier.
+Les couleurs mettent en évidence un fonctionnement qui évoque le <em>travail à la chaîne</em>:
+les quatre composants peuvent se trouver simultanément dans leur état <em>Busy</em>,
+chacun occupé à faire un calcul dont il passe le résultat au consommateur suivant.
+Dans le domaine des circuits numérique, on dit que les quatre composants
+forment un <strong>pipeline</strong>.</p>
+<p>Pour augmenter encore le débit dans ce pipeline, les composants qui sont à la
+fois producteurs et consommateurs peuvent gagner un peu de temps en passant
+directement de l’état <code>V</code> à l’état <code>B</code> et en activant leur sortie <code>ready</code> au plus tôt.</p>
+<p><a href="ready-valid-fsm-fast.svg"><img src="ready-valid-fsm-fast.svg" alt="Machines à états producteurs et consommateurs rapide" width="100%"></a></p>
+<p>Dans ce scénario de fonctionnement idéal, les composants 2 et 3 sont dans leur
+état <code>R</code> au démarrage et n’y reviennent plus ensuite&nbsp;:</p>
+<p><a href="ready-valid-pipeline-fast-chronogramme.svg"><img src="ready-valid-pipeline-fast-chronogramme.svg" alt="Exemples de scénario en pipeline" width="100%"></a></p>
+<p>Cette solution peut cependant poser des problèmes car les signaux <code>ready</code> forment
+alors une chaîne combinatoire qui va du dernier consommateur au premier producteur.
+Si cette chaîne devient trop longue, cela peut poser des problèmes de timing.</p>
+<!-- TODO Ajouter un schéma -->
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="i2s.html">&larr;&nbsp;Sortie audio I<sup>2</sup>S</a>
+    
+    
+        <a href="virgule-fixe.html">Arithmétique en virgule fixe&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="producteur-consommateur.html" class="current">Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

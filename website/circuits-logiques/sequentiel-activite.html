@@ -1,0 +1,1415 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Activité : circuits logiques séquentiels</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="sequentiel-conception-synchrone.html">&larr;&nbsp;Conception de circuits synchrones</a>
+    
+    
+        <a href="automates-modelisation.html">Modélisation par graphe d'états&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Activité : circuits logiques séquentiels</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#regles-du-jeu">Règles du jeu</a></li>
+            
+                
+                <li><a href="#environnement-de-travail">Environnement de travail</a></li>
+            
+                
+                <li><a href="#travail-a-effectuer">Travail à effectuer</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#etape-0-circuit-de-base">Étape 0 : circuit de base</a></li>
+            
+                
+                <li><a href="#etape-1-allumer-les-voyants-a-tour-de-role">Étape 1 : allumer les voyants à tour de rôle</a></li>
+            
+                
+                <li><a href="#etape-2-division-de-frequence">Étape 2 : division de fréquence</a></li>
+            
+                
+                <li><a href="#etape-3-detecter-les-succes-et-les-coups-manques">Étape 3 : détecter les succès et les coups manqués</a></li>
+            
+                
+                <li><a href="#etape-4-compter-les-succes-et-les-coups-manques">Étape 4 : compter les succès et les coups manqués</a></li>
+            
+                
+                <li><a href="#etape-5-allumer-les-voyants-dans-un-ordre-pseudo-aleatoire">Étape 5 : allumer les voyants dans un ordre pseudo-aléatoire</a></li>
+            
+                
+                <li><a href="#etape-6-ameliorations">Étape 6 : améliorations</a></li>
+            
+            
+        </ul>
+            
+        </ul>
+            
+    
+    <p>Cette activité consiste à développer un jeu de <a href="https://fr.wikipedia.org/wiki/Jeu_de_la_taupe">tape-taupes</a>
+en utilisant des circuits logiques.</p>
+<section><h1 id="regles-du-jeu" tabindex="-1">Règles du jeu</h1>
+<p>Le jeu comporte huit trous représentés par huit voyants lumineux.
+Lorsqu’une taupe passe la tête par l’un des trous, le voyant
+correspondant s’allume.
+Il ne peut y avoir qu’un voyant allumé à la fois.</p>
+<p>En face de chaque voyant, un bouton-poussoir permet au joueur de frapper
+sur le trou correspondant.
+Le but du jeu est de frapper au moment où une taupe est présente.</p>
+<p>Le comptage des points s’effectue de la manière suivante.
+Lorsque le joueur presse un bouton, deux cas peuvent se présenter&nbsp;:</p>
+<ul>
+<li>Si le voyant correspondant est allumé, la taupe est touchée. On ajoute un point au compteur de succès.</li>
+<li>Si le voyant correspondant est éteint, c’est un coup dans le vide. On ajoute un point au compteur d’erreurs.</li>
+</ul>
+</section><section><h1 id="environnement-de-travail" tabindex="-1">Environnement de travail</h1>
+<p>Nous utiliserons un logiciel de saisie de schéma et de simulation de circuits
+logiques appelé <a href="https://github.com/reds-heig/logisim-evolution">Logisim-evolution</a>.</p>
+<div class="info">
+<p>La traduction française de Logisim-evolution est parfois étrange.
+Par exemple, on trouve l’expression «&nbsp;Flanc montant&nbsp;» au lieu de «&nbsp;Front montant&nbsp;».</p>
+</div>
+<p>Logisim-evolution s’exécute sur la <a href="https://www.oracle.com/java/technologies/javase-downloads.html">plate-forme Java, que vous devez
+installer au préalable</a>.
+Si vous travaillez sous Linux, nous recommandons d’installer l’environnement
+d’exécution Java (JRE) en utilisant le gestionnaire de paquets de votre distribution&nbsp;:
+sous Ubuntu, installez simplement le paquet <code>default-jre</code>.</p>
+<p>Logisim-evolution ne s’installe pas comme une application ordinaire.
+Il se présente comme un fichier <em>jar</em> que vous pouvez enregistrer
+à l’emplacement de votre choix.</p>
+<div class="download">
+<ul>
+<li><a href="https://github.com/reds-heig/logisim-evolution/releases/download/v3.3.3/logisim-evolution-3.3.3-all.jar"><i class="fas fa-download"></i> Télécharger Logisim-evolution 3.3.3</a></li>
+</ul>
+</div>
+<div class="warning">
+<p>Logisim-evolution nécessite Java 9 ou une version ultérieure.</p>
+<p>Si vous avez besoin de conserver une version plus ancienne de Java,
+téléchargez plutôt le logiciel <a href="../assets/logisim-generic-2.7.1.jar">Logisim 2.7</a>.</p>
+</div>
+<p>Dans cette activité, vous allez compléter un circuit de base que nous fournissons.
+Cliquez avec le bouton droit sur un des liens ci-dessous et choisissez
+«&nbsp;Enregistrer le lien sous…&nbsp;», ou «&nbsp;Enregistrer la cible du lien sous…&nbsp;»,
+selon le navigateur web que vous utilisez.</p>
+<div class="download">
+<ul>
+<li><a href="../assets/sources/MoleBuster.circ"><i class="fas fa-download"></i> Télécharger le schéma du circuit de base pour Logisim-evolution</a></li>
+<li><a href="../assets/sources/MoleBuster-logisim2.circ"><i class="fas fa-download"></i> Télécharger le schéma du circuit de base pour Logisim 2.7</a></li>
+</ul>
+</div>
+<p>Sous Windows, vous pouvez exécuter Logisim-evolution en double-cliquant sur
+son icône dans un navigateur de fichiers.
+Vous pouvez également l’exécuter en ligne de commande&nbsp;:
+utilisez la commande <code>cd</code> pour vous déplacer dans le
+dossier contenant Logisim-evolution, puis&nbsp;:</p>
+<pre><code class="icon-term language-bash">java -jar logisim-evolution-3.3.3-all.jar
+</code></pre>
+<p>ou</p>
+<pre><code class="icon-term language-bash">java -jar logisim-generic-2.7.1.jar
+</code></pre>
+</section><section><h1 id="travail-a-effectuer" tabindex="-1">Travail à effectuer</h1>
+<p>Ouvrez le fichier <code>MoleBuster.circ</code> avec Logisim-evolution.</p>
+</section><section><h2 id="etape-0-circuit-de-base" tabindex="-1">Étape 0&nbsp;: circuit de base</h2>
+<p>Le circuit se compose des éléments suivants&nbsp;:</p>
+<ul>
+<li>8 LED numérotées <code>L0</code> à <code>L7</code>.</li>
+<li>8 boutons-poussoirs numérotés <code>B0</code> à <code>B7</code>.</li>
+<li>Un décodeur qui active la LED numéro <code>led_index</code> lorsque <code>enable</code> vaut 1.
+Quand <code>enable</code> vaut 0, toutes les sorties du décodeur sont à 0.</li>
+<li>Un codeur de priorité, qui indique si un bouton est pressé (<code>btn_pressed</code>)
+et le numéro de ce bouton (<code>btn_index</code>).
+Si plusieurs boutons sont pressés en même temps, le codeur ne retient
+que le numéro le plus grand.</li>
+</ul>
+<p>Dans le menu <em>Simulation</em>, vérifiez que l’option <em>Simulation enclenchée</em>
+est activée.
+Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-hand-pointer"></i>&nbsp;».</p>
+<ol>
+<li>Cliquez sur le port <code>enable</code> pour activer le décodeur.</li>
+<li>Cliquez sur le port <code>led_index</code> à plusieurs reprises pour modifier sa valeur.
+Observez l’effet sur l’allumage des LED <code>L0</code> à <code>L7</code>.</li>
+<li>Pressez les boutons <code>B0</code> à <code>B7</code>.
+Observez l’effet sur les sorties <code>btn_pressed</code> et <code>btn_index</code>.</li>
+</ol>
+</section><section><h2 id="etape-1-allumer-les-voyants-a-tour-de-role" tabindex="-1">Étape 1&nbsp;: allumer les voyants à tour de rôle</h2>
+<p>Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-mouse-pointer"></i>&nbsp;» pour revenir en mode édition.</p>
+<p>Supprimez le port <code>led_index</code> et remplacez-le par un compteur modulo 8.
+Le principe de construction d’un tel compteur est expliqué dans la section
+<a href="sequentiel-registres-et-compteurs.html">Registres et compteurs</a>.</p>
+<p>Pour un compteur dont le modulo est une puissance de deux,
+sous Logisim-evolution, les composants suivants suffisent.
+Nous avons indiqué entre parenthèses la correspondance pour Logisim 2.7
+lorsque ce n’est pas une traduction directe&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Catégorie</th>
+<th style="text-align:left">Composant</th>
+<th style="text-align:left">Paramétrage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Mémoire&nbsp;/&nbsp;Séquentiel (<em>Memory</em>)</td>
+<td style="text-align:left">Registre</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = 3</code>, <code>Label = led_index</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Arithmétique</td>
+<td style="text-align:left">Additionneur</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = 3</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Câblage (<em>Wiring</em>)</td>
+<td style="text-align:left">Constante</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = 3</code>, <code>Valeur = 1</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Câblage (<em>Wiring</em>)</td>
+<td style="text-align:left">Horloge</td>
+<td style="text-align:left"><code>Durée haute = Durée basse = 1 Tic</code></td>
+</tr>
+</tbody>
+</table>
+<div class="warning">
+<p>N’utilisez pas le composant <em>Compteur</em> de Logisim&nbsp;!</p>
+</div>
+<div class="info">
+<p>Le registre possède une entrée <code>WE</code> (Write Enable) et une entrée <code>R</code> (Reset).
+À cette étape, laissez ces deux entrées non connectées.
+Le registre mettra sa valeur à jour à chaque front montant de son entrée
+horloge.</p>
+</div>
+<h3 id="simulation" tabindex="-1">Simulation</h3>
+<p>Dans le menu <em>Simulation</em>&nbsp;:</p>
+<ol>
+<li>Réglez la <em>Fréquence des tics</em> à <em>2&nbsp;Hz</em>.
+Notre horloge ayant 2 tics par période, elle aura donc une fréquence de 1&nbsp;Hz.</li>
+<li>Cochez l’option <em>Tics activés</em>.</li>
+</ol>
+<p>Si l’entrée <code>enable</code> du décodeur est à 1, les voyants doivent s’allumer
+pendant une seconde à tour de rôle.</p>
+<p>Dans le menu <em>Simulation</em>, décochez l’option <em>Tics activés</em>
+avant de passer à l’étape suivante.</p>
+</section><section><h2 id="etape-2-division-de-frequence" tabindex="-1">Étape 2&nbsp;: division de fréquence</h2>
+<p>Nous souhaitons laisser un peu de temps entre l’extinction d’une LED et
+l’allumage de la suivante.
+Nous allons travailler avec une horloge plus rapide pour mesurer le temps avec
+une plus grande précision.</p>
+<p>Nous utiliserons une horloge de 8&nbsp;Hz et nous ferons en sorte que chaque LED
+soit allumée pendant 8 périodes d’horloge (soit une seconde), puis éteinte
+pendant 2 périodes d’horloge (un quart de seconde).
+Il faut donc compter 10 périodes d’horloge par LED.</p>
+<p>Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-mouse-pointer"></i>&nbsp;» pour revenir en mode édition.</p>
+<p>Construisez un compteur modulo 10 en utilisant les composants suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Catégorie</th>
+<th style="text-align:left">Composant</th>
+<th style="text-align:left">Paramétrage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Mémoire&nbsp;/&nbsp;Séquentiel (<em>Memory</em>)</td>
+<td style="text-align:left">Registre</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = ?</code>, <code>Label = timer</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Arithmétique</td>
+<td style="text-align:left">Additionneur</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = ?</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Arithmétique</td>
+<td style="text-align:left">Comparateur</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = ?</code>, <code>Type numérique = Non signé</code></td>
+</tr>
+<tr>
+<td style="text-align:left">De/Multiplexeurs, Encodeurs (<em>Plexers</em>)</td>
+<td style="text-align:left">Multiplexeur</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = ?</code>, <code>Select Bits = 1</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Câblage (<em>Wiring</em>)</td>
+<td style="text-align:left">Constante</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = ?</code>, <code>Valeur = ?</code></td>
+</tr>
+</tbody>
+</table>
+<p>Réglez la largeur de données de ces composants pour qu’ils puissent traiter
+des valeurs comprises entre 0 et 9.</p>
+<div class="info">
+<p>Utilisez le composant horloge déjà présent sur le schéma pour synchroniser
+le registre <code>timer</code>.</p>
+</div>
+<p>Votre circuit doit maintenant contenir deux compteurs, un compteur modulo 8 et
+un compteur modulo 10, avec la même horloge.
+Mettez en cascade ces deux compteurs&nbsp;: reliez l’entrée <code>WE</code> du registre <code>led_index</code>
+pour qu’il se mette à jour à chaque fois que <code>timer</code> vaut 9.</p>
+<p>Pour terminez, supprimez le port <code>enable</code> et remplacez-le par un comparateur
+paramétré de la même manière que celui du compteur modulo 10.
+Faites en sorte que le décodeur soit activé quand <code>timer</code> est compris entre 0 et 7.</p>
+<h3 id="simulation-1" tabindex="-1">Simulation</h3>
+<p>Dans le menu <em>Simulation</em>&nbsp;:</p>
+<ol>
+<li>Réglez la <em>Fréquence des tics</em> à <em>16&nbsp;Hz</em>.
+Notre horloge ayant 2 tics par période, elle aura donc une fréquence de 8&nbsp;Hz.</li>
+<li>Cochez l’option <em>Tics activés</em>.</li>
+</ol>
+<p>Observez le comportement de l’allumage des LED.</p>
+<p>Dans le menu <em>Simulation</em>, décochez l’option <em>Tics activés</em>
+avant de passer à l’étape suivante.</p>
+</section><section><h2 id="etape-3-detecter-les-succes-et-les-coups-manques" tabindex="-1">Étape 3&nbsp;: détecter les succès et les coups manqués</h2>
+<p>Une taupe est touchée lorsque les trois conditions suivantes sont vérifiées
+simultanément&nbsp;:</p>
+<ul>
+<li>Une LED est allumée.</li>
+<li>Un bouton est pressé.</li>
+<li>Le numéro de la LED allumée est égal au numéro du bouton pressé.</li>
+</ul>
+<p>Le joueur rate son coup lorsqu’il presse un bouton et que l’une des conditions
+suivantes est vérifiée&nbsp;:</p>
+<ul>
+<li>Aucune LED n’est allumée.</li>
+<li>Le numéro de la LED est différent de celui du bouton.</li>
+</ul>
+<p>Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-mouse-pointer"></i>&nbsp;» pour revenir en mode édition.</p>
+<p>Complétez le circuit en ajoutant deux LED. L’une s’allumera en cas de succès
+(<em>hit</em>), l’autre en cas d’échec (<em>miss</em>).
+Vous pourrez utiliser les composants suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Catégorie</th>
+<th style="text-align:left">Composant</th>
+<th style="text-align:left">Paramétrage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Portes logiques (<em>Gates</em>)</td>
+<td style="text-align:left">Porte NOT</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = 1</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Portes logiques (<em>Gates</em>)</td>
+<td style="text-align:left">Porte AND</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = 1</code>, <code>Nombre d'entrées = 2 ou 3</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Portes logiques (<em>Gates</em>)</td>
+<td style="text-align:left">Porte OR</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = 1</code>, <code>Nombre d'entrées = 2 ou 3</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Portes logiques (<em>Gates</em>)</td>
+<td style="text-align:left">Porte NAND</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = 1</code>, <code>Nombre d'entrées = 2 ou 3</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Portes logiques (<em>Gates</em>)</td>
+<td style="text-align:left">Porte NOR</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = 1</code>, <code>Nombre d'entrées = 2 ou 3</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Arithmétique</td>
+<td style="text-align:left">Comparateur</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = ?</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Entrée/Sortie</td>
+<td style="text-align:left">LED</td>
+<td style="text-align:left"><code>Label = hit</code> ou <code>Label = miss</code></td>
+</tr>
+</tbody>
+</table>
+<p>Essayez d’utiliser le plus petit nombre de portes possible.</p>
+<h3 id="simulation-2" tabindex="-1">Simulation</h3>
+<p>Dans le menu <em>Simulation</em>&nbsp;:</p>
+<ol>
+<li>Réglez la <em>Fréquence des tics</em> à <em>16&nbsp;Hz</em>.</li>
+<li>Cochez l’option <em>Tics activés</em>.</li>
+</ol>
+<p>Pendant que les LED s’allument et s’éteignent à tour de rôle, pressez
+les boutons de manière à provoquer des succès et des échecs.
+Vérifiez que les LED <code>hit</code> et <code>miss</code> s’allument de la manière attendue.</p>
+<div class="info">
+<p>Vous pouvez diminuer la fréquence des tics pour mieux observer
+différentes situations.</p>
+</div>
+<p>Dans le menu <em>Simulation</em>, décochez l’option <em>Tics activés</em>
+avant de passer à l’étape suivante.</p>
+</section><section><h2 id="etape-4-compter-les-succes-et-les-coups-manques" tabindex="-1">Étape 4&nbsp;: compter les succès et les coups manqués</h2>
+<p>Pour compter les scores, vous ajouterez au circuit deux compteurs modulo 16&nbsp;:
+un pour compter les succès, l’autre pour compter les coups manqués.
+Ces compteurs se mettront à jour au passage à 1 des signaux <code>hit</code> et <code>miss</code>.</p>
+<div class="warning">
+<p>Pour respecter les <a href="sequentiel-conception-synchrone.html">règles de conception de circuits synchrones</a>,
+on s’interdira de relier <code>hit</code> et <code>miss</code> directement aux entrées horloges de
+ces compteurs.</p>
+</div>
+<p>La détection synchrone du passage à 1 d’un signal <code>x</code> s’effectue en comparant
+deux versions, <code>x1</code> et <code>x2</code>, de ce signal décalées dans le temps&nbsp;:</p>
+<p><a href="detection-de-front.svg"><img src="detection-de-front.svg" alt="Détection synchrone d'un front montant"></a></p>
+<p>Sur ce chronogramme, lorsque <code>x1</code>=1 et <code>x2</code>=0, cela signifie que <code>x</code>
+vient de passer à 1. Cette situation est matérialisée par le passage à 1
+du signal <code>e</code> pendant une période d’horloge.</p>
+<p>Proposez un schéma permettant de produire le signal <code>e</code> ci-dessus à partir
+d’un signal <code>x</code>.
+Dans Logisim-evolution, reproduisez ce schéma pour <code>x=hit</code> et pour <code>x=miss</code>
+de manière à piloter les entrées <code>WE</code> de deux compteurs modulo 16.</p>
+<p>Utilisez des afficheurs 7 segments pour afficher les valeurs de ces compteurs.</p>
+<p>Vous pourrez utiliser les composants suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Catégorie</th>
+<th style="text-align:left">Composant</th>
+<th style="text-align:left">Paramétrage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Mémoire&nbsp;/&nbsp;Séquentiel (<em>Memory</em>)</td>
+<td style="text-align:left">Registre</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = ?</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Mémoire&nbsp;/&nbsp;Séquentiel (<em>Memory</em>)</td>
+<td style="text-align:left">D Flip-Flop</td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">Arithmétique</td>
+<td style="text-align:left">Additionneur</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = ?</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Câblage (<em>Wiring</em>)</td>
+<td style="text-align:left">Constante</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = ?</code>, <code>Valeur = ?</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Portes logiques (<em>Gates</em>)</td>
+<td style="text-align:left">Porte AND</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = 1</code>, <code>Nombre d'entrées = 2</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Entrée/Sortie</td>
+<td style="text-align:left">Afficheur hexadécimal (<em>Hex Digit Display</em>)</td>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+<div class="info">
+<p>Utilisez le composant horloge déjà présent sur le schéma pour synchroniser
+les bascules et registres que vous venez d’ajouter.</p>
+</div>
+<h3 id="simulation-3" tabindex="-1">Simulation</h3>
+<p>Dans le menu <em>Simulation</em>&nbsp;:</p>
+<ol>
+<li>Réglez la <em>Fréquence des tics</em> à <em>16&nbsp;Hz</em>.</li>
+<li>Cochez l’option <em>Tics activés</em>.</li>
+</ol>
+<p>Pendant que les LED s’allument et s’éteignent à tour de rôle, pressez
+les boutons de manière à provoquer des succès et des échecs.
+Vérifiez que les afficheurs se mettent à jour de la manière attendue.</p>
+<p>Dans le menu <em>Simulation</em>, décochez l’option <em>Tics activés</em>
+avant de passer à l’étape suivante.</p>
+</section><section><h2 id="etape-5-allumer-les-voyants-dans-un-ordre-pseudo-aleatoire" tabindex="-1">Étape 5&nbsp;: allumer les voyants dans un ordre pseudo-aléatoire</h2>
+<p>Pour rendre le jeu moins prévisible, nous allons remplacer le compteur
+<code>led_index</code> par un générateur de nombres pseudo-aléatoires
+sur le principe du <a href="https://fr.wikipedia.org/wiki/Registre_%C3%A0_d%C3%A9calage_%C3%A0_r%C3%A9troaction_lin%C3%A9aire">registre à décalage à rétroaction linéaire</a>
+(ou LFSR pour <em>Linear Feedback Shift Register</em>).</p>
+<p>Supprimez l’additionneur en amont du registre <code>led_index</code>.
+Sans modifier le câblage de l’entrée <code>WE</code> et de la sortie du registre
+<code>led_index</code>, ajoutez le générateur de nombres pseudo-aléatoires représenté sur
+le schéma ci-dessous&nbsp;:</p>
+<p><img src="../assets/images/circuits-logiques/logisim-lfsr.png" alt="LFSR"></p>
+<p>Les composants utilisés sont&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Catégorie</th>
+<th style="text-align:left">Composant</th>
+<th style="text-align:left">Paramétrage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Mémoire&nbsp;/&nbsp;Séquentiel (<em>Memory</em>)</td>
+<td style="text-align:left">D Flip-Flop</td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">Portes logiques (<em>Gates</em>)</td>
+<td style="text-align:left">Porte XNOR</td>
+<td style="text-align:left"><code>Largeur données (Data Bits) = 1</code>, <code>Nombes d'entrées = 2</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Câblage (<em>Wiring</em>)</td>
+<td style="text-align:left">Répartiteur (Splitter)</td>
+<td style="text-align:left"><code>Orientation (Facing) = Nord</code>, <code>Nbr Terminaisons (Fan Out) = 3</code>, <code>Largeur faisceau (Bit Width In) = 3</code>, <code>Apparence = A gauche</code></td>
+</tr>
+</tbody>
+</table>
+<div class="info">
+<p>Utilisez le composant horloge déjà présent sur le schéma pour synchroniser
+les bascules que vous venez d’ajouter.</p>
+</div>
+<h3 id="simulation-4" tabindex="-1">Simulation</h3>
+<p>Dans le menu <em>Simulation</em>&nbsp;:</p>
+<ol>
+<li>Réglez la <em>Fréquence des tics</em> à <em>16&nbsp;Hz</em>.</li>
+<li>Cochez l’option <em>Tics activés</em>.</li>
+</ol>
+<p>Observez l’ordre d’allumage des LED.
+Faites fonctionner le jeu et tentez d’obtenir 16 <em>hits</em> consécutifs.</p>
+</section><section><h2 id="etape-6-ameliorations" tabindex="-1">Étape 6&nbsp;: améliorations</h2>
+<p>Actuellement, le jeu ne compte que les coups réussis et les coups manqués.
+Proposez une solution pour connaître le nombre de fois où un joueur n’a pressé
+aucun bouton pendant qu’une LED était allumée</p>
+<p>Pour terminer, il serait préférable de n’avoir qu’un affichage avec un score
+global tenant compte du nombre de succès, du nombre de coups manqués et du
+nombre de fois où le joueur n’a pas pressé de bouton.</p>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="sequentiel-conception-synchrone.html">&larr;&nbsp;Conception de circuits synchrones</a>
+    
+    
+        <a href="automates-modelisation.html">Modélisation par graphe d'états&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-activite.html" class="current">Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,592 @@
+
+@import "pt-serif.css";
+@import "jetbrains-mono.css";
+@import "iwona.css";
+@import "highlight.css";
+
+/* ------------------------------------------------------------------------- *
+ * Defaults
+ * ------------------------------------------------------------------------- */
+
+html {
+    font-family: "PT Serif", serif;
+    font-size: large;
+}
+
+body {
+    margin: auto;
+    max-width: 50rem;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Headings
+ * ------------------------------------------------------------------------- */
+
+h1, h2, h3, h4 {
+    font-family: Iwona, sans-serif;
+    color: rgb(32, 32, 32);
+}
+
+h1, h2 {
+    /* position: sticky;
+    top: 0px;
+    background: white; */
+    font-weight: normal;
+    padding-bottom: 0.25rem;
+    z-index: 1;
+    margin-right: calc(25rem - 50vw);
+    padding-right: calc(50vw - 25rem);
+    margin-left: -1rem;
+    padding-left: 1rem;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.3rem;
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.4);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+h2 {
+    text-align: left;
+    font-size: 1.6rem;
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25);
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+h3 {
+    text-align: left;
+    font-size: 1.3rem;
+    text-shadow: none;
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+h3::before {
+    content: "\203A\2002";
+    font-weight: normal;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Headers and footers
+ * ------------------------------------------------------------------------- */
+
+header {
+    margin-bottom: 4rem;
+}
+
+header * {
+    text-align: center;
+}
+
+header h1,
+header h2 {
+    position: relative;
+}
+
+header h1 {
+    font-size: 3rem;
+    margin-top: 1rem;
+}
+
+header h2 {
+    margin-top: 0;
+    font-size: 200%;
+}
+
+footer {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+header nav,
+footer nav {
+    display: table;
+    border-spacing: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+header nav a,
+footer nav a {
+    display: table-cell;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Links
+ * ------------------------------------------------------------------------- */
+
+a {
+    color: rgb(205, 50, 0);
+}
+
+a:hover {
+    color: rgb(255, 50, 0);
+}
+
+/* ------------------------------------------------------------------------- *
+ * Lists
+ * ------------------------------------------------------------------------- */
+
+ul {
+    margin-left: 1rem;
+    list-style: none;
+    padding-left: 1.5rem;
+    text-indent: -1.5rem;
+}
+
+ul li::before {
+    content: "\2014\2002"; /* 1em dash + 0.5em space */
+}
+
+div.toc > ul,
+ul.toc {
+    box-shadow: 0px 3px 5px 2px rgba(0, 0, 0, 0.25);
+
+    background: rgb(240, 240, 240);
+    display: table;
+    list-style: none;
+    padding: 0 4rem;
+    text-indent: 0;
+
+    margin: 0 auto 2rem auto;
+}
+
+.toc li {
+    margin: 1rem 0;
+    line-height: 160%;
+    text-align: justify;
+}
+
+.toc li::before {
+    content: none;
+}
+
+.toc a {
+    display: block;
+}
+
+.toc .current {
+    text-decoration: none;
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25);
+    border-right: 4px solid rgb(205, 50, 0);
+    padding-right: 0.5rem;
+    background-color: rgb(230, 230, 230);
+}
+
+div.toc ul ul,
+ul.toc ul {
+    list-style: none;
+    margin-left: 2rem;
+    text-indent: 0;
+    padding-left: 0;
+}
+
+div.download > ul,
+ul.download {
+    margin-left: 2rem;
+}
+
+.download li::before {
+    content: none;
+}
+
+div.tree ul ul,
+ul.tree ul {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+}
+
+.tree li {
+    border-left: 1px solid #888;
+    margin-left: 0;
+    padding-left: 2rem;
+}
+
+.tree li::before {
+    content: none;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Code blocks
+ * ------------------------------------------------------------------------- */
+
+code,
+pre {
+    font-family: "JetBrains Mono", monospace !important;
+    font-size: 90%;
+    font-variant-ligatures: none;
+}
+
+code {
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 0.2rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+}
+
+table code {
+    white-space: nowrap;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+pre {
+    box-shadow: 0px 3px 5px 2px rgba(0, 0, 0, 0.25);
+    margin: 1rem 0.5rem 2rem 0.5rem;
+
+    border: 10px solid #ffffff;
+    background: rgb(245, 245, 245);
+    max-width: calc(100% - 1rem - 30px);
+
+    padding: 5px;
+    overflow: auto;
+
+    line-height: 1.4;
+
+    tab-size: 4;
+    -moz-tab-size: 4;
+}
+
+pre code {
+    background: none;
+    padding: 0;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Images
+ * ------------------------------------------------------------------------- */
+
+@media screen and (max-height: 799px) {
+    img {
+        max-height: 400px;
+    }
+}
+
+@media screen and (min-height: 800px) {
+    img {
+        max-height: 700px;
+    }
+}
+
+@media screen and (min-height: 900px) {
+    img {
+        max-height: 800px;
+    }
+}
+
+img,
+video {
+    box-shadow: 0px 3px 5px 2px rgba(0, 0, 0, 0.25);
+    margin: 1rem 0.5rem 2rem 0.5rem;
+
+    border: 10px solid #ffffff;
+    background: rgb(245, 245, 245);
+    max-width: calc(100% - 1rem - 30px);
+
+    object-fit: contain;
+
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+img.no-border {
+    box-shadow: none;
+    border: none;
+    background: none;
+    margin: 0;
+}
+
+header img {
+    box-shadow: none;
+    border: none;
+    background: none;
+    max-height: 400px;
+}
+
+table img {
+    box-shadow: none;
+    border: none;
+    background: none;
+    margin: 0;
+    max-width: none;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Tables
+ * ------------------------------------------------------------------------- */
+
+table {
+    box-shadow: 0px 3px 5px 2px rgba(0, 0, 0, 0.25);
+    margin: 1rem auto 2rem auto;
+
+    border: 10px solid #ffffff;
+    background: rgb(245, 245, 245);
+
+    border-collapse: collapse;
+}
+
+table.wider {
+    margin-left: 0;
+    margin-right: calc(25rem - 50vw);
+}
+
+td, th {
+    border: 1px solid #888888;
+}
+
+th {
+    padding: 0.1rem 0.6rem;
+    background: #666;
+    font-family: Iwona;
+    font-weight: bold;
+    color: white;
+}
+
+td {
+    padding: 0.3rem 0.6rem;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Information boxes and icons
+ *
+ * info:           information box, important explanations or summary of previous content
+ * warning:        warning box, caveats and pitfalls
+ * icon-question:  ask a question or request an explanation
+ * icon-term:      commands to type in a terminal
+ * icon-config:    configuration actions in a graphical user interface
+ * icon-file:      edit a file
+ * icon-mouse:     action with the mouse
+ * icon-keyboard:  other commands or text to type
+ * icon-hand:      direct manipulation of hardware
+ * icon-check:     check a fact, confirm a hypothesis, validate a task
+ * icon-eye:       observe
+ * icon-microchip: unknown use
+ * ------------------------------------------------------------------------- */
+
+.info,
+.warning {
+    box-shadow: 0px 3px 5px 2px rgba(0, 0, 0, 0.25);
+    margin: 1rem 0.5rem 2rem 0.5rem;
+
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+    -webkit-hyphens: auto;
+     hyphens: auto;
+    text-align: justify;
+
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+.info::before,
+.warning::before,
+[class*="icon-"]::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 2rem;
+    color: rgba(0, 0, 0, 0.4);
+    position: absolute;
+    left: calc(50vw - 29rem);
+}
+
+code[class*="icon-"]::before {
+    margin-top: -0.7rem;
+}
+
+.info {
+    background: rgb(150, 230, 255);
+}
+
+.warning {
+    background: rgb(255, 230, 100);
+}
+
+.info::before           { content: "\f05a"; } /* Font Awesome 5: info-circle */
+.warning::before        { content: "\f071"; } /* Font Awesome 5: exclamation-triangle */
+.icon-question::before  { content: "\f059"; } /* Font Awesome 5: question-circle */
+.icon-term::before      { content: "\f120"; } /* Font Awesome 5: terminal */
+.icon-config::before    { content: "\f013"; } /* Font Awesome 5: cog */
+.icon-file::before      { content: "\f15c"; } /* Font Awesome 5: file-alt */
+.icon-check::before     { content: "\f14a"; } /* Font Awesome 5: check-square */
+.icon-keyboard::before  { content: "\f11c"; } /* Font Awesome 5: keyboard */
+.icon-mouse::before     { content: "\f245"; } /* Font Awesome 5: mouse */
+.icon-eye::before       { content: "\f06e"; } /* Font Awesome 5: eye */
+.icon-hand::before      { content: "\f256"; } /* Font Awesome 5: hand-paper */
+.icon-microchip::before { content: "\f2db"; } /* Font Awesome 5: microchip */
+
+.info h1,
+.warning h1 {
+    text-align: left;
+    font-size: 1.3rem;
+    text-shadow: none;
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    background: none;
+    z-index: auto;
+}
+
+.info h2,
+.warning h2 {
+  font-size: 150%;
+  line-height: 100%;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.caption {
+    text-align: center;
+    margin: -1rem 0 2rem 0;
+}
+
+.caption p {
+    text-align: center;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Sidebar
+ * ------------------------------------------------------------------------- */
+
+.sidebar-show {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.7rem 0.9rem;
+    text-align: center;
+    font-size: 150%;
+    border-radius: 100%;
+    color: white;
+    background-color: rgb(255, 50, 0);
+    box-shadow: 0px 3px 5px 2px rgba(0, 0, 0, 0.25);
+}
+
+.sidebar {
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    width: 30vw;
+    height: 100vh;
+    overflow: hidden;
+    left: -30vw;
+    transition-duration: 500ms;
+    transition-property: left;
+    transition-timing-function: ease;
+}
+
+.sidebar-hide {
+    margin: 0.25rem;
+    color: rgb(255, 50, 0);
+}
+
+.sidebar-top {
+    position: fixed;
+    z-index: 1;
+    width: calc(30vw - 2rem);
+    padding: 0 0.5rem 0.5rem 0.5rem;
+    box-sizing: border-box;
+    background-color: rgb(240, 240, 240);
+}
+
+.sidebar-top form {
+    display: flex;
+    margin-bottom: 1rem;
+}
+
+.sidebar-top input {
+    flex: 2;
+}
+
+.sidebar-top > a {
+    margin-left: 0.5rem;
+}
+
+.sidebar-visible {
+    left: 0;
+}
+
+.sidebar ul.toc {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: calc(100% - 1rem);
+    height: 100vh;
+    overflow: auto;
+    margin: 0;
+    padding: 0 1rem;
+    box-sizing: border-box;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Others
+ * ------------------------------------------------------------------------- */
+
+p,
+ul,
+ol {
+    margin-bottom: 1rem;
+    line-height: 160%;
+    margin-top: 1rem;
+
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+    -webkit-hyphens: auto;
+     hyphens: auto;
+    text-align: justify;
+}
+
+table p {
+    margin: 0;
+    line-height: normal;
+}
+
+.todo {
+    display: none;
+    background: yellow;
+}
+
+iframe {
+    width: 100%;
+}
+
+mark {
+    padding: 0 0.5rem;
+    border-radius: 0.5rem;
+    color: white;
+    background-color: rgb(200, 100, 60);
+    font-family: Iwona;
+    font-weight: bold;
+    font-size: 70%;
+}
+
+.small-font {
+    font-size: 85%;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Sizing
+ * ------------------------------------------------------------------------- */
+
+.hfill {
+    width: 100vw;
+}
+
+.vfill {
+    height: 100vh;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Hidden block
+ * ------------------------------------------------------------------------- */
+
+.comment {
+    display: none;
+}

@@ -1,0 +1,1315 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>VHDL pour la simulation</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="expressions.html">&larr;&nbsp;Expressions</a>
+    
+    
+        <a href="../vhdl-audio/index.html">VHDL avancé : traitement de signaux audio sur FPGA&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>VHDL pour la simulation</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#notion-de-banc-de-test">Notion de banc de test</a></li>
+            
+                
+                <li><a href="#gestion-du-temps-avec-le-type-time-et-la-fonction-now">Gestion du temps avec le type time et la fonction now</a></li>
+            
+                
+                <li><a href="#generation-de-sequences-de-valeurs-dans-les-affectations-concurrentes">Génération de séquences de valeurs dans les affectations concurrentes</a></li>
+            
+                
+                <li><a href="#attente-devenements-avec-linstruction-wait">Attente d’évenements avec l’instruction wait</a></li>
+            
+                
+                <li><a href="#boucles">Boucles</a></li>
+            
+                
+                <li><a href="#affichage-et-gestion-des-erreurs-avec-les-instructions-report-et-assert">Affichage et gestion des erreurs avec les instructions report et assert</a></li>
+            
+                
+                <li><a href="#manipulation-de-chaines-de-caracteres">Manipulation de chaînes de caractères</a></li>
+            
+                
+                <li><a href="#manipulation-de-fichiers">Manipulation de fichiers</a></li>
+            
+            
+        </ul>
+            
+    
+    <p>Un simulateur est un logiciel capable d’exécuter une description VHDL pour
+reproduire sur ordinateur le comportement du circuit en développement.
+Un simulateur permet de visualiser sous forme de chronogrammes les signaux
+internes de la description, qui sont souvent inaccessibles dans le circuit final.
+Cela permet de détecter et de corriger des dysfonctionnements avant de lancer
+la synthèse, voire la fabrication, du circuit.</p>
+<section><h1 id="notion-de-banc-de-test" tabindex="-1">Notion de banc de test</h1>
+<p>Pour tester le fonctionnement d’une entité, une pratique fréquente consiste à
+écrire une autre entité <em>banc de test</em> (ou en anglais <em>test bench</em>) qui modélisera
+l’environnement.
+Généralement, un banc de test n’a pas de ports d’entrée/sortie.</p>
+<p>Dans l’architecture de test, on trouvera typiquement&nbsp;:</p>
+<ul>
+<li>Une instance de l’entité à tester.</li>
+<li>Des instructions qui produisent des signaux à destination de l’entité à tester
+(des <em>stimuli</em>).</li>
+<li>Des instructions qui observent les sorties de l’entité à tester, et qui signalent
+les éventuelles erreurs.</li>
+</ul>
+<p>Comme le banc de test ne représentent pas un circuit que l’on cherche à réaliser,
+son architecture pourra utiliser des types de données et des instructions
+<em>non synthétisables</em>, dont le rôle est de décrire des scénarios de
+fonctionnement et de fournir des indications utiles au développeur.</p>
+<p>Voici un exemple de banc de test pour <a href="../langage-vhdl/structure-architectures.html#compteur-synchrone-generique">l’entité <code>CounterModN</code></a>&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> CounterTestbench <span class="hljs-keyword">is</span>
+    <span class="hljs-comment">-- Pas de port.</span>
+<span class="hljs-keyword">end</span> CounterTestbench;
+
+<span class="hljs-keyword">library</span> ieee;
+<span class="hljs-keyword">use</span> ieee.std_logic_1164.<span class="hljs-keyword">all</span>;
+
+<span class="hljs-keyword">architecture</span> Simulation <span class="hljs-keyword">of</span> CounterTestbench <span class="hljs-keyword">is</span>
+    <span class="hljs-comment">-- Déclaration des signaux de test.</span>
+    <span class="hljs-keyword">signal</span> clk   : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'0'</span>;
+    <span class="hljs-keyword">signal</span> reset : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'1'</span>;
+    <span class="hljs-keyword">signal</span> inc   : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'0'</span>;
+    <span class="hljs-keyword">signal</span> value : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">9</span>;
+    <span class="hljs-keyword">signal</span> cycle : <span class="hljs-built_in">std_logic</span>;
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-comment">-- Une instance de l'entité à tester.</span>
+    counter_inst : <span class="hljs-keyword">entity</span> work.CounterModN(Behavioral)
+        <span class="hljs-keyword">generic</span> <span class="hljs-keyword">map</span>(
+            N =&gt; <span class="hljs-number">10</span>
+        )
+        <span class="hljs-keyword">port</span> <span class="hljs-keyword">map</span>(
+            clk_i   =&gt; clk,
+            reset_i =&gt; reset,
+            inc_i   =&gt; inc,
+            value_o =&gt; value,
+            cycle_o =&gt; cycle
+        );
+
+    <span class="hljs-comment">-- Génération d'une horloge de période 10 ns.</span>
+    clk &lt;= <span class="hljs-keyword">not</span> clk <span class="hljs-keyword">after</span> <span class="hljs-number">5</span> ns;
+
+    <span class="hljs-comment">-- Désactiver le signal reset au bout de 10 ns.</span>
+    reset &lt;= <span class="hljs-string">'0'</span> <span class="hljs-keyword">after</span> <span class="hljs-number">10</span> ns;
+
+    <span class="hljs-comment">-- Commencer à incrémenter le compteur à t=30 ns,</span>
+    <span class="hljs-comment">-- terminer  à t=230 ns.</span>
+    inc &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">after</span> <span class="hljs-number">30</span> ns, <span class="hljs-string">'0'</span> <span class="hljs-keyword">after</span> <span class="hljs-number">230</span> ns;
+
+    <span class="hljs-comment">-- Vérifier les valeurs de value et cycle.</span>
+    <span class="hljs-keyword">process</span>
+        <span class="hljs-keyword">variable</span> value_prev : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">9</span>;
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-comment">-- Vérifier la valeur du compteur après la désactivation du reset.</span>
+        <span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> falling_edge(reset);
+        <span class="hljs-keyword">assert</span> value = <span class="hljs-number">0</span>
+            <span class="hljs-keyword">report</span> <span class="hljs-string">"value devrait être à 0"</span>
+            <span class="hljs-keyword">severity</span> <span class="hljs-literal">ERROR</span>;
+
+        <span class="hljs-keyword">loop</span>
+            <span class="hljs-comment">-- Mémoriser la valeur courante du compteur et attendre</span>
+            <span class="hljs-comment">-- un front montant de l'horloge.</span>
+            value_prev := value;
+            <span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> rising_edge(clk);
+
+            <span class="hljs-comment">-- value doit se mettre à jour de façon synchrone.</span>
+            <span class="hljs-comment">-- Attendre un peu après le front pour que les valeurs</span>
+            <span class="hljs-comment">-- des signaux soient stabilisées.</span>
+            <span class="hljs-keyword">wait</span> <span class="hljs-keyword">for</span> <span class="hljs-number">1</span> ns;
+
+            <span class="hljs-comment">-- Vérifier la nouvelle valeur du compteur.</span>
+            <span class="hljs-keyword">if</span> inc = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                <span class="hljs-keyword">assert</span> value = value_prev
+                    <span class="hljs-keyword">report</span> <span class="hljs-string">"value devrait être stable"</span>
+                    <span class="hljs-keyword">severity</span> <span class="hljs-literal">ERROR</span>;
+            <span class="hljs-keyword">elsif</span> value_prev = <span class="hljs-number">9</span> <span class="hljs-keyword">then</span>
+                <span class="hljs-keyword">assert</span> value = <span class="hljs-number">0</span>
+                    <span class="hljs-keyword">report</span> <span class="hljs-string">"value aurait dû revenir à 0"</span>
+                    <span class="hljs-keyword">severity</span> <span class="hljs-literal">ERROR</span>;
+            <span class="hljs-keyword">else</span>
+                <span class="hljs-keyword">assert</span> value = value_prev + <span class="hljs-number">1</span>
+                    <span class="hljs-keyword">report</span> <span class="hljs-string">"value aurait dû s'incrémenter"</span>
+                    <span class="hljs-keyword">severity</span> <span class="hljs-literal">ERROR</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+
+            <span class="hljs-comment">-- Vérifier la valeur de la sortie cycle.</span>
+            <span class="hljs-keyword">assert</span> (value = <span class="hljs-number">9</span> <span class="hljs-keyword">and</span> cycle = <span class="hljs-string">'1'</span>) <span class="hljs-keyword">or</span> (value /= <span class="hljs-number">9</span> <span class="hljs-keyword">and</span> cycle = <span class="hljs-string">'0'</span>)
+                <span class="hljs-keyword">report</span> <span class="hljs-string">"cycle n'a pas l'état souhaité"</span>
+                <span class="hljs-keyword">severity</span> <span class="hljs-literal">ERROR</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">loop</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span>;
+<span class="hljs-keyword">end</span> Simulation;
+</code></pre>
+</section><section><h1 id="gestion-du-temps-avec-le-type-time-et-la-fonction-now" tabindex="-1">Gestion du temps avec le type <code>time</code> et la fonction <code>now</code></h1>
+<p>VHDL permet la déclaration de types <em>physiques</em>, c’est-à-dire des types de données
+capables de représenter des grandeurs physique sous la forme d’un nombre et d’une
+unité de mesure.
+En pratique, on utilise le plus souvent le type prédéfini <code>time</code> dont voici la
+déclaration&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">type</span> <span class="hljs-built_in">time</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">range</span> -<span class="hljs-number">9223372036854775808</span> fs <span class="hljs-keyword">to</span> <span class="hljs-number">9223372036854775807</span> fs
+    <span class="hljs-keyword">units</span>
+        fs;
+        ps  = <span class="hljs-number">1000</span> fs;
+        ns  = <span class="hljs-number">1000</span> ps;
+        us  = <span class="hljs-number">1000</span> ns;
+        ms  = <span class="hljs-number">1000</span> us;
+        sec = <span class="hljs-number">1000</span> ms;
+        min =   <span class="hljs-number">60</span> sec;
+        hr  =   <span class="hljs-number">60</span> min;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">units</span>;
+</code></pre>
+<p>Ce type permet de représenter des valeurs de temps comprises entre
+-9223 et 9223 secondes environ, avec une précision d’une femtoseconde (10<sup>-15</sup> s).
+Voici quelques exemples de déclarations de constantes utilisant ce type&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">constant</span> CLK_PERIOD  : <span class="hljs-built_in">time</span> := <span class="hljs-number">10</span> ns;
+<span class="hljs-keyword">constant</span> LATENCY     : <span class="hljs-built_in">time</span> := CLK_PERIOD * <span class="hljs-number">16</span>;
+<span class="hljs-keyword">constant</span> RETRY_DELAY : <span class="hljs-built_in">time</span> := <span class="hljs-number">3</span> sec;
+<span class="hljs-keyword">constant</span> TOTAL_DELAY : <span class="hljs-built_in">time</span> := RETRY_DELAY + <span class="hljs-number">200</span> ms;
+</code></pre>
+<p>Comme le montrent les déclarations des constantes <code>LATENCY</code> et <code>TOTAL_DELAY</code>,
+on peut appliquer des opérations arithmétiques courante sur les types physiques
+à condition de respecter certaines règles&nbsp;: on ne peut les multiplier ou les diviser
+que par des nombres sans unité&nbsp;; on ne peut les additionner ou les soustraire
+que si elles sont de même type.</p>
+<p>VHDL définit également la fonction <code>now</code>, qui retourne le temps écoulé depuis le
+début de la simulation.
+On peut l’utiliser dans un processus pour calculer des durées entre des
+événements.</p>
+<div class="info">
+<p>Le type <code>time</code> et la fonction <code>now</code> sont déclarées dans le paquetage <code>standard</code> de VHDL.
+Vous n’avez pas besoin de les déclarer vous-mêmes ni d’importer ce paquetage
+pour les utiliser.</p>
+</div>
+<div class="warning">
+<p>Dans une valeur littérale avec unité, il faut toujours séparer le nombre et
+son unité par un espace&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">constant</span> CLK_PERIOD  : <span class="hljs-built_in">time</span> := <span class="hljs-number">10</span> ns; <span class="hljs-comment">-- Correct</span>
+<span class="hljs-keyword">constant</span> CLK_PERIOD  : <span class="hljs-built_in">time</span> := <span class="hljs-number">10</span>ns;  <span class="hljs-comment">-- Incorrect</span>
+</code></pre>
+</div>
+</section><section><h1 id="generation-de-sequences-de-valeurs-dans-les-affectations-concurrentes" tabindex="-1">Génération de séquences de valeurs dans les affectations concurrentes</h1>
+<p>Voici trois exemples utilisés dans le banc de test du compteur&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">architecture</span> Simulation <span class="hljs-keyword">of</span> CounterTestbench <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">signal</span> clk   : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'0'</span>;
+    <span class="hljs-keyword">signal</span> reset : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'1'</span>;
+    <span class="hljs-keyword">signal</span> inc   : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'0'</span>;
+    ...
+<span class="hljs-keyword">begin</span>
+    ...
+    clk   &lt;= <span class="hljs-keyword">not</span> clk <span class="hljs-keyword">after</span> <span class="hljs-number">5</span> ns;
+    reset &lt;= <span class="hljs-string">'0'</span> <span class="hljs-keyword">after</span> <span class="hljs-number">10</span> ns;
+    inc   &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">after</span> <span class="hljs-number">30</span> ns, <span class="hljs-string">'0'</span> <span class="hljs-keyword">after</span> <span class="hljs-number">230</span> ns;
+    ...
+<span class="hljs-keyword">end</span> Simulation;
+</code></pre>
+<p>À la date t=0, les signaux <code>clk</code>, <code>reset</code> et <code>inc</code> ont la valeur initiale
+indiquée dans leurs déclarations.</p>
+<p>Dans les instructions d’affectation concurrentes, La clause <code>after</code> permet
+d’affecter une valeur à un signal au bout d’un certain temps après l’exécution
+de l’instruction&nbsp;:</p>
+<ul>
+<li>Les affectations de <code>reset</code> et <code>inc</code> sont exécutées à t=0.
+Chaque clause <code>after</code> <em>planifie</em> l’affectation d’une nouvelle valeur au bout
+d’une certaine durée après cette date (donc à t=10 ns, t=30 ns, t=230 ns).</li>
+<li>L’affectation de <code>clk</code> est exécutée à t=0 <strong>et à chaque fois que <code>clk</code> change</strong>.
+À chaque exécution, la clause <code>after</code> <em>planifie</em> une nouvelle mise à jour de
+<code>clk</code> au bout de 5 ns.</li>
+</ul>
+</section><section><h1 id="attente-devenements-avec-linstruction-wait" tabindex="-1">Attente d’évenements avec l’instruction <code>wait</code></h1>
+<p>L’instruction <code>wait</code> peut être utilisée <strong>dans un processus</strong> pour mettre en pause
+l’exécution pendant une certains durée ou jusqu’à la détection d’un événement.
+Elle se présente typiquement sous trois formes&nbsp;:</p>
+<ul>
+<li>Attendre pendant un certain temps. La durée spécifiée doit être de type <code>time</code>&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">wait</span> <span class="hljs-keyword">for</span> <span class="hljs-non-terminal">durée</span>;
+</code></pre>
+<ul>
+<li>Attendre qu’un signal change de valeur parmis une liste de signaux&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">wait</span> <span class="hljs-keyword">on</span> <span class="hljs-non-terminal">nom de signal</span>, <span class="hljs-non-terminal">nom de signal</span>, ...;
+</code></pre>
+<ul>
+<li>Attendre qu’une certaine condition <em>devienne</em> vraie&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> <span class="hljs-non-terminal">condition</span>;
+</code></pre>
+<ul>
+<li>Attendre indéfiniment&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl"><span class="hljs-keyword">wait</span>;
+</code></pre>
+<div class="warning">
+<p>L’instruction <code>wait until</code> attend un <em>événement</em> qui rend la condition vraie.
+Si la condition est déjà vraie au moment d’exécuter cette instruction,
+le processus sera mis en pause jusqu’à ce qu’elle devienne fausse puis vraie
+à nouveau.</p>
+</div>
+</section><section><h1 id="boucles" tabindex="-1">Boucles</h1>
+<p>Nous connaissons déjà la <a href="instructions-sequentielles.html#instruction-for">boucle <code>for</code></a>, qui est
+synthétisable lorsque le compteur de boucle parcourt un intervalle connu.
+Pour décrire des scénarios de tests répétitifs, on peut également utiliser les
+boucles infinies et les boucles <em>tant que</em> avec les syntaxes suivantes&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-comment">-- Exécuter le corps de boucle indéfiniment.</span>
+<span class="hljs-keyword">loop</span>
+    <span class="hljs-non-terminal">instruction séquentielle</span>
+    ...
+    <span class="hljs-non-terminal">instruction séquentielle</span>
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">loop</span>;
+
+<span class="hljs-comment">-- Exécuter le corps de boucle tant que la condition est vraie.</span>
+<span class="hljs-keyword">while</span> <span class="hljs-non-terminal">condition</span> <span class="hljs-keyword">loop</span>
+    <span class="hljs-non-terminal">instruction séquentielle</span>
+    ...
+    <span class="hljs-non-terminal">instruction séquentielle</span>
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">loop</span>;
+</code></pre>
+<p>À l’intérieur des boucles, il est possible d’utiliser les
+<a href="instructions-sequentielles.html#instructions-next-et-exit">instruction <code>next</code> et <code>exit</code></a>.</p>
+<div class="warning">
+<p>Comme la boucle <code>for</code>, les instructions <code>loop</code>, <code>while</code>, <code>next</code> et <code>exit</code>
+ne sont autorisées que dans les processus.</p>
+</div>
+<p>Il est inutile d’écrire un processus qui ne contiendrait qu’une boucle infinie.
+En effet, le corps d’un processus est exécuté à chaque fois qu’il détecte un
+événement auquel il est <em>sensible</em>, ce qui s’apparente déjà à une boucle infinie.
+Les trois écritures suivantes produisent donc le même comportement&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        ...
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span>;
+
+<span class="hljs-keyword">process</span>
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> rising_edge(clk_i);
+    ...
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span>;
+
+<span class="hljs-keyword">process</span>
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">loop</span>
+        <span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> rising_edge(clk_i);
+        ...
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">loop</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span>;
+</code></pre>
+</section><section><h1 id="affichage-et-gestion-des-erreurs-avec-les-instructions-report-et-assert" tabindex="-1">Affichage et gestion des erreurs avec les instructions <code>report</code> et <code>assert</code></h1>
+<p>L’instruction <code>report</code> permet d’afficher un message dans la console du simulateur.
+Elle peut se présenter sous deux formes&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">report</span> <span class="hljs-non-terminal">chaîne de caractères</span>;
+<span class="hljs-keyword">report</span> <span class="hljs-non-terminal">chaîne de caractères</span> <span class="hljs-keyword">severity</span> <span class="hljs-non-terminal">niveau</span>;
+</code></pre>
+<p>Le mot-clé <code>severity</code> permet d’indiquer le niveau de <em>gravité</em> du message.
+Ce champ peut prendre les valeurs symboliques suivantes&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Niveau</th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>NOTE</code></td>
+<td style="text-align:left">Information</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>WARNING</code></td>
+<td style="text-align:left">Avertissement</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ERROR</code></td>
+<td style="text-align:left">Erreur</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>FAILURE</code></td>
+<td style="text-align:left">Échec</td>
+</tr>
+</tbody>
+</table>
+<p>L’interprétation de ces niveaux dépend du logiciel de simulation et de la façon
+dont il est configuré.
+Par exemple, en présence d’un message de type <code>FAILURE</code> on peut souhaiter que la
+simulation s’arrête immédiatement, alors qu’elle peut continuer dans les autres
+cas.</p>
+<p>L’instruction <code>assert</code> vérifie si une condition est vraie.
+Lorsque la condition est fausse, elle affiche un message à la manière de l’instruction <code>report</code>.
+Les quatre formes de l’instruction <code>assert</code> sont&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">assert</span> <span class="hljs-non-terminal">condition</span>;
+<span class="hljs-keyword">assert</span> <span class="hljs-non-terminal">condition</span> <span class="hljs-keyword">severity</span> <span class="hljs-non-terminal">niveau</span>;
+<span class="hljs-keyword">assert</span> <span class="hljs-non-terminal">condition</span> <span class="hljs-keyword">report</span> <span class="hljs-non-terminal">chaîne de caractères</span>;
+<span class="hljs-keyword">assert</span> <span class="hljs-non-terminal">condition</span> <span class="hljs-keyword">report</span> <span class="hljs-non-terminal">chaîne de caractères</span> <span class="hljs-keyword">severity</span> <span class="hljs-non-terminal">niveau</span>;
+</code></pre>
+<div class="info">
+<p>Dans l’instruction <code>report</code>, en l’absence d’une clause <code>severity</code>, c’est le niveau
+<code>NOTE</code> qui est utilisé.</p>
+<p>Dans l’instruction <code>assert</code>, le niveau par défaut est <code>ERROR</code>.
+En l’absence d’une clause <code>report</code>, le message affiché sera <code>"Assertion violation"</code>.</p>
+</div>
+</section><section><h1 id="manipulation-de-chaines-de-caracteres" tabindex="-1">Manipulation de chaînes de caractères</h1>
+<p>En VHDL, les chaînes de caractères sont de type <code>string</code> et s’écrivent
+entre guillemets&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">report</span> <span class="hljs-string">"Exemple de message"</span>;
+</code></pre>
+<p>Pour construire des chaînes de caractères qui contiennent des données de
+simulation, on peut s’appuyer sur deux opérations&nbsp;:</p>
+<ul>
+<li>La concaténation de chaînes de caractères, avec l’opérateur <code>&amp;</code>&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">chaîne de caractères</span> &amp; <span class="hljs-non-terminal">chaîne de caractères</span> &amp; ...
+</code></pre>
+<ul>
+<li>La conversion d’une valeur d’un certain type en une chaîne, avec l’attribut <code>image</code>&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">nom de type</span><span class="hljs-symbol">'image</span>(<span class="hljs-non-terminal">expression</span>)
+</code></pre>
+<p>Par exemple, si <code>value</code> et <code>value_prev</code> sont de type <code>integer</code>, on peut écrire&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">assert</span> value = value_prev
+    <span class="hljs-keyword">report</span> <span class="hljs-string">"value vaut "</span>           &amp; <span class="hljs-built_in">integer</span><span class="hljs-symbol">'image</span>(value)
+         &amp; <span class="hljs-string">" mais devrait valoir "</span> &amp; <span class="hljs-built_in">integer</span><span class="hljs-symbol">'image</span>(value_prev)
+    <span class="hljs-keyword">severity</span> <span class="hljs-literal">ERROR</span>;
+</code></pre>
+</section><section><h1 id="manipulation-de-fichiers" tabindex="-1">Manipulation de fichiers</h1>
+<p>À compléter.</p>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="expressions.html">&larr;&nbsp;Expressions</a>
+    
+    
+        <a href="../vhdl-audio/index.html">VHDL avancé : traitement de signaux audio sur FPGA&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="simulation.html" class="current">VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

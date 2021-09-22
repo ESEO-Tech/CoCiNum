@@ -1,0 +1,1322 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Déclarations</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="types.html">&larr;&nbsp;Types prédéfinis</a>
+    
+    
+        <a href="expressions.html">Expressions&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Déclarations</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#ou-declarer-quoi">Où déclarer quoi ?</a></li>
+            
+                
+                <li><a href="#declaration-de-signaux">Déclaration de signaux</a></li>
+            
+                
+                <li><a href="#declaration-de-variables">Déclaration de variables</a></li>
+            
+                
+                <li><a href="#declaration-de-constante">Déclaration de constante</a></li>
+            
+                
+                <li><a href="#declaration-de-type-ou-de-sous-type">Déclaration de type ou de sous-type</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#type-enumere">Type énuméré</a></li>
+            
+                
+                <li><a href="#type-tableau">Type tableau</a></li>
+            
+                
+                <li><a href="#type-structure">Type structuré</a></li>
+            
+                
+                <li><a href="#declaration-de-sous-type">Déclaration de sous-type</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#declaration-de-composant">Déclaration de composant</a></li>
+            
+                
+                <li><a href="#sous-programmes">Sous-programmes</a></li>
+            
+            
+        </ul>
+            
+    
+    <section><h1 id="ou-declarer-quoi" tabindex="-1">Où déclarer quoi&nbsp;?</h1>
+<p>Certaines déclarations ne sont utilisables que dans un contexte donné.
+Le tableau ci-dessous indique où vous pouvez placer chaque déclaration.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Déclaration</th>
+<th style="text-align:left">Architecture</th>
+<th style="text-align:left">Processus</th>
+<th style="text-align:left">Corps de sous-programme</th>
+<th style="text-align:left">Paquetage</th>
+<th style="text-align:left">Corps de paquetage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Signal</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Non</td>
+<td style="text-align:left">Non</td>
+<td style="text-align:left">Non</td>
+<td style="text-align:left">Non</td>
+</tr>
+<tr>
+<td style="text-align:left">Variable</td>
+<td style="text-align:left">Non</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Non</td>
+<td style="text-align:left">Non</td>
+</tr>
+<tr>
+<td style="text-align:left">Constante</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+</tr>
+<tr>
+<td style="text-align:left">Type</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+</tr>
+<tr>
+<td style="text-align:left">Sous-programme</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+</tr>
+<tr>
+<td style="text-align:left">Corps de sous-programme</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Non</td>
+<td style="text-align:left">Oui</td>
+</tr>
+<tr>
+<td style="text-align:left">Composant</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Non</td>
+<td style="text-align:left">Non</td>
+<td style="text-align:left">Oui</td>
+<td style="text-align:left">Non</td>
+</tr>
+</tbody>
+</table>
+</section><section><h1 id="declaration-de-signaux" tabindex="-1">Déclaration de signaux</h1>
+<p>Dans une <a href="unites-de-conception.html#architecture">architecture</a>, une déclaration de signal,
+ou de plusieurs signaux du même type, s’écrit comme ceci&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">signal</span> <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">type</span>;
+</code></pre>
+<p>Une déclaration de signal peut indiquer une valeur initiale en utilisant l’opérateur <code>:=</code>.
+La valeur initiale est définie par une <a href="expressions.html">expression</a> dont la valeur doit être
+calculable à la construction.
+Autrement dit, cette expression ne peut contenir que des valeurs littérales et des constantes.</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">signal</span> <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">type</span> := <span class="hljs-non-terminal">expression statique</span>;
+</code></pre>
+<p>En simulation, la valeur initiale est affectée immédiatement à la date <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">t=0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.61508em;vertical-align:0em;"></span><span class="mord mathnormal">t</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span></span></span></span>.</p>
+<p>Un outil de synthèse pour FPGA utilisera cette indication pour imposer une valeur
+initiale aux bascules D du circuit.</p>
+<div class="warning">
+<p>Donner une valeur initiale à un signal combinatoire n’a pas de sens d’un point
+de vue matériel.
+Seuls les signaux à mémoire, c’est-à-dire ceux correspondant à des sorties de
+bascules D peuvent avoir une valeur initiale.</p>
+<p>Les valeurs initiales des autres signaux sont ignorées par les outils de synthèse.</p>
+</div>
+</section><section><h1 id="declaration-de-variables" tabindex="-1">Déclaration de variables</h1>
+<p>Dans un <a href="instructions-concurrentes.html#processus">processus</a>, une déclaration de variable,
+ou de plusieurs variables du même type, s’écrit comme ceci&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">variable</span> <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">type</span>;
+</code></pre>
+<p>Contrairement aux signaux, qui transportent des données entre les instructions
+concurrentes d’une architecture, une variable est utilisée localement dans le
+processus ou le sous-programme où elle est déclarée.</p>
+</section><section><h1 id="declaration-de-constante" tabindex="-1">Déclaration de constante</h1>
+<p>Dans une <a href="unites-de-conception.html#architecture">architecture</a>, un <a href="instructions-concurrentes.html#processus">processus</a>
+ou un <a href="unites-de-conception.html#paquetage">paquetage</a>, une déclaration de constante s’écrit comme ceci&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">constant</span> <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">type</span> := <span class="hljs-non-terminal">expression statique</span>;
+</code></pre>
+<p>La valeur d’une constante est définie par une <a href="expressions.html">expression</a> dont la valeur doit être
+calculable à la construction.
+Autrement dit, cette expression ne peut contenir que des valeurs littérales et des constantes.</p>
+</section><section><h1 id="declaration-de-type-ou-de-sous-type" tabindex="-1">Déclaration de type ou de sous-type</h1>
+</section><section><h2 id="type-enumere" tabindex="-1">Type énuméré</h2>
+<p>Une type énuméré définit une liste de valeurs symboliques.</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">type</span> <span class="hljs-non-terminal">nom du type</span> <span class="hljs-keyword">is</span> (<span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span>);
+</code></pre>
+<p>Lorsqu’un signal ou une variable est déclaré avec un type énuméré,
+sa valeur initiale correspond à la première valeur de la liste.</p>
+<p>Dans l’exemple ci-dessous, on définit le type <code>color_enum_t</code>
+et deux constantes de ce type;</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">type</span> color_enum_t <span class="hljs-keyword">is</span> (BLACK, RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN, WHITE);
+
+<span class="hljs-keyword">constant</span> TEXT_COLOR       : color_enum_t := NOIR;
+<span class="hljs-keyword">constant</span> BACKGROUND_COLOR : color_enum_t := CYAN;
+</code></pre>
+</section><section><h2 id="type-tableau" tabindex="-1">Type tableau</h2>
+<p>Un type tableau permet de créer des collections ordonnées de valeurs du même type.
+VHDL autorise la définition de tableaux multidimensionnels.</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">type</span> <span class="hljs-non-terminal">nom du type</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">array</span>(<span class="hljs-non-terminal">intervalle</span>, ... <span class="hljs-non-terminal">intervalle</span>) <span class="hljs-keyword">of</span> <span class="hljs-non-terminal">type</span>;
+</code></pre>
+<p>Un aspect original des tableaux en VHDL est qu’ils n’imposent ni l’indice de départ,
+ni l’ordre des indices (voir également la section <a href="expressions.html#intervalles">intervalles</a>).
+Dans l’exemple ci-dessous, le type <code>color_vec_t</code> permet de créer des tableaux de trois éléments
+avec des indices décroissants commençant à 3&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">type</span> color_vec_t <span class="hljs-keyword">is</span> <span class="hljs-keyword">array</span>(<span class="hljs-number">3</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">1</span>) <span class="hljs-keyword">of</span> <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">255</span>;
+
+<span class="hljs-keyword">signal</span> c : color_vec_t;
+...
+<span class="hljs-comment">-- Les trois écritures suivantes sont équivalentes :</span>
+c &lt;= (<span class="hljs-number">100</span>, <span class="hljs-number">12</span>, <span class="hljs-number">54</span>);
+
+c &lt;= (<span class="hljs-number">1</span> =&gt; <span class="hljs-number">54</span>, <span class="hljs-number">2</span> =&gt; <span class="hljs-number">12</span>, <span class="hljs-number">3</span> =&gt; <span class="hljs-number">100</span>);
+
+c(<span class="hljs-number">1</span>) &lt;= <span class="hljs-number">54</span>;
+c(<span class="hljs-number">2</span>) &lt;= <span class="hljs-number">12</span>;
+c(<span class="hljs-number">3</span>) &lt;= <span class="hljs-number">100</span>;
+</code></pre>
+<p>Dans la déclaration d’un type tableau, on peut imposer les intervalles d’indices, ou les laisser libres.
+Dans le second cas, on parle de type tableau <em>non contraint</em> (<em>unconstrained</em>) et on indique seulement
+le type autorisé pour les indices de la manière suivante&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">nom de type entier</span> <span class="hljs-keyword">range</span> &lt;&gt;
+</code></pre>
+<p>Par exemple, le type matrice d’entiers ci-dessous est utilisé pour définir
+deux signaux <code>rect_mat</code> et <code>square_mat</code> avec des tailles de tableaux différentes&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-comment">-- Type tableau d'entiers à deux dimensions, avec des indices positifs ou nuls.</span>
+<span class="hljs-keyword">type</span> matrix_t <span class="hljs-keyword">is</span> <span class="hljs-keyword">array</span>(<span class="hljs-built_in">natural</span> <span class="hljs-keyword">range</span> &lt;&gt;, <span class="hljs-built_in">natural</span> <span class="hljs-keyword">range</span> &lt;&gt;) <span class="hljs-keyword">of</span> <span class="hljs-built_in">integer</span>;
+
+<span class="hljs-comment">-- Une matrice de taille 5x3</span>
+<span class="hljs-keyword">signal</span> rect_mat   : matrix_t(<span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">4</span>, <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">2</span>);
+<span class="hljs-comment">-- Une matrice de taille 4x4</span>
+<span class="hljs-keyword">signal</span> square_mat : matrix_t(<span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">3</span>, <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">3</span>);
+</code></pre>
+</section><section><h2 id="type-structure" tabindex="-1">Type structuré</h2>
+<p>Un type structuré permet de rassembler des valeurs de différents types dans
+une même structure de données.</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">type</span> <span class="hljs-non-terminal">nom du type</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">record</span>
+   <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">type</span>;
+   ...
+   <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">type</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">record</span>;
+</code></pre>
+<p>Dans l’exemple ci-dessous, le type <code>color_rec_t</code> définit trois champs
+de type entier compris entre 0 et 255&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">type</span> color_rec_t <span class="hljs-keyword">is</span> <span class="hljs-keyword">record</span>
+    red, green, blue : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">255</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">record</span>;
+
+<span class="hljs-keyword">signal</span> c : color_rec_t;
+...
+<span class="hljs-comment">-- Les trois écritures suivantes sont équivalentes :</span>
+c &lt;= (<span class="hljs-number">100</span>, <span class="hljs-number">12</span>, <span class="hljs-number">54</span>);
+
+c &lt;= (red =&gt; <span class="hljs-number">100</span>, green =&gt; <span class="hljs-number">12</span>, blue =&gt; <span class="hljs-number">54</span>);
+
+c.red   &lt;= <span class="hljs-number">100</span>;
+c.green &lt;= <span class="hljs-number">12</span>;
+c.blue  &lt;= <span class="hljs-number">54</span>;
+</code></pre>
+</section><section><h2 id="declaration-de-sous-type" tabindex="-1">Déclaration de sous-type</h2>
+<p>Un sous-type définit un nouveau type dont les valeurs sont un sous-ensemble
+de celles d’un autre type.</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">subtype</span> <span class="hljs-non-terminal">nom du sous-type</span> <span class="hljs-keyword">is</span> <span class="hljs-non-terminal">type</span>;
+</code></pre>
+<p>On peut, par exemple, définir un type entier restreint à un <a href="expressions.html#intervalles">intervalle</a>&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">subtype</span> temperature_t <span class="hljs-keyword">is</span> <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> -<span class="hljs-number">50</span> <span class="hljs-keyword">to</span> <span class="hljs-number">150</span>;
+</code></pre>
+<p>On peut également spécialiser un <a href="#type-tableau">type tableau</a> non contraint&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">type</span> matrix_t <span class="hljs-keyword">is</span> <span class="hljs-keyword">array</span>(<span class="hljs-built_in">natural</span> <span class="hljs-keyword">range</span>&lt;&gt;, <span class="hljs-built_in">natural</span> <span class="hljs-keyword">range</span>&lt;&gt;) <span class="hljs-keyword">of</span> <span class="hljs-built_in">integer</span>;
+<span class="hljs-keyword">subtype</span> matrix3x3_t <span class="hljs-keyword">is</span> matrix_t(<span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">2</span>, <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">2</span>);
+...
+<span class="hljs-keyword">signal</span> m : matrix3x3_t;
+</code></pre>
+</section><section><h1 id="declaration-de-composant" tabindex="-1">Déclaration de composant</h1>
+<p>Une déclaration de composant décrit les entrées/sorties d’un composant à instancier
+dans une architecture.
+Elle permet, par exemple, de décrire les entrées/sorties d’une entité que vous
+voulez instancier, mais dont vous ne possédez pas le code source VHDL,
+ou pour lequel vous souhaitez conserver le choix entre différentes entités
+disponibles en bibliothèque.</p>
+<p>Un composant sans paramètre générique s’écrit de la manière suivante&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">component</span> <span class="hljs-non-terminal">nom du composant</span>
+   <span class="hljs-keyword">port</span>(
+      <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">mode</span> <span class="hljs-non-terminal">type</span>;
+      ...
+      <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">mode</span> <span class="hljs-non-terminal">type</span>
+   );
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">component</span>;
+</code></pre>
+<p>Les paramètres génériques sont déclarés dans une clause <code>generic map()</code>&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">component</span> <span class="hljs-non-terminal">nom du composant</span>
+   <span class="hljs-keyword">generic</span>(
+      <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">type</span>;
+      ...
+      <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">type</span>
+   );
+   <span class="hljs-keyword">port</span>(
+      <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">mode</span> <span class="hljs-non-terminal">type</span>;
+      ...
+      <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">mode</span> <span class="hljs-non-terminal">type</span>
+   );
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">component</span>;
+</code></pre>
+<p>Les déclarations de ports et de paramètres respectent la même
+syntaxe que dans une <a href="unites-de-conception.html#entite">entité</a>.</p>
+<div class="info">
+<p>La notion de composant offre une grande flexibilité.
+En séparant la déclaration des entités et la déclaration des composants,
+elle permet de différer le moment du choix de l’entité à utiliser pour chaque
+instance.
+Ce choix est précisé séparément dans une déclaration de <em>configuration</em>,
+qui associe les composants, ou des instances précises, avec les entités
+disponibles en bibliothèque.</p>
+<p>La notion de configuration ne sera pas détaillée dans ce document.</p>
+<p>En pratique, il est fréquent que la déclaration d’un composant soit un simple
+copier-coller de la déclaration d’une entité existante.
+Dans ce cas, il est plus simple de ne pas déclarer de composant et
+d’utiliser une <a href="instructions-concurrentes.html#instanciation-dune-entite">instruction d’instanciation d’entité</a>.</p>
+</div>
+</section><section><h1 id="sous-programmes" tabindex="-1">Sous-programmes</h1>
+<p>Comme les langages de programmation, VHDL possède une notion de <em>sous-programme</em>.
+Un sous-programme possède un nom, une liste de paramètres, des déclarations locales
+et un bloc d’<a href="instructions-sequentielles.html">instructions séquentielles</a>.
+On distingue deux sortes de sous-programmes&nbsp;:</p>
+<ul>
+<li>Une <em>fonction</em> possède uniquement des paramètres d’entrée, et retourne un résultat.</li>
+<li>Une <em>procédure</em> possède des paramètres d’entrée et de sortie, et ne retourne pas de résultat.</li>
+</ul>
+<p>VHDL distingue la <em>déclaration</em> d’un sous-programme, dans lequel on ne décrit
+que son interface, et le <em>corps</em> de ce sous-programme, dans lequel on ajoute
+les déclarations locales et les instructions.</p>
+<p>On déclare des sous-programmes en utilisant la syntaxe suivante&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">procedure</span> <span class="hljs-non-terminal">nom de la procédure</span>(<span class="hljs-non-terminal">paramètres</span>;... <span class="hljs-non-terminal">paramètres</span>);
+<span class="hljs-keyword">function</span> <span class="hljs-non-terminal">nom de la fonction</span>(<span class="hljs-non-terminal">paramètres</span>;... <span class="hljs-non-terminal">paramètres</span>) <span class="hljs-keyword">return</span> <span class="hljs-non-terminal">type du résultat</span>;
+</code></pre>
+<p>Si le nom d’une fonction est écrit entre guillemets, la fonction définit alors
+un opérateur.
+Par exemple, les opérations d’addition et de multiplication sur les matrices
+pourraient être déclarées de cette manière&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">function</span> <span class="hljs-string">"+"</span>(a, b : matrix_t) <span class="hljs-keyword">return</span> matrix_t;
+<span class="hljs-keyword">function</span> <span class="hljs-string">"*"</span>(a, b : matrix_t) <span class="hljs-keyword">return</span> matrix_t;
+<span class="hljs-keyword">function</span> <span class="hljs-string">"*"</span>(a : matrix_t; b : <span class="hljs-built_in">integer</span>) <span class="hljs-keyword">return</span> matrix_t;
+<span class="hljs-keyword">function</span> <span class="hljs-string">"*"</span>(a : <span class="hljs-built_in">integer</span>; b : matrix_t) <span class="hljs-keyword">return</span> matrix_t;
+</code></pre>
+<p>Le corps d’un sous-programme reprend la déclaration, et lui ajoute les
+déclarations locales et les instructions&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">procedure</span> <span class="hljs-non-terminal">nom de la procédure</span>(<span class="hljs-non-terminal">paramètres</span>;... <span class="hljs-non-terminal">paramètres</span>) <span class="hljs-keyword">is</span>
+    <span class="hljs-non-terminal">declaration</span>
+    ...
+    <span class="hljs-non-terminal">declaration</span>
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-non-terminal">instruction séquentielle</span>
+    ...
+    <span class="hljs-non-terminal">instruction séquentielle</span>
+<span class="hljs-keyword">end</span> <span class="hljs-non-terminal">nom de la procédure</span>;
+
+<span class="hljs-keyword">function</span> <span class="hljs-non-terminal">nom de la fonction</span>(<span class="hljs-non-terminal">paramètres</span>;... <span class="hljs-non-terminal">paramètres</span>) <span class="hljs-keyword">return</span> <span class="hljs-non-terminal">type du résultat</span> <span class="hljs-keyword">is</span>
+    <span class="hljs-non-terminal">declaration</span>
+    ...
+    <span class="hljs-non-terminal">declaration</span>
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-non-terminal">instruction séquentielle</span>
+    ...
+    <span class="hljs-non-terminal">instruction séquentielle</span>
+<span class="hljs-keyword">end</span> <span class="hljs-non-terminal">nom de la fonction</span>;
+</code></pre>
+<p>Dans la liste des paramètres, on sépare par des point-virgules des groupes
+de paramètres de même mode et de même type.
+Une déclaration de paramètres peut prendre différentes formes
+résumées par la syntaxe suivante&nbsp;:</p>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">nature</span> <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">mode</span> <span class="hljs-non-terminal">type</span>
+</code></pre>
+<p>où</p>
+<ul>
+<li><code>nature</code> peut être <code>constant</code>, <code>signal</code> ou <code>variable</code>,</li>
+<li><code>mode</code> peut être <code>in</code>, <code>out</code> ou <code>inout</code>,</li>
+</ul>
+<p>En pratique, on peut omettre certains de ces mots-clés et on utilisera les formes suivantes&nbsp;:</p>
+<ul>
+<li>Paramètres d’entrée d’une fonction ou d’une procédure (par défaut, des constantes de mode <code>in</code>).</li>
+</ul>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-non-terminal">type</span>
+</code></pre>
+<ul>
+<li>Paramètres de sortie d’une procédure (par défaut, des variables).</li>
+</ul>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-keyword">out</span> <span class="hljs-non-terminal">type</span>
+</code></pre>
+<ul>
+<li>Paramètres d’entrée-sortie d’une procédure (par défaut, des variables).</li>
+</ul>
+<pre><code class="language-vhdl-syntax"><span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-keyword">inout</span> <span class="hljs-non-terminal">type</span>
+</code></pre>
+<ul>
+<li>Paramètres signaux de sortie d’une procédure.</li>
+</ul>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">signal</span> <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-keyword">out</span> <span class="hljs-non-terminal">type</span>
+</code></pre>
+<ul>
+<li>Paramètres signaux d’entrée-sortie d’une procédure.</li>
+</ul>
+<pre><code class="language-vhdl-syntax"><span class="hljs-keyword">signal</span> <span class="hljs-non-terminal">nom</span>, ... <span class="hljs-non-terminal">nom</span> : <span class="hljs-keyword">inout</span> <span class="hljs-non-terminal">type</span>
+</code></pre>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="types.html">&larr;&nbsp;Types prédéfinis</a>
+    
+    
+        <a href="expressions.html">Expressions&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="declarations.html" class="current">Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

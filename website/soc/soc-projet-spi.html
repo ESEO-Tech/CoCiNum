@@ -1,0 +1,1396 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Développement d'un contrôleur de bus SPI</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="soc-projet-hw.html">&larr;&nbsp;Création d'un nouveau composant IP</a>
+    
+    
+        <a href="soc-projet-sw.html">Développement d'un pilote de contrôleur SPI&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Développement d'un contrôleur de bus SPI</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#fonctionnement">Fonctionnement</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#le-protocole-spi">Le protocole SPI</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#realisation-dun-controleur-spi-simple">Réalisation d’un contrôleur SPI simple</a></li>
+            
+                
+                <li><a href="#simuler-le-fonctionnement-du-controleur-spi">Simuler le fonctionnement du contrôleur SPI</a></li>
+            
+                
+                <li><a href="#completer-larchitecture-du-systeme">Compléter l’architecture du système</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#mettre-a-jour-lip">Mettre à jour l’IP</a></li>
+            
+                
+                <li><a href="#modifier-les-affectations-de-broches">Modifier les affectations de broches</a></li>
+            
+                
+                <li><a href="#synthetiser">Synthétiser</a></li>
+            
+                
+                <li><a href="#mettre-a-jour-le-programme-damorcage">Mettre à jour le programme d’amorçage</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#utiliser-lip-depuis-le-shell">Utiliser l’IP depuis le shell</a></li>
+            
+            
+        </ul>
+            
+    
+    <section><h1 id="fonctionnement" tabindex="-1">Fonctionnement</h1>
+<p>Un <a href="https://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus">bus SPI (Serial Peripheral Interface)</a>
+est un bus série synchrone souvent utilisé pour échanger des données entre un microcontrôleur
+et un ou plusieurs périphériques.</p>
+<p>Le maître est le composant qui a l’initiative des communications.
+L’esclave répond aux demandes du maître.
+Dans le cas du SPI, le maître produit le signal d’horloge qui servira à cadencer l’émission et la réception
+des bits de données.</p>
+<p><a href="SPI-master-slave.svg"><img src="SPI-master-slave.svg" alt="Maître et esclave SPI"></a></p>
+<p>La figure ci-dessus illustre le fonctionnement typique de deux composants SPI.
+Le maître et l’esclave possèdent chacun un registre à décalage qui sert à la fois à l’émission et à la réception.
+Les deux registres à décalage sont reliés de manière à former un anneau.
+Si on se place du point de vue du maître, la transmission d’un octet se passe de la manière suivante.
+À chaque période de l’horloge série&nbsp;:</p>
+<ul>
+<li>le bit le plus à gauche est envoyé vers l’esclave,</li>
+<li>le registre à décalage se décale d’une position,</li>
+<li>le bit en provenance de l’esclave est introduit à droite du registre à décalage</li>
+</ul>
+<p>Dans une transmission SPI, l’envoi et la réception des données se font en parallèle.
+Au bout de 8 périodes d’horloge, le maître et l’esclave ont simplement échangé les contenus
+de leur registres respectifs.</p>
+</section><section><h2 id="le-protocole-spi" tabindex="-1">Le protocole SPI</h2>
+<p>La synchronisation des données sur l’horloge série est définie par deux paramètres.</p>
+<ul>
+<li>La <em>polarité</em> de l’horloge détermine le niveau du signal d’horloge (bas ou haut)
+en l’absence de communication.</li>
+<li>La <em>phase</em> indique si les données sont échantillonnées en commençant par le premier
+ou le deuxième front d’horloge. Il peut s’agir d’un front montant ou descendant selon la
+polarité de l’horloge.</li>
+</ul>
+<p><a href="SPI-protocole.svg"><img src="SPI-protocole.svg" alt="Protocole SPI"></a></p>
+<p>Ces deux paramètres autorisent quatre variantes du protocole SPI.
+Pour que la communication ait lieu sans erreur, le maître et l’esclave doivent
+avoir les mêmes réglages de polarité et de phase.</p>
+</section><section><h1 id="realisation-dun-controleur-spi-simple" tabindex="-1">Réalisation d’un contrôleur SPI simple</h1>
+<p>L’interface SPI de notre IP sera composée des ports suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Nom du port</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Direction</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>spi_cs</code></td>
+<td style="text-align:left"><code>std_logic</code></td>
+<td style="text-align:left"><code>out</code></td>
+<td style="text-align:left"><em>Chip Select</em>, activation du périphérique SPI.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>spi_mosi</code></td>
+<td style="text-align:left"><code>std_logic</code></td>
+<td style="text-align:left"><code>out</code></td>
+<td style="text-align:left"><em>Master Out Slave In</em>, données série destinées au périphérique SPI.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>spi_miso</code></td>
+<td style="text-align:left"><code>std_logic</code></td>
+<td style="text-align:left"><code>in</code></td>
+<td style="text-align:left"><em>Master In Slave Out</em>, données série en provenance du périphérique SPI.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>spi_sck</code></td>
+<td style="text-align:left"><code>std_logic</code></td>
+<td style="text-align:left"><code>out</code></td>
+<td style="text-align:left"><em>Serial Clock</em>, horloge de la communication série.</td>
+</tr>
+</tbody>
+</table>
+<p>En interne, la communication sur le bus SPI sera pilotée par les registres suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Registre</th>
+<th style="text-align:left">Alias</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>data_reg0(0)</code></td>
+<td style="text-align:left"><code>spi_start_reg</code></td>
+<td style="text-align:left">Commande de démarrage d’un transfert SPI. Revient à zéro automatiquement.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>data_reg0(1)</code></td>
+<td style="text-align:left"><code>spi_select_reg</code></td>
+<td style="text-align:left">Commande de sélection du périphérique SPI.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>data_reg0(2)</code></td>
+<td style="text-align:left"><code>spi_polarity_reg</code></td>
+<td style="text-align:left">La polarité de l’horloge SPI.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>data_reg0(3)</code></td>
+<td style="text-align:left"><code>spi_phase_reg</code></td>
+<td style="text-align:left">La phase de l’horloge SPI.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>data_reg0(4)</code></td>
+<td style="text-align:left"><code>spi_done_reg</code></td>
+<td style="text-align:left">Indicateur de fin de transfert SPI. Revient à zéro au début d’un nouveau transfert.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>data_reg1</code></td>
+<td style="text-align:left"><code>spi_division_reg</code></td>
+<td style="text-align:left">La division de fréquence à appliquer pour générer l’horloge série.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>data_reg2(7 downto 0)</code></td>
+<td style="text-align:left"><code>spi_data_reg</code></td>
+<td style="text-align:left">En écriture, l’octet à envoyer au périphérique SPI, en lecture, l’octet reçu du périphérique SPI.</td>
+</tr>
+</tbody>
+</table>
+<p>Le chronogramme ci-dessous détaille le fonctionnement interne du contrôleur SPI.
+Il met en évidence les registres à utiliser pour compter le temps et le nombre de bits.</p>
+<p><a href="SPI-chronogramme-detaille.svg"><img src="SPI-chronogramme-detaille.svg" alt="Chronogramme détaillé du contrôleur SPI"></a></p>
+<ol>
+<li>Dans Vivado, ouvrez le schéma de votre architecture matérielle.</li>
+<li>Cliquez avec le bouton droit sur le composant <code>SPIDevice</code> et sélectionnez <em>Edit in IP Packager</em>.</li>
+</ol>
+<p>Dans le fichier <code>SPIDevice_v1_0_S00_AXI.vhd</code>&nbsp;:</p>
+<ol start="3">
+<li>Dans l’entité, ajoutez les ports du bus SPI.</li>
+<li>Dans l’architecture, ajoutez le code de gestion du bus SPI de manière à respecter le chronogramme.</li>
+<li>Corrigez les erreurs de syntaxe éventuelles et enregistrez le fichier.</li>
+</ol>
+<p>Dans le fichier <code>SPIDevice_v1_0.vhd</code>&nbsp;:</p>
+<ol start="6">
+<li>Dans l’entité, ajoutez les ports du bus SPI.</li>
+<li>Dans l’architecture, ajoutez les ports du bus SPI à la déclaration du composant <code>SPIDevice_v1_0_S00_AXI</code>.</li>
+<li>Dans l’architecture, ajoutez les associations des ports du bus SPI à l’instanciation du composant <code>SPIDevice_v1_0_S00_AXI</code>.</li>
+<li>Corrigez les erreurs de syntaxe éventuelles et enregistrez le fichier.</li>
+</ol>
+</section><section><h1 id="simuler-le-fonctionnement-du-controleur-spi" tabindex="-1">Simuler le fonctionnement du contrôleur SPI</h1>
+<ol>
+<li>Dans le panneau <em>Sources</em>, cliquez avec le bouton droit sur <em>Simulation Sources</em>.
+Choisissez <em>Add Sources</em>.</li>
+<li>Sélectionnez <em>Add or create simulation sources</em> et pressez le bouton <em>Next</em>.</li>
+<li>Pressez le bouton <em>Create File</em>.</li>
+<li>Le fichier à créer sera un fichier source VHDL nommé <code>SPITestbench_v1_0.vhd</code>. Pressez le bouton <em>Finish</em>.</li>
+<li>Dans la fenêtre <em>Define Module</em>, pressez <em>OK</em> sans rien changer, puis pressez <em>Yes</em> dans la boîte de dialogue de confirmation.</li>
+</ol>
+<p>Éditez le fichier <code>SPITestbench_v1_0.vhd</code> et remplacez son contenu par&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> SPITestbench_v1_0 <span class="hljs-keyword">is</span>
+<span class="hljs-keyword">end</span> SPITestbench_v1_0;
+
+<span class="hljs-keyword">library</span> ieee;
+<span class="hljs-keyword">use</span> ieee.std_logic_1164.<span class="hljs-keyword">all</span>;
+
+<span class="hljs-keyword">architecture</span> Simulation <span class="hljs-keyword">of</span> SPITestbench_v1_0 <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">constant</span> C_S00_AXI_DATA_WIDTH : <span class="hljs-built_in">integer</span> := <span class="hljs-number">32</span>;
+    <span class="hljs-keyword">constant</span> C_S00_AXI_ADDR_WIDTH : <span class="hljs-built_in">integer</span> := <span class="hljs-number">4</span>;
+
+    <span class="hljs-keyword">subtype</span> Addr_t <span class="hljs-keyword">is</span> <span class="hljs-built_in">std_logic_vector</span>(C_S00_AXI_ADDR_WIDTH-<span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">subtype</span> Data_t <span class="hljs-keyword">is</span> <span class="hljs-built_in">std_logic_vector</span>(C_S00_AXI_DATA_WIDTH-<span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+
+    <span class="hljs-keyword">constant</span> CLK_PERIOD    : <span class="hljs-built_in">time</span> := <span class="hljs-number">10</span> ns;
+    <span class="hljs-keyword">constant</span> DATA_TO_SPI   : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>) := x<span class="hljs-string">"AC"</span>;
+    <span class="hljs-keyword">constant</span> DATA_FROM_SPI : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>) := x<span class="hljs-string">"35"</span>;
+
+    <span class="hljs-keyword">constant</span> DIVISION : Data_t    := x<span class="hljs-string">"00000010"</span>;
+    <span class="hljs-keyword">constant</span> PHASE    : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'1'</span>;
+    <span class="hljs-keyword">constant</span> POLARITY : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'1'</span>;
+
+    <span class="hljs-keyword">signal</span> spi_cs      : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> spi_mosi    : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> spi_miso    : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> spi_sck     : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> axi_aclk	   : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'0'</span>;
+    <span class="hljs-keyword">signal</span> axi_aresetn : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> axi_awaddr  : Addr_t;
+    <span class="hljs-keyword">signal</span> axi_awprot  : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">2</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">signal</span> axi_awvalid : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> axi_awready : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> axi_wdata   : Data_t;
+    <span class="hljs-keyword">signal</span> axi_wstrb   : <span class="hljs-built_in">std_logic_vector</span>((C_S00_AXI_DATA_WIDTH/<span class="hljs-number">8</span>)-<span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">signal</span> axi_wvalid  : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> axi_wready  : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> axi_bresp   : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">signal</span> axi_bvalid  : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> axi_bready  : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> axi_araddr  : Addr_t;
+    <span class="hljs-keyword">signal</span> axi_arprot  : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">2</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">signal</span> axi_arvalid : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> axi_arready : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> axi_rdata   : Data_t;
+    <span class="hljs-keyword">signal</span> axi_rresp   : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">signal</span> axi_rvalid  : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> axi_rready  : <span class="hljs-built_in">std_logic</span>;
+<span class="hljs-keyword">begin</span>
+    spi_device_inst : <span class="hljs-keyword">entity</span> work.SPIDevice_v1_0
+        <span class="hljs-keyword">generic</span> <span class="hljs-keyword">map</span>(
+            C_S00_AXI_DATA_WIDTH =&gt; C_S00_AXI_DATA_WIDTH,
+            C_S00_AXI_ADDR_WIDTH =&gt; C_S00_AXI_ADDR_WIDTH
+        )
+        <span class="hljs-keyword">port</span> <span class="hljs-keyword">map</span>(
+            spi_cs          =&gt; spi_cs,
+            spi_mosi        =&gt; spi_mosi,
+            spi_miso        =&gt; spi_miso,
+            spi_sck         =&gt; spi_sck,
+    		s00_axi_aclk	=&gt; axi_aclk,
+    		s00_axi_aresetn	=&gt; axi_aresetn,
+    		s00_axi_awaddr	=&gt; axi_awaddr,
+    		s00_axi_awprot	=&gt; axi_awprot,
+    		s00_axi_awvalid	=&gt; axi_awvalid,
+    		s00_axi_awready	=&gt; axi_awready,
+    		s00_axi_wdata	=&gt; axi_wdata,
+    		s00_axi_wstrb	=&gt; axi_wstrb,
+    		s00_axi_wvalid	=&gt; axi_wvalid,
+    		s00_axi_wready	=&gt; axi_wready,
+    		s00_axi_bresp	=&gt; axi_bresp,
+    		s00_axi_bvalid	=&gt; axi_bvalid,
+    		s00_axi_bready	=&gt; axi_bready,
+    		s00_axi_araddr	=&gt; axi_araddr,
+    		s00_axi_arprot	=&gt; axi_arprot,
+    		s00_axi_arvalid	=&gt; axi_arvalid,
+    		s00_axi_arready	=&gt; axi_arready,
+    		s00_axi_rdata	=&gt; axi_rdata,
+    		s00_axi_rresp	=&gt; axi_rresp,
+    		s00_axi_rvalid	=&gt; axi_rvalid,
+    		s00_axi_rready	=&gt; axi_rready
+        );
+
+    axi_aclk    &lt;= <span class="hljs-keyword">not</span> axi_aclk <span class="hljs-keyword">after</span> CLK_PERIOD / <span class="hljs-number">2</span>;
+    axi_aresetn &lt;= <span class="hljs-string">'0'</span>, <span class="hljs-string">'1'</span> <span class="hljs-keyword">after</span> CLK_PERIOD;
+
+    axi_master : <span class="hljs-keyword">process</span>
+        <span class="hljs-keyword">procedure</span> axi_write32(addr : Addr_t; data : Data_t) <span class="hljs-keyword">is</span>
+        <span class="hljs-keyword">begin</span>
+            axi_wdata   &lt;= data;
+            axi_wvalid  &lt;= <span class="hljs-string">'1'</span>;
+            axi_awaddr  &lt;= addr;
+            axi_awvalid &lt;= <span class="hljs-string">'1'</span>;
+            axi_wstrb   &lt;= <span class="hljs-string">"1111"</span>;
+            <span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> rising_edge(axi_aclk) <span class="hljs-keyword">and</span> axi_awready = <span class="hljs-string">'1'</span> <span class="hljs-keyword">and</span> axi_wready = <span class="hljs-string">'1'</span>;
+            axi_wvalid  &lt;= <span class="hljs-string">'0'</span>;
+            axi_awvalid &lt;= <span class="hljs-string">'0'</span>;
+        <span class="hljs-keyword">end</span> axi_write32;
+
+        <span class="hljs-keyword">procedure</span> axi_read32(addr : Addr_t; data : <span class="hljs-keyword">out</span> Data_t) <span class="hljs-keyword">is</span>
+        <span class="hljs-keyword">begin</span>
+            axi_araddr  &lt;= addr;
+            axi_arvalid &lt;= <span class="hljs-string">'1'</span>;
+            <span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> rising_edge(axi_aclk) <span class="hljs-keyword">and</span> axi_arready = <span class="hljs-string">'1'</span>;
+            axi_arvalid &lt;= <span class="hljs-string">'0'</span>;
+            <span class="hljs-keyword">if</span> axi_rvalid = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                <span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> rising_edge(axi_aclk) <span class="hljs-keyword">and</span> axi_rvalid = <span class="hljs-string">'1'</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+            data := axi_rdata;
+            axi_rready &lt;= <span class="hljs-string">'1'</span>;
+            <span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> rising_edge(axi_aclk);
+            axi_rready  &lt;= <span class="hljs-string">'0'</span>;
+        <span class="hljs-keyword">end</span> axi_read32;
+
+        <span class="hljs-keyword">variable</span> rdata : Data_t;
+    <span class="hljs-keyword">begin</span>
+        axi_awvalid &lt;= <span class="hljs-string">'0'</span>;
+        axi_wvalid  &lt;= <span class="hljs-string">'0'</span>;
+        axi_rready  &lt;= <span class="hljs-string">'0'</span>;
+        axi_arvalid &lt;= <span class="hljs-string">'0'</span>;
+
+        <span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> rising_edge(axi_aclk) <span class="hljs-keyword">and</span> axi_aresetn = <span class="hljs-string">'1'</span>;
+
+        axi_write32(x<span class="hljs-string">"0"</span>, x<span class="hljs-string">"0000000"</span> &amp; PHASE &amp; POLARITY &amp; <span class="hljs-string">"00"</span>);
+        axi_write32(x<span class="hljs-string">"4"</span>, DIVISION);                             <span class="hljs-comment">-- Division de fréquence</span>
+        axi_write32(x<span class="hljs-string">"0"</span>, x<span class="hljs-string">"0000000"</span> &amp; PHASE &amp; POLARITY &amp; <span class="hljs-string">"10"</span>); <span class="hljs-comment">-- Select</span>
+        axi_write32(x<span class="hljs-string">"8"</span>, x<span class="hljs-string">"000000"</span>  &amp; DATA_TO_SPI);             <span class="hljs-comment">-- Écriture du registre de données</span>
+        axi_write32(x<span class="hljs-string">"0"</span>, x<span class="hljs-string">"0000000"</span> &amp; PHASE &amp; POLARITY &amp; <span class="hljs-string">"11"</span>); <span class="hljs-comment">-- Start</span>
+
+        <span class="hljs-comment">-- Lecture du registre d'état jusqu'à l'activation du bit "done".</span>
+        <span class="hljs-keyword">loop</span>
+            axi_read32(x<span class="hljs-string">"0"</span>, rdata);
+            <span class="hljs-keyword">exit</span> <span class="hljs-keyword">when</span> rdata(<span class="hljs-number">4</span>) = <span class="hljs-string">'1'</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">loop</span>;
+
+        axi_write32(x<span class="hljs-string">"0"</span>, x<span class="hljs-string">"0000000"</span> &amp; PHASE &amp; POLARITY &amp; <span class="hljs-string">"00"</span>); <span class="hljs-comment">-- Arrêt</span>
+        axi_read32(x<span class="hljs-string">"8"</span>, rdata);                                 <span class="hljs-comment">-- Lecture du registre de données.</span>
+
+        <span class="hljs-keyword">assert</span> rdata(<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>) = DATA_FROM_SPI
+            <span class="hljs-keyword">report</span> <span class="hljs-string">"Wrong data from SPI"</span>
+            <span class="hljs-keyword">severity</span> <span class="hljs-literal">FAILURE</span>;
+
+        <span class="hljs-keyword">report</span> <span class="hljs-string">"Success"</span>;
+        <span class="hljs-keyword">wait</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> axi_master;
+
+    spi_slave : <span class="hljs-keyword">process</span>
+        <span class="hljs-keyword">variable</span> data : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+        <span class="hljs-keyword">constant</span> SPI_SCK_AFTER_EDGE : <span class="hljs-built_in">std_logic</span> := <span class="hljs-keyword">not</span> (POLARITY <span class="hljs-keyword">xor</span> PHASE);
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> spi_cs = <span class="hljs-string">'0'</span>;
+
+        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span> <span class="hljs-keyword">loop</span>
+            <span class="hljs-keyword">if</span> PHASE = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                spi_miso &lt;= DATA_FROM_SPI(i);
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+            <span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> spi_sck<span class="hljs-symbol">'event</span> <span class="hljs-keyword">and</span> spi_sck /= POLARITY;
+            <span class="hljs-keyword">if</span> PHASE = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                data(i) := spi_mosi;
+            <span class="hljs-keyword">else</span>
+                spi_miso &lt;= DATA_FROM_SPI(i);
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+            <span class="hljs-keyword">wait</span> <span class="hljs-keyword">until</span> spi_sck<span class="hljs-symbol">'event</span> <span class="hljs-keyword">and</span> spi_sck = POLARITY;
+            <span class="hljs-keyword">if</span> PHASE = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                data(i) := spi_mosi;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">loop</span>;
+
+        <span class="hljs-keyword">assert</span> data = DATA_TO_SPI
+            <span class="hljs-keyword">report</span> <span class="hljs-string">"Wrong data to SPI"</span>
+            <span class="hljs-keyword">severity</span> <span class="hljs-literal">FAILURE</span>;
+
+        <span class="hljs-keyword">report</span> <span class="hljs-string">"Success"</span>;
+        <span class="hljs-keyword">wait</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> spi_slave;
+<span class="hljs-keyword">end</span> Simulation;
+</code></pre>
+<p>Dans le panneau <em>Flow Navigator</em>, pressez <em>Run Simulation</em> puis <em>Run Behavioral Simulation</em>.</p>
+<p>Dans l’onglet <em>Tcl console</em>, en bas de la fenêtre, exécutez cette commande
+pour continuer la simulation pendant 500 nanosecondes.
+Répétez l’opération jusqu’à ce qu’un message <em>Success</em> s’affiche,
+ou jusqu’à ce qu’une erreur se produise.</p>
+<pre><code class="icon-keyboard language-tcl">run <span class="hljs-number">500</span>ns
+</code></pre>
+</section><section><h1 id="completer-larchitecture-du-systeme" tabindex="-1">Compléter l’architecture du système</h1>
+</section><section><h2 id="mettre-a-jour-lip" tabindex="-1">Mettre à jour l’IP</h2>
+<p>Mettez à jour l’IP dans le catalogue&nbsp;:</p>
+<ol>
+<li>Dans le panneau <em>Flow Navigator</em>, dans la catégorie <em>Project Manager</em>, exécutez l’action <em>Package IP</em>.</li>
+<li>Dans les rubriques <em>File Groups</em> et <em>Ports and interfaces</em> exécutez l’action <em>Merge changes …</em>. Les nouveaux fichiers et les nouveaux ports doivent apparaître dans la liste.</li>
+<li>Choisissez <em>Review and Package</em> et pressez le bouton <em>Re-Package IP</em>. Acceptez la fermeture du projet.</li>
+</ol>
+<p>Dans la fenêtre Vivado du projet principal,</p>
+<ol start="4">
+<li>Dans le menu <em>Tools</em>, choisissez <em>Report</em> puis <em>Report IP status</em>.</li>
+<li>Dans le panneau en bas de la fenêtre, dans l’onglet <em>IP status</em>, pressez le bouton
+<em>Upgrade Selected</em>. Les nouveaux ports de votre IP doivent apparaître sur le schéma.</li>
+<li>Cliquez avec le bouton droit sur chacun des ports non conecté du composant <code>SPIDevice</code> et choisisez <em>Create Port</em>.</li>
+</ol>
+</section><section><h2 id="modifier-les-affectations-de-broches" tabindex="-1">Modifier les affectations de broches</h2>
+<ol>
+<li>Dans le panneau <em>Sources</em>, depliez l’arborescence <em>Constraints</em>.</li>
+<li>Ouvrez le fichier <code>ZYBO_Master.xdc</code>.</li>
+<li>Décommentez les contraintes pour les ports <code>ja_p[0]</code> à <code>ja_p[3]</code> (lignes 163 à 190).</li>
+<li>Renommez les ports <code>ja_p[0]</code> à <code>ja_p[3]</code> en <code>spi_cs</code>, <code>spi_mosi</code>, <code>spi_miso</code> et <code>spi_sck</code> (dans cet ordre).</li>
+<li>Enregistrer le fichier.</li>
+</ol>
+</section><section><h2 id="synthetiser" tabindex="-1">Synthétiser</h2>
+<ol>
+<li>Dans le <em>Flow Navigator</em>, sous <em>Program and Debug</em>, choisissez <em>Generate Bitstream</em>.</li>
+<li>À la fin de la synthèse, pressez le bouton <em>Cancel</em> dans la boîte de dialogue.</li>
+</ol>
+</section><section><h2 id="mettre-a-jour-le-programme-damorcage" tabindex="-1">Mettre à jour le programme d’amorçage</h2>
+<p>Reconstruisez le fichier <code>boot.bin</code> en exécutant la commande suivante
+dans le terminal où vous avez lancé Vivado&nbsp;:</p>
+<pre><code class="icon-term language-bash">bootgen -w -image scripts/zybo-minimal.bif -o fpga/zybo-minimal/boot.bin
+</code></pre>
+<p>Copiez le nouveau fichier <code>fpga/zybo-minimal/boot.bin</code> sur la carte microSD
+et redémarrez la carte Zybo.</p>
+</section><section><h1 id="utiliser-lip-depuis-le-shell" tabindex="-1">Utiliser l’IP depuis le shell</h1>
+<p>Comme dans les étapes précédentes, connectez-vous à la carte Zybo à l’aide d’un terminal série.</p>
+<p>En utilisant les commandes <code>poke</code> et <code>peek</code>, vérifiez que vous pouvez dialoguer avec votre IP.
+Par exemple, si votre périphérique SPI est un <a href="soc-projet-pmod-acl.html">accéléromètre ADXL345</a>, son registre 0
+retourne une valeur prédéfinie égale à <code>0xe5</code>&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-comment"># Phase = 1, Polarity = 1, Select = 0, Start = 0</span>
+poke 0x43c00000 0x0c
+<span class="hljs-comment"># Division de fréquence par 1000</span>
+poke 0x43c00004 1000
+
+<span class="hljs-comment"># -----------------------------------------------------</span>
+<span class="hljs-comment"># Commande de lecture du registre 0 de l'accéléromètre</span>
+<span class="hljs-comment"># -----------------------------------------------------</span>
+
+<span class="hljs-comment"># Phase = 1, Polarity = 1, Select = 1, Start = 0</span>
+poke 0x43c00000 0x0e
+<span class="hljs-comment"># Read = 1, Multibyte = 0, Reg = 000000</span>
+poke 0x43c00008 0x80
+<span class="hljs-comment"># Phase = 1, Polarity = 1, Select = 1, Start = 1</span>
+poke 0x43c00000 0x0f
+<span class="hljs-comment"># Doit afficher 0x1e (Done = 1, Polarity = 1, Select = 1, Start = 0)</span>
+peek 0x43c00000
+
+<span class="hljs-comment"># ---------------------------------------------------------</span>
+<span class="hljs-comment"># Récupération de la valeur du registre de l'accéléromètre</span>
+<span class="hljs-comment"># ---------------------------------------------------------</span>
+
+<span class="hljs-comment"># Phase = 1, Polarity = 1, Select = 1, Start = 1</span>
+poke 0x43c00000 0x0f
+<span class="hljs-comment"># Doit afficher 0x1e (Done = 1, Polarity = 1, Select = 1, Start = 0)</span>
+peek 0x43c00000
+<span class="hljs-comment"># Phase = 1, Polarity = 1, Select = 0, Start = 0</span>
+poke 0x43c00000 0x0c
+<span class="hljs-comment"># Doit afficher l'identifiant du périphérique: 0xe5</span>
+peek 0x43c00008
+</code></pre>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="soc-projet-hw.html">&larr;&nbsp;Création d'un nouveau composant IP</a>
+    
+    
+        <a href="soc-projet-sw.html">Développement d'un pilote de contrôleur SPI&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-spi.html" class="current">Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

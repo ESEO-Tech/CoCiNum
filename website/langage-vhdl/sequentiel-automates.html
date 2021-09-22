@@ -1,0 +1,1401 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Automates</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html">&larr;&nbsp;Compteurs et diviseurs de fréquence</a>
+    
+    
+        <a href="sequentiel-activite.html">Activité : circuits séquentiels&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Automates</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#entite-et-squelette-de-larchitecture">Entité et squelette de l’architecture</a></li>
+            
+                
+                <li><a href="#enumeration-des-etats">Énumération des états</a></li>
+            
+                
+                <li><a href="#fonction-de-transition">Fonction de transition</a></li>
+            
+                
+                <li><a href="#registre-detat">Registre d’état</a></li>
+            
+                
+                <li><a href="#fonction-de-sortie">Fonction de sortie</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#modele-de-moore">Modèle de Moore</a></li>
+            
+                
+                <li><a href="#modele-de-mealy">Modèle de Mealy</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#commande-dun-compteur-a-partir-dun-automate">Commande d’un compteur à partir d’un automate</a></li>
+            
+                
+                <li><a href="#architecture-complete">Architecture complète</a></li>
+            
+            
+        </ul>
+            
+    
+    <p>Dans une section précédente, nous avons défini la <a href="../circuits-logiques/automates-modelisation.html">notion d’automate fini</a>
+et son <a href="../circuits-logiques/automates-synthese.html">application à la réalisation de circuits logiques séquentiels</a>.
+À travers un exemple, nous avons identifié deux étapes permettant d’aboutir à un circuit&nbsp;:</p>
+<ol>
+<li>Modéliser le comportement du système sous la forme d’un graphe d’états.</li>
+<li>Mettre en équations ce graphe d’états après avoir choisi un système de codage binaire des états.</li>
+</ol>
+<p>En utilisant le langage VHDL et un outil de synthèse logique, l’étape 2 peut être
+partiellement automatisée à condition de respecter certaines règles d’écriture.
+L’exercice consiste à traduire le graphe d’états en instructions VHDL qui soient
+à la fois&nbsp;:</p>
+<ul>
+<li>fidèles à la structure du graphe, afin de rester compréhensibles par un être humain,</li>
+<li>fidèles à la structure du circuit à produire, afin que l’outil de synthèse puisse faire son travail.</li>
+</ul>
+<p>En reprenant l’exemple du robot autonome, notre description VHDL doit,
+d’une part, capturer les éléments du graphe ci-dessous&nbsp;:</p>
+<p><a href="../circuits-logiques/robot-fsm-mealy.svg"><img src="../circuits-logiques/robot-fsm-mealy.svg" alt="Graphe d'états du robot autonome (Mealy)" class="vfill"></a></p>
+<p>Et d’autre part, elle doit décrire un circuit respectant cette structure&nbsp;:</p>
+<p><a href="../circuits-logiques/synthese-fsm-structure.svg"><img src="../circuits-logiques/synthese-fsm-structure.svg" alt="Structure typique d'un circuit réalisant un automate fini" class="hfill"></a></p>
+<section><h1 id="entite-et-squelette-de-larchitecture" tabindex="-1">Entité et squelette de l’architecture</h1>
+<p>La partie commande du robot sera décrite par une entité <code>RobotController</code> et
+une architecture <code>StateMachine</code>.
+L’entité aura les ports suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Port</th>
+<th style="text-align:left">Direction</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>clk_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Signal d’horloge</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>reset_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Commande de réinitialisation</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>front_sensor_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Détecteur d’obstacle à l’avant</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>left_sensor_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Détecteur d’obstacle à gauche</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>right_sensor_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Détecteur d’obstacle à droite</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>left_motor_forward_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Commande du moteur gauche vers l’avant</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>left_motor_back_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Commande du moteur gauche vers l’arrière</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>right_motor_forward_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Commande du moteur droit vers l’avant</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>right_motor_back_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Commande du moteur droit vers l’arrière</td>
+</tr>
+</tbody>
+</table>
+<p>L’indicateur de fin de rotation (signal <code>rotation_done</code>) sera géré en interne
+(<a href="#commande-dun-compteur-a-partir-dun-automate">voir plus bas</a>).</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">library</span> ieee;
+<span class="hljs-keyword">use</span> ieee.std_logic_1164.<span class="hljs-keyword">all</span>;
+
+<span class="hljs-keyword">entity</span> RobotController <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">port</span>(
+        clk_i, reset_i                                : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+        front_sensor_i, left_sensor_i, right_sensor_i : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+        left_motor_forward_o, left_motor_back_o       : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>;
+        right_motor_forward_o, right_motor_back_o     : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>
+    );
+<span class="hljs-keyword">end</span> RobotController;
+
+<span class="hljs-keyword">architecture</span> StateMachine <span class="hljs-keyword">of</span> RobotController <span class="hljs-keyword">is</span>
+    ...
+    <span class="hljs-keyword">signal</span> rotation_done : <span class="hljs-built_in">std_logic</span>;
+    ...
+<span class="hljs-keyword">begin</span>
+    ...
+<span class="hljs-keyword">end</span> StateMachine;
+</code></pre>
+</section><section><h1 id="enumeration-des-etats" tabindex="-1">Énumération des états</h1>
+<p>Nous allons commencer par déclarer la liste des états de l’automate
+en utilisant un <em>type énuméré</em> <code>state_t</code> avec les valeurs suivantes&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Symbole</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>FIND_WALL</code></td>
+<td style="text-align:left">État «&nbsp;Recherche d’un mur&nbsp;»</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>FOLLOW_WALL</code></td>
+<td style="text-align:left">État «&nbsp;Suivi d’un mur&nbsp;»</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>TURN_LEFT</code></td>
+<td style="text-align:left">État «&nbsp;Rotation à gauche&nbsp;»</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>TURN_RIGHT</code></td>
+<td style="text-align:left">État «&nbsp;Rotation à droite&nbsp;»</td>
+</tr>
+</tbody>
+</table>
+<p>Dans la description ci-dessous, les signaux <code>state_reg</code> et <code>state_next</code>, de type <code>state_t</code>,
+peuvent prendre quatre valeurs possibles représentées par ces symboles.
+En procédant ainsi, nous laissons à l’outil de synthèse la liberté d’associer
+un codage binaire de son choix à chacun des symboles.</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">architecture</span> StateMachine <span class="hljs-keyword">of</span> RobotController <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">type</span> state_t <span class="hljs-keyword">is</span> (FIND_WALL, FOLLOW_WALL, TURN_LEFT, TURN_RIGHT);
+    <span class="hljs-keyword">signal</span> state_reg, state_next : state_t;
+    <span class="hljs-keyword">signal</span> rotation_done         : <span class="hljs-built_in">std_logic</span>;
+    ...
+<span class="hljs-keyword">begin</span>
+    ...
+<span class="hljs-keyword">end</span> StateMachine;
+</code></pre>
+</section><section><h1 id="fonction-de-transition" tabindex="-1">Fonction de transition</h1>
+<p>La fonction de transition calcule l’état suivant <code>state_next</code> en fonction
+de l’état courant <code>state_reg</code>, des entrées <code>front_sensor_i</code>, <code>left_sensor_i</code>, <code>right_sensor_i</code>,
+et de l’indicateur <code>rotation_done</code>.
+Elle est décrite au moyen des instructions suivantes&nbsp;:</p>
+<ul>
+<li>un processus sensible à l’état courant et aux entrées de la fonction de transition&nbsp;;</li>
+<li>une instruction <code>case</code> qui permet d’identifier l’état courant&nbsp;;</li>
+<li>des instructions <code>if</code> pour tester les conditions associées aux transitions sortant de chaque état&nbsp;;</li>
+<li>des instructions d’affectation vers le signal <code>state_next</code>.</li>
+</ul>
+<pre><code class="language-vhdl"><span class="hljs-keyword">architecture</span> StateMachine <span class="hljs-keyword">of</span> RobotController <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">type</span> state_t <span class="hljs-keyword">is</span> (FIND_WALL, FOLLOW_WALL, TURN_LEFT, TURN_RIGHT);
+    <span class="hljs-keyword">signal</span> state_reg, state_next : state_t;
+    <span class="hljs-keyword">signal</span> rotation_done         : <span class="hljs-built_in">std_logic</span>;
+    ...
+<span class="hljs-keyword">begin</span>
+    p_state_next : <span class="hljs-keyword">process</span>(state_reg, front_sensor_i, left_sensor_i, rotation_done)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">case</span> state_reg <span class="hljs-keyword">is</span>
+            <span class="hljs-keyword">when</span> FIND_WALL =&gt;
+                <span class="hljs-keyword">if</span> front_sensor_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                    state_next &lt;= TURN_RIGHT;
+                <span class="hljs-keyword">elsif</span> left_sensor_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                    state_next &lt;= TURN_LEFT;
+                <span class="hljs-keyword">else</span>
+                    state_next &lt;= FIND_WALL;
+                <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+            <span class="hljs-keyword">when</span> FOLLOW_WALL =&gt;
+                <span class="hljs-keyword">if</span> left_sensor_i = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                    state_next &lt;= TURN_LEFT;
+                <span class="hljs-keyword">elsif</span> front_sensor_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                    state_next &lt;= TURN_RIGHT;
+                <span class="hljs-keyword">else</span>
+                    state_next &lt;= FOLLOW_WALL;
+                <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+            <span class="hljs-keyword">when</span> TURN_LEFT | TURN_RIGHT =&gt;
+                <span class="hljs-keyword">if</span> rotation_done = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                    state_next &lt;= FIND_WALL;
+                <span class="hljs-keyword">else</span>
+                    state_next &lt;= state_reg;
+                <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">case</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_state_next;
+
+    ...
+<span class="hljs-keyword">end</span> StateMachine;
+</code></pre>
+</section><section><h1 id="registre-detat" tabindex="-1">Registre d’état</h1>
+<p>Le signal <code>state_reg</code> est mis à jour sur les fronts montants de <code>clk_i</code>.
+La réinitialisation asynchrone ramène l’automate dans son état initial <code>FIND_WALL</code>&nbsp;:</p>
+<pre><code class="language-vhdl">p_state_reg : <span class="hljs-keyword">process</span>(clk_i, reset_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+        state_reg &lt;= FIND_WALL;
+    <span class="hljs-keyword">elsif</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        state_reg &lt;= state_next;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_state_reg;
+</code></pre>
+<p>Comme pour la <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html#compteurs">description des compteurs</a>,
+il est possible de regrouper le registre d’état et la fonction de transition
+dans un même processus.</p>
+</section><section><h1 id="fonction-de-sortie" tabindex="-1">Fonction de sortie</h1>
+</section><section><h2 id="modele-de-moore" tabindex="-1">Modèle de Moore</h2>
+<p>Dans le modèle de Moore, les sorties ne dépendent que de l’état courant.
+Ici, on dispose d’une grande liberté pour écrire les commandes des moteurs.</p>
+<ul>
+<li>Avec des instructions d’affectation concurrentes conditionnelles&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl">left_motor_forward_o  &lt;= <span class="hljs-string">'0'</span> <span class="hljs-keyword">when</span> state_reg = TURN_LEFT  <span class="hljs-keyword">else</span> <span class="hljs-string">'1'</span>;
+right_motor_forward_o &lt;= <span class="hljs-string">'0'</span> <span class="hljs-keyword">when</span> state_reg = TURN_RIGHT <span class="hljs-keyword">else</span> <span class="hljs-string">'1'</span>;
+left_motor_back_o     &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> state_reg = TURN_LEFT  <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+right_motor_back_o    &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> state_reg = TURN_RIGHT <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+</code></pre>
+<ul>
+<li>Avec des instructions d’affectation concurrentes avec sélection&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl"><span class="hljs-keyword">with</span> state_reg <span class="hljs-keyword">select</span>
+    left_motor_forward_o &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> FIND_WALL | FOLLOW_WALL | TURN_RIGHT,
+                            <span class="hljs-string">'0'</span> <span class="hljs-keyword">when</span> TURN_LEFT;
+
+<span class="hljs-keyword">with</span> state_reg <span class="hljs-keyword">select</span>
+    right_motor_forward_o &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> FIND_WALL | FOLLOW_WALL | TURN_LEFT,
+                             <span class="hljs-string">'0'</span> <span class="hljs-keyword">when</span> TURN_RIGHT;
+
+<span class="hljs-keyword">with</span> state_reg <span class="hljs-keyword">select</span>
+    left_motor_back_o &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> TURN_LEFT,
+                         <span class="hljs-string">'0'</span> <span class="hljs-keyword">when</span> FIND_WALL | FOLLOW_WALL | TURN_RIGHT;
+
+<span class="hljs-keyword">with</span> state_reg <span class="hljs-keyword">select</span>
+    right_motor_back_o &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> TURN_RIGHT,
+                          <span class="hljs-string">'0'</span> <span class="hljs-keyword">when</span> FIND_WALL | FOLLOW_WALL | TURN_LEFT;
+</code></pre>
+<ul>
+<li>Avec un processus et une instruction <code>case</code>&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl">p_motors_o : <span class="hljs-keyword">process</span>(state_reg)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">case</span> state_reg <span class="hljs-keyword">is</span>
+        <span class="hljs-keyword">when</span> FOLLOW_WALL | FIND_WALL =&gt;
+            left_motor_forward_o  &lt;= <span class="hljs-string">'1'</span>;
+            right_motor_forward_o &lt;= <span class="hljs-string">'1'</span>;
+            left_motor_back_o     &lt;= <span class="hljs-string">'0'</span>;
+            right_motor_back_o    &lt;= <span class="hljs-string">'0'</span>;
+        <span class="hljs-keyword">when</span> TURN_LEFT =&gt;
+            left_motor_forward_o  &lt;= <span class="hljs-string">'0'</span>;
+            right_motor_forward_o &lt;= <span class="hljs-string">'1'</span>;
+            left_motor_back_o     &lt;= <span class="hljs-string">'1'</span>;
+            right_motor_back_o    &lt;= <span class="hljs-string">'0'</span>;
+        <span class="hljs-keyword">when</span> TURN_RIGHT =&gt;
+            left_motor_forward_o  &lt;= <span class="hljs-string">'1'</span>;
+            right_motor_forward_o &lt;= <span class="hljs-string">'0'</span>;
+            left_motor_back_o     &lt;= <span class="hljs-string">'0'</span>;
+            right_motor_back_o    &lt;= <span class="hljs-string">'1'</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">case</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_motors_o;
+</code></pre>
+</section><section><h2 id="modele-de-mealy" tabindex="-1">Modèle de Mealy</h2>
+<p>Dans le modèle de Mealy, les sorties dépendent de l’état courant et des entrées
+de l’automate.
+Par exemple, dans les états où le robot doit avancer, on bloque les commandes
+<code>left_motor_forward_o</code> et <code>right_motor_forward_o</code> lorsqu’un obstacle est détecté à l’avant (<code>front_sensor_i</code>)&nbsp;;
+dans les états où le robot doit tourner, on bloque les commandes des moteurs
+à la fin de la rotation (<code>rotation_done</code>).</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">with</span> state_reg <span class="hljs-keyword">select</span>
+    left_motor_forward_o  &lt;= <span class="hljs-keyword">not</span> front_sensor_i <span class="hljs-keyword">when</span> FIND_WALL | FOLLOW_WALL,
+                             <span class="hljs-keyword">not</span> rotation_done  <span class="hljs-keyword">when</span> TURN_RIGHT,
+                             <span class="hljs-string">'0'</span>                <span class="hljs-keyword">when</span> TURN_LEFT;
+<span class="hljs-keyword">with</span> state_reg <span class="hljs-keyword">select</span>
+    right_motor_forward_o &lt;= <span class="hljs-keyword">not</span> front_sensor_i <span class="hljs-keyword">when</span> FIND_WALL | FOLLOW_WALL,
+                             <span class="hljs-keyword">not</span> rotation_done  <span class="hljs-keyword">when</span> TURN_LEFT,
+                             <span class="hljs-string">'0'</span>                <span class="hljs-keyword">when</span> TURN_RIGHT;
+
+left_motor_back_o  &lt;= <span class="hljs-keyword">not</span> rotation_done <span class="hljs-keyword">when</span> state_reg = TURN_LEFT  <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+right_motor_back_o &lt;= <span class="hljs-keyword">not</span> rotation_done <span class="hljs-keyword">when</span> state_reg = TURN_RIGHT <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+</code></pre>
+</section><section><h1 id="commande-dun-compteur-a-partir-dun-automate" tabindex="-1">Commande d’un compteur à partir d’un automate</h1>
+<p>Pour terminer notre architecture, nous devons à présent gérer le signal
+<code>rotation_done</code> indiquant la fin de rotation.</p>
+<p>Pour simplifier le raisonnement, supposons que nous puissions déterminer précisément
+le temps que met le robot pour tourner d’un quart de tour.
+Ce temps sera fourni comme un nombre entier de périodes d’horloge par
+l’intermédiaire d’un paramètre générique <code>ROTATION_TIME</code>&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> RobotController <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">generic</span>(
+        ROTATION_TIME : <span class="hljs-built_in">positive</span>
+    );
+    <span class="hljs-keyword">port</span>(
+        clk_i, reset_i                                : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+        front_sensor_i, left_sensor_i, right_sensor_i : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+        left_motor_forward_o, left_motor_back_o       : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>;
+        right_motor_forward_o, right_motor_back_o     : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>
+    );
+<span class="hljs-keyword">end</span> RobotController;
+</code></pre>
+<p>Pour détecter la fin de rotation, il suffit de compter le temps passé dans les
+états <code>TURN_LEFT</code> et <code>TURN_RIGHT</code> et de comparer ce temps avec <code>ROTATION_TIME</code>.</p>
+<p>Dans un circuit logique, la mesure du temps se fait au moyen d’un <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html#compteurs">compteur</a>
+que nous appellerons <code>timer_reg</code>.
+Ici, la nouveauté consiste à commander la mise à jour du compteur en utilisant
+les états de l’automate.
+On le met à zéro dans les états <code>FIND_WALL</code> et <code>FOLLOW_WALL</code>&nbsp;; on l’incrémente dans les états <code>TURN_LEFT</code> et <code>TURN_RIGHT</code>&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">architecture</span> StateMachine <span class="hljs-keyword">of</span> RobotController <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">type</span> state_t <span class="hljs-keyword">is</span> (FIND_WALL, FOLLOW_WALL, TURN_LEFT, TURN_RIGHT);
+    <span class="hljs-keyword">signal</span> state_reg, state_next : state_t;
+    <span class="hljs-keyword">signal</span> rotation_done         : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> timer_reg, timer_next : <span class="hljs-built_in">natural</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> ROTATION_TIME - <span class="hljs-number">1</span>;
+<span class="hljs-keyword">begin</span>
+    ...
+
+    p_timer_next : <span class="hljs-keyword">process</span>(state_reg, rotation_done, timer_reg)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">case</span> state_reg <span class="hljs-keyword">is</span>
+            <span class="hljs-keyword">when</span> FIND_WALL | FOLLOW_WALL =&gt;
+                timer_next &lt;= <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">when</span> TURN_LEFT | TURN_RIGHT =&gt;
+                <span class="hljs-keyword">if</span> rotation_done = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                    timer_next &lt;= <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">else</span>
+                    timer_next &lt;= timer_reg + <span class="hljs-number">1</span>;
+                <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">case</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_timer_next;
+
+    p_timer_reg : <span class="hljs-keyword">process</span>(clk_i)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+            timer_reg &lt;= timer_next;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_timer_reg;
+
+    rotation_done &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> timer_reg = ROTATION_TIME - <span class="hljs-number">1</span> <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+<span class="hljs-keyword">end</span> StateMachine;
+</code></pre>
+</section><section><h1 id="architecture-complete" tabindex="-1">Architecture complète</h1>
+<p>Nous proposons ci-dessous une version compacte de l’architecture pour le modèle
+de Mealy, dans laquelle nous avons éliminé les signaux <code>state_next</code> et <code>timer_next</code>
+et regroupé leurs processus&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">architecture</span> StateMachine <span class="hljs-keyword">of</span> RobotController <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">type</span> state_t <span class="hljs-keyword">is</span> (FIND_WALL, FOLLOW_WALL, TURN_LEFT, TURN_RIGHT);
+    <span class="hljs-keyword">signal</span> state_reg     : state_t;
+    <span class="hljs-keyword">signal</span> rotation_done : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> timer_reg     : <span class="hljs-built_in">natural</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> ROTATION_TIME - <span class="hljs-number">1</span>;
+<span class="hljs-keyword">begin</span>
+    p_state_reg : <span class="hljs-keyword">process</span>(clk_i, reset_i)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            state_reg &lt;= FIND_WALL;
+        <span class="hljs-keyword">elsif</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">case</span> state_reg <span class="hljs-keyword">is</span>
+                <span class="hljs-keyword">when</span> FIND_WALL =&gt;
+                    <span class="hljs-keyword">if</span> front_sensor_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                        state_reg &lt;= TURN_RIGHT;
+                    <span class="hljs-keyword">elsif</span> left_sensor_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                        state_reg &lt;= TURN_LEFT;
+                    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+                <span class="hljs-keyword">when</span> FOLLOW_WALL =&gt;
+                    <span class="hljs-keyword">if</span> left_sensor_i = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                        state_reg &lt;= TURN_LEFT;
+                    <span class="hljs-keyword">elsif</span> front_sensor_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                        state_reg &lt;= TURN_RIGHT;
+                    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+                <span class="hljs-keyword">when</span> TURN_LEFT | TURN_RIGHT =&gt;
+                    <span class="hljs-keyword">if</span> rotation_done = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                        state_reg &lt;= FIND_WALL;
+                    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">case</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_state_reg;
+
+    <span class="hljs-keyword">with</span> state_reg <span class="hljs-keyword">select</span>
+        left_motor_forward_o  &lt;= <span class="hljs-keyword">not</span> front_sensor_i <span class="hljs-keyword">when</span> FIND_WALL | FOLLOW_WALL,
+                                 <span class="hljs-keyword">not</span> rotation_done  <span class="hljs-keyword">when</span> TURN_RIGHT,
+                                 <span class="hljs-string">'0'</span>                <span class="hljs-keyword">when</span> TURN_LEFT;
+    <span class="hljs-keyword">with</span> state_reg <span class="hljs-keyword">select</span>
+        right_motor_forward_o &lt;= <span class="hljs-keyword">not</span> front_sensor_i <span class="hljs-keyword">when</span> FIND_WALL | FOLLOW_WALL,
+                                 <span class="hljs-keyword">not</span> rotation_done  <span class="hljs-keyword">when</span> TURN_LEFT,
+                                 <span class="hljs-string">'0'</span>                <span class="hljs-keyword">when</span> TURN_RIGHT;
+
+    left_motor_back_o  &lt;= <span class="hljs-keyword">not</span> rotation_done <span class="hljs-keyword">when</span> state_reg = TURN_LEFT  <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+    right_motor_back_o &lt;= <span class="hljs-keyword">not</span> rotation_done <span class="hljs-keyword">when</span> state_reg = TURN_RIGHT <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+
+    p_timer_reg : <span class="hljs-keyword">process</span>(clk_i)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">case</span> state_reg <span class="hljs-keyword">is</span>
+                <span class="hljs-keyword">when</span> FIND_WALL | FOLLOW_WALL =&gt;
+                    timer_reg &lt;= <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">when</span> TURN_LEFT | TURN_RIGHT =&gt;
+                    <span class="hljs-keyword">if</span> rotation_done = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                        timer_reg &lt;= <span class="hljs-number">0</span>;
+                    <span class="hljs-keyword">else</span>
+                        timer_reg &lt;= timer_reg + <span class="hljs-number">1</span>;
+                    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">case</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_timer_reg;
+
+    rotation_done &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> timer_reg = ROTATION_TIME - <span class="hljs-number">1</span> <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+<span class="hljs-keyword">end</span> StateMachine;
+</code></pre>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html">&larr;&nbsp;Compteurs et diviseurs de fréquence</a>
+    
+    
+        <a href="sequentiel-activite.html">Activité : circuits séquentiels&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-automates.html" class="current">Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

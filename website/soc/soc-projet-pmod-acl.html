@@ -1,0 +1,1215 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Accéléromètre sur bus SPI</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="soc-projet-web.html">&larr;&nbsp;Mise en place d'un serveur web</a>
+    
+    
+        <a href="soc-installation.html">Installation et configuration des outils de développement&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Accéléromètre sur bus SPI</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#communication-avec-laccelerometre">Communication avec l’accéléromètre</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#lecture-et-ecriture-des-registres-internes-de-laccelerometre">Lecture et écriture des registres internes de l’accéléromètre</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#identification-de-laccelerometre">Identification de l’accéléromètre</a></li>
+            
+                
+                <li><a href="#parametrage-de-laccelerometre">Paramétrage de l’accéléromètre</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#plage-de-mesure-dacceleration">Plage de mesure d’accélération</a></li>
+            
+                
+                <li><a href="#frequence-dechantillonnage">Fréquence d’échantillonnage</a></li>
+            
+                
+                <li><a href="#mise-en-service-des-mesures">Mise en service des mesures</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#lecture-de-lacceleration">Lecture de l’accélération</a></li>
+            
+            
+        </ul>
+            
+    
+    <p>Le module <a href="http://www.digilentinc.com/Products/Detail.cfm?Prod=PMOD-ACL">PmodACL</a>
+de la société <em>Digilent</em> comporte un accéléromètre trois axes
+<a href="assets/downloads/Accelerometer/PmodACL-ADXL345.pdf">ADXL345</a> (<em>Analog Devices</em>).
+L’interface de communication avec le FPGA est un bus SPI.</p>
+<p>Dans cette page, vous trouverez les informations de base permettant de mesurer
+périodiquement les valeurs de l’accélération selon les axes <em>X</em>, <em>Y</em> et <em>Z</em>.
+Le composant ADXL345 offre un grand nombre d’autres possibilités
+(détection de chocs, détection de chute libre, modes d’économie d’énergie)
+qui sont détaillées dans sa documentation constructeur.</p>
+<section><h1 id="communication-avec-laccelerometre" tabindex="-1">Communication avec l’accéléromètre</h1>
+<p>La communication avec l’accéléromètre se fait par émission ou réception de séquences d’octets.
+Le signal <em>slave select</em> permet d’indiquer le début et la fin d’une séquence.
+Il est actif au niveau bas et son utilisation est résumée par le chronogramme ci-dessous&nbsp;:</p>
+<p><a href="ADXL345-slave-select.svg"><img src="ADXL345-slave-select.svg" alt="ADXL345. Rôle de Slave Select"></a></p>
+<p>Les trames SPI doivent respecter les contraintes suivantes&nbsp;:</p>
+<table>
+    <tbody><tr>
+        <td>Fréquence max de l'horloge SPI</td>
+        <td>5 MHz</td>
+    </tr>
+    <tr>
+        <td>Polarité</td>
+        <td>1</td>
+    </tr>
+    <tr>
+        <td>Phase</td>
+        <td>1</td>
+    </tr>
+</tbody></table>
+</section><section><h2 id="lecture-et-ecriture-des-registres-internes-de-laccelerometre" tabindex="-1">Lecture et écriture des registres internes de l’accéléromètre</h2>
+<p>Une séquence commence toujours par un octet du maître vers l’esclave
+qui doit respecter le format suivant&nbsp;:</p>
+<table>
+    <tbody><tr>
+        <th>7</th>
+        <th>6</th>
+        <th>5</th>
+        <th>4</th>
+        <th>3</th>
+        <th>2</th>
+        <th>1</th>
+        <th>0</th>
+    </tr>
+    <tr>
+        <td>RW</td>
+        <td>MB</td>
+        <td colspan="6">A (Adresse)</td>
+    </tr>
+</tbody></table>
+<p>Les 6 bits de poids faible indiquent l’adresse <em>A</em> du registre de l’accéléromètre que vous souhaitez lire ou modifier.</p>
+<p>Le bit 7 (<code>RW</code> pour Read/Write) indique si l’opération est une lecture (<code>RW</code> = 1) ou une écriture (<code>RW</code> = ‹&nbsp;0&nbsp;›).</p>
+<p>Le bit 6 (<code>MB</code> pour MultiByte) indique si la lecture ou l’écriture doit se faire en séquence sur plusieurs registres contigus&nbsp;:</p>
+<ul>
+<li>Si <code>MB</code> = 0, le second octet de la séquence transportera la valeur du registre sélectionné.</li>
+<li>Si <code>MB</code> = 1, si <em>A</em> est l’adresse spécifiée dans le premier octet, les <em>N</em> octets suivants
+transporteront les valeurs des registres aux adresses successives <em>A</em>, <em>A+1</em>, <em>A+2</em>, … <em>A+N-1</em></li>
+</ul>
+<p>Quatre scénarios peuvent donc se présenter (<em>XXX</em> représente des valeurs indifférentes)&nbsp;:</p>
+<p><a href="ADXL345-trames.svg"><img src="ADXL345-trames.svg" alt="ADXL345. Trames"></a></p>
+</section><section><h1 id="identification-de-laccelerometre" tabindex="-1">Identification de l’accéléromètre</h1>
+<p>Le registre situé à l’adresse 0 retourne toujours la valeur E5<sub>hex</sub>.
+Cela permet de vérifier que le périphérique SPI est bien connecté et qu’il s’agit
+bien d’un accéléromètre ADXL345.</p>
+</section><section><h1 id="parametrage-de-laccelerometre" tabindex="-1">Paramétrage de l’accéléromètre</h1>
+</section><section><h2 id="plage-de-mesure-dacceleration" tabindex="-1">Plage de mesure d’accélération</h2>
+<p>Le registre situé à l’adresse 31<sub>hex</sub> permet de configurer la valeur maximale de l’accélération à mesurer.
+L’octet à écrire dans ce registre aura le format suivant&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">7</th>
+<th style="text-align:left">6</th>
+<th style="text-align:left">5</th>
+<th style="text-align:left">4</th>
+<th style="text-align:left">3</th>
+<th style="text-align:left">2</th>
+<th style="text-align:left">1</th>
+<th style="text-align:left">0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">FR</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">G1</td>
+<td style="text-align:left">G0</td>
+</tr>
+</tbody>
+</table>
+<p>Lorsqu’il est à 1, le bit <code>FR</code> (Full Resolution) permet d’exploiter la résolution maximale du capteur,
+c’est-à-dire avec une précision de 0,004 <em>g</em>.
+Lorsque <code>FR</code> = 0, les mesures d’accélération sont toujours sur 10 bits, quelle
+que soit la plage de mesure.</p>
+<p>Les bits <code>G0</code> et <code>G1</code> déterminent la plage de mesure de la manière suivante&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">G1</th>
+<th style="text-align:left">G0</th>
+<th style="text-align:left">Plage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">± 2 <em>g</em></td>
+</tr>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">± 4 <em>g</em></td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">± 8 <em>g</em></td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">± 16 <em>g</em></td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="frequence-dechantillonnage" tabindex="-1">Fréquence d’échantillonnage</h2>
+<p>Le registre situé à l’adresse 2C<sub>hex</sub> permet de configurer la fréquence des mesures.
+L’octet à écrire dans ce registre aura le format suivant&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">7</th>
+<th style="text-align:left">6</th>
+<th style="text-align:left">5</th>
+<th style="text-align:left">4</th>
+<th style="text-align:left">3</th>
+<th style="text-align:left">2</th>
+<th style="text-align:left">1</th>
+<th style="text-align:left">0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">R3</td>
+<td style="text-align:left">R2</td>
+<td style="text-align:left">R1</td>
+<td style="text-align:left">R0</td>
+</tr>
+</tbody>
+</table>
+<p>Il y a donc 16 fréquences d’échantillonnage possibles qui sont calculées de la manière suivantes
+à partir de la valeur <em>R</em> codée dans le registre&nbsp;:</p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>F</mi><mo>=</mo><mfrac><mrow><mn>25</mn><mo>×</mo><msup><mn>2</mn><mi>R</mi></msup></mrow><mn>256</mn></mfrac><mtext>  </mtext><mtext>avec</mtext><mtext>  </mtext><mn>0</mn><mo>≤</mo><mi>R</mi><mo>≤</mo><mn>15</mn></mrow><annotation encoding="application/x-tex">    F = {25 \times 2^R \over 256} \; \text{avec} \; 0 \leq R \leq 15
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.204331em;vertical-align:-0.686em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.5183309999999999em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">256</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">25</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8413309999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.00773em;">R</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord text"><span class="mord">avec</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord">0</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8193em;vertical-align:-0.13597em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">15</span></span></span></span></span>
+</section><section><h2 id="mise-en-service-des-mesures" tabindex="-1">Mise en service des mesures</h2>
+<p>Le registre situé à l’adresse 2D<sub>hex</sub> définit le mode de fonctionnement de l’accéléromètre.
+Pour effectuer des mesures en continu, il suffit de lui donner la valeur suivante&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">7</th>
+<th style="text-align:left">6</th>
+<th style="text-align:left">5</th>
+<th style="text-align:left">4</th>
+<th style="text-align:left">3</th>
+<th style="text-align:left">2</th>
+<th style="text-align:left">1</th>
+<th style="text-align:left">0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+</tr>
+</tbody>
+</table>
+</section><section><h1 id="lecture-de-lacceleration" tabindex="-1">Lecture de l’accélération</h1>
+<p>Les valeurs d’accélération peuvent être lues dans les registres suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Adresse</th>
+<th style="text-align:left">Valeur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">32<sub>hex</sub></td>
+<td style="text-align:left">Accélération selon l’axe <em>X</em> (octet de poids faible)</td>
+</tr>
+<tr>
+<td style="text-align:left">33<sub>hex</sub></td>
+<td style="text-align:left">Accélération selon l’axe <em>X</em> (octet de poids fort)</td>
+</tr>
+<tr>
+<td style="text-align:left">34<sub>hex</sub></td>
+<td style="text-align:left">Accélération selon l’axe <em>Y</em> (octet de poids faible)</td>
+</tr>
+<tr>
+<td style="text-align:left">35<sub>hex</sub></td>
+<td style="text-align:left">Accélération selon l’axe <em>Y</em> (octet de poids fort)</td>
+</tr>
+<tr>
+<td style="text-align:left">36<sub>hex</sub></td>
+<td style="text-align:left">Accélération selon l’axe <em>Z</em> (octet de poids faible)</td>
+</tr>
+<tr>
+<td style="text-align:left">37<sub>hex</sub></td>
+<td style="text-align:left">Accélération selon l’axe <em>Z</em> (octet de poids fort)</td>
+</tr>
+</tbody>
+</table>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="soc-projet-web.html">&larr;&nbsp;Mise en place d'un serveur web</a>
+    
+    
+        <a href="soc-installation.html">Installation et configuration des outils de développement&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-pmod-acl.html" class="current">Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

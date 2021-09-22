@@ -1,0 +1,1588 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Activité : développement logiciel embarqué</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="virgule-sonar-activite.html">&larr;&nbsp;Activité : intégration d'un récepteur série pour sonar</a>
+    
+    
+        <a href="../essentiel-vhdl/index.html">L'essentiel de VHDL&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Activité : développement logiciel embarqué</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#structure-dune-application">Structure d’une application</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#le-fichier-platformh">Le fichier Platform.h</a></li>
+            
+                
+                <li><a href="#le-fichier-platformc">Le fichier Platform.c</a></li>
+            
+                
+                <li><a href="#le-fichier-makefile">Le fichier Makefile</a></li>
+            
+                
+                <li><a href="#le-programme-principal">Le programme principal</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#fonctions-daffichage">Fonctions d’affichage</a></li>
+            
+                
+                <li><a href="#compilation">Compilation</a></li>
+            
+                
+                <li><a href="#chargement-sur-la-cible">Chargement sur la cible</a></li>
+            
+            
+        </ul>
+            
+    
+    <p>Le dossier <code>CoCiNum/src/c</code> contient des fichiers sources en langage C
+que vous pouvez incorporer à une application.</p>
+<section><h1 id="structure-dune-application" tabindex="-1">Structure d’une application</h1>
+<p>Pour créer une application <code>MyApp</code>, suivez les étapes suivantes.</p>
+<p>Créez un dossier pour votre application&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/c
+mkdir MyApp
+<span class="hljs-built_in">cd</span> MyApp
+</code></pre>
+<p>Dans le dossier <code>CoCiNum/src/c/MyApp</code>, créez les fichiers suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Fichier</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>MyApp.c</code></td>
+<td style="text-align:left">Le programme principal</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Platform.h</code></td>
+<td style="text-align:left">La déclaration des constantes et variables représentant les périphériques</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Platform.c</code></td>
+<td style="text-align:left">Les données de configuration des périphériques</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Makefile</code></td>
+<td style="text-align:left">Un script de construction du programme exécutable</td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="le-fichier-platformh" tabindex="-1">Le fichier Platform.h</h2>
+<p>Pour un système équipé d’une interface de communication série et d’un timer
+utilisant les adresses indiquées dans les étapes précédentes,
+le fichier <code>Platform.h</code> aura le contenu suivant&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> PLATFORM_H_</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> PLATFORM_H_</span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;InterruptController/InterruptController.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;UART/UART.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Timer/Timer.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> CLK_FREQUENCY_HZ 100000000</span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_ADDRESS  0x81000000</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> UART_ADDRESS  0x82000000</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> TIMER_ADDRESS 0x83000000</span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_UART_RX 0x0001</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_UART_TX 0x0002</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_TIMER   0x0004</span>
+
+<span class="hljs-keyword">extern</span> InterruptController *<span class="hljs-keyword">const</span> intc;
+<span class="hljs-keyword">extern</span> UART                *<span class="hljs-keyword">const</span> uart;
+<span class="hljs-keyword">extern</span> Timer               *<span class="hljs-keyword">const</span> timer;
+
+<span class="hljs-meta">#<span class="hljs-keyword">endif</span></span>
+</code></pre>
+<div class="warning">
+<p>Les constantes définies dans <code>Platform.h</code> doivent être cohérentes avec
+celles définies dans <code>Computer_pkg.vhd</code>.</p>
+<p>Les adresses des périphériques doivent être les mêmes&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-comment">-- Computer_pkg.vhd</span>
+<span class="hljs-keyword">constant</span> TIMER_ADDRESS : <span class="hljs-built_in">unsigned</span> := x<span class="hljs-string">"83000000"</span>;
+</code></pre>
+<pre><code class="language-c"><span class="hljs-comment">// Platform.h</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> TIMER_ADDRESS 0x83000000</span>
+</code></pre>
+<p>Le masque d’un événement doit être égale à 2<sup>Numéro de l’événement</sup>&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-comment">-- Computer_pkg.vhd</span>
+<span class="hljs-comment">-- Numéro de l'événement du timer.</span>
+<span class="hljs-keyword">constant</span> INTC_EVENTS_TIMER : <span class="hljs-built_in">natural</span> := <span class="hljs-number">2</span>;
+</code></pre>
+<pre><code class="language-c"><span class="hljs-comment">// Platform.h</span>
+<span class="hljs-comment">// Masque de l'événement du timer : 2^2 = 4</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_TIMER 0x0004</span>
+</code></pre>
+</div>
+<h3 id="ajout-dun-peripherique-spi" tabindex="-1">Ajout d’un périphérique SPI</h3>
+<p>Pour tous les périphériques SPI, on ajoutera&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;SPI/SPI.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SPI_TIMER_ADDRESS  0x84000000</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SPI_MASTER_ADDRESS 0x85000000</span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_SPI_TIMER  0x0008</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_SPI_MASTER 0x0010</span>
+
+<span class="hljs-keyword">extern</span> Timer     *<span class="hljs-keyword">const</span> spi_timer;
+<span class="hljs-keyword">extern</span> SPIMaster *<span class="hljs-keyword">const</span> spi_master;
+</code></pre>
+<p>Si votre application utilise un module joystick sur bus SPI, vous pouvez ajouter&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;SPI/Joystick.h&gt;</span></span>
+
+<span class="hljs-keyword">extern</span> SPIDevice *<span class="hljs-keyword">const</span> jstk;
+</code></pre>
+<p>Si votre application utilise un module accéléromètre sur bus SPI, vous pouvez ajouter&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;SPI/Accelerometer.h&gt;</span></span>
+
+<span class="hljs-keyword">extern</span> SPIDevice *<span class="hljs-keyword">const</span> acl;
+</code></pre>
+<h3 id="ajout-dun-peripherique-i2c" tabindex="-1">Ajout d’un périphérique I<sup>2</sup>C</h3>
+<p>Pour un périphérique I<sup>2</sup>C, on ajoutera&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;I2C/I2C.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> I2C_ADDRESS 0x86000000</span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_I2C 0x0020</span>
+
+<span class="hljs-keyword">extern</span> I2CMaster *<span class="hljs-keyword">const</span> i2c;
+</code></pre>
+<p>Si votre application utilise un module capteur de température I<sup>2</sup>C, vous pouvez ajouter&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;I2C/Thermometer.h&gt;</span></span>
+
+<span class="hljs-keyword">extern</span> I2CDevice *<span class="hljs-keyword">const</span> tmp;
+</code></pre>
+<h3 id="ajout-dun-peripherique-uart" tabindex="-1">Ajout d’un périphérique UART</h3>
+<p>Pour un périphérique récepteur série, on ajoutera&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> RECV_ADDRESS 0x87000000</span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_RECV 0x040</span>
+
+<span class="hljs-keyword">extern</span> UART *<span class="hljs-keyword">const</span> recv;
+</code></pre>
+<p>Si votre application utilise un module sonar, vous pouvez ajouter&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;UART/Sonar.h&gt;</span></span>
+
+<span class="hljs-keyword">extern</span> Sonar *<span class="hljs-keyword">const</span> sonar;
+</code></pre>
+</section><section><h2 id="le-fichier-platformc" tabindex="-1">Le fichier Platform.c</h2>
+<p>Ce fichier contient des <em>instances</em> des structures qui représentent les
+périphériques du système.</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> REG(T, ADDR, N) (T*)(ADDR + 4 * N)</span>
+
+<span class="hljs-comment">// Le contrôleur d'interruptions.</span>
+InterruptController *<span class="hljs-keyword">const</span> intc = (InterruptController*)INTC_ADDRESS;
+
+<span class="hljs-comment">// L'interface série asynchrone (UART).</span>
+<span class="hljs-keyword">static</span> UART uart_priv = {
+    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements de l'UART</span>
+    .intc        = intc,
+    <span class="hljs-comment">// Le masque des événements en réception.</span>
+    .rx_evt_mask = INTC_EVENTS_UART_RX,
+    <span class="hljs-comment">// Le masque des événements en émission.</span>
+    .tx_evt_mask = INTC_EVENTS_UART_TX,
+    <span class="hljs-comment">// Un pointeur vers le registre de données (regitre 0).</span>
+    .data        = REG(<span class="hljs-type">uint8_t</span>, UART_ADDRESS, <span class="hljs-number">0</span>)
+};
+
+UART *<span class="hljs-keyword">const</span> uart = &amp;uart_priv;
+
+<span class="hljs-comment">// Le timer à usage général.</span>
+<span class="hljs-keyword">static</span> Timer timer_priv = {
+    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du timer</span>
+    .intc     = intc,
+    <span class="hljs-comment">// Le masque des événements périodiques.</span>
+    .evt_mask = INTC_EVENTS_TIMER,
+    <span class="hljs-comment">// Un pointeur vers le registre qui définit la limite de comptage (voir Timer/Timer.h).</span>
+    .limit    = REG(<span class="hljs-type">uint32_t</span>, TIMER_ADDRESS, TIMER_LIMIT_REG),
+    <span class="hljs-comment">// Un pointeur vers le registre qui contient la valeur courante du compteur (voir Timer/Timer.h).</span>
+    .count    = REG(<span class="hljs-type">uint32_t</span>, TIMER_ADDRESS, TIMER_COUNT_REG)
+};
+
+Timer *<span class="hljs-keyword">const</span> timer = &amp;timer_priv;
+</code></pre>
+<h3 id="definition-des-peripheriques-spi" tabindex="-1">Définition des périphériques SPI</h3>
+<pre><code class="language-c"><span class="hljs-comment">// Le timer utilisé pour les communications SPI.</span>
+<span class="hljs-keyword">static</span> Timer spi_timer_priv = {
+    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du timer</span>
+    .intc     = intc,
+    <span class="hljs-comment">// Le masque des événements périodiques.</span>
+    .evt_mask = INTC_EVENTS_SPI_TIMER,
+    <span class="hljs-comment">// Un pointeur vers le registre qui définit la limite de comptage (voir Timer/Timer.h).</span>
+    .limit    = REG(<span class="hljs-type">uint32_t</span>, SPI_TIMER_ADDRESS, TIMER_LIMIT_REG),
+    <span class="hljs-comment">// Un pointeur vers le registre qui contient la valeur courante du compteur (voir Timer/Timer.h).</span>
+    .count    = REG(<span class="hljs-type">uint32_t</span>, SPI_TIMER_ADDRESS, TIMER_COUNT_REG)
+};
+
+Timer *<span class="hljs-keyword">const</span> spi_timer = &amp;spi_timer_priv;
+
+<span class="hljs-comment">// Le contrôleur SPI.</span>
+<span class="hljs-keyword">static</span> SPIMaster spi_master_priv = {
+    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du contrôleur SPI.</span>
+    .intc      = intc,
+    <span class="hljs-comment">// Le masque des événements de fin de trame.</span>
+    .evt_mask  = INTC_EVENTS_SPI_MASTER,
+    <span class="hljs-comment">// Un pointeur vers le registre de données  (voir SPI/SPI.h).</span>
+    .data      = REG(<span class="hljs-type">uint8_t</span>, SPI_MASTER_ADDRESS, SPI_DATA_REG),
+    <span class="hljs-comment">// Un pointeur vers les bits de contrôle (voir SPI/SPI.h).</span>
+    .control   = REG(<span class="hljs-type">uint8_t</span>, SPI_MASTER_ADDRESS, SPI_CONTROL_REG),
+    <span class="hljs-comment">// Un pointeur vers le registre qui définit la vitesse de communication (voir SPI/SPI.h).</span>
+    .timer_max = REG(<span class="hljs-type">uint8_t</span>, SPI_MASTER_ADDRESS, SPI_TIMER_MAX_REG)
+};
+
+SPIMaster *<span class="hljs-keyword">const</span> spi_master = &amp;spi_master_priv;
+</code></pre>
+<p>Si votre application utilise un module joystick sur bus SPI, vous pouvez ajouter&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-keyword">static</span> SPIDevice jstk_priv = {
+    <span class="hljs-comment">// Le contrôleur SPI utilisé pour communiquer avec le joystick.</span>
+    .spi            = spi_master,
+    <span class="hljs-comment">// Le timer utilisé pour mesurer les temps d'attente.</span>
+    .timer          = spi_timer,
+    <span class="hljs-comment">// La polarité de l'horloge SPI.</span>
+    .polarity       = <span class="hljs-number">0</span>,
+    <span class="hljs-comment">// La phase de l'horloge SPI.</span>
+    .phase          = <span class="hljs-number">0</span>,
+    <span class="hljs-comment">// La vitesse de communication, en périodes d'horloge par bit.</span>
+    .cycles_per_bit = CLK_FREQUENCY_HZ / <span class="hljs-number">1000000</span>, <span class="hljs-comment">// 1 Mbit/sec</span>
+    <span class="hljs-comment">// Le temps d'attente, en périodes d'horloge.</span>
+    .cycles_per_gap = CLK_FREQUENCY_HZ / <span class="hljs-number">25000</span>    <span class="hljs-comment">// 40us (&gt; 25 us)</span>
+};
+
+SPIDevice *<span class="hljs-keyword">const</span> jstk = &amp;jstk_priv;
+</code></pre>
+<p>Si votre application utilise un module accéléromètre sur bus SPI, vous pouvez ajouter&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-keyword">static</span> SPIDevice acl_priv = {
+    <span class="hljs-comment">// Le contrôleur SPI utilisé pour communiquer avec l'accéléromètre.</span>
+    .spi            = spi_master,
+    <span class="hljs-comment">// Le timer utilisé pour mesurer les temps d'attente.</span>
+    .timer          = spi_timer,
+    <span class="hljs-comment">// La polarité de l'horloge SPI.</span>
+    .polarity       = <span class="hljs-number">0</span>,
+    <span class="hljs-comment">// La phase de l'horloge SPI.</span>
+    .phase          = <span class="hljs-number">0</span>,
+    <span class="hljs-comment">// La vitesse de communication, en périodes d'horloge par bit.</span>
+    .cycles_per_bit = CLK_FREQUENCY_HZ / <span class="hljs-number">2000000</span>, <span class="hljs-comment">// 2 Mbit/sec</span>
+    <span class="hljs-comment">// Le temps d'attente, en périodes d'horloge.</span>
+    .cycles_per_gap = CLK_FREQUENCY_HZ / <span class="hljs-number">5000000</span>  <span class="hljs-comment">// 200ns (&gt; 100 ns)</span>
+};
+
+SPIDevice *<span class="hljs-keyword">const</span> acl = &amp;acl_priv;
+</code></pre>
+<h3 id="definition-des-peripheriques-i2c" tabindex="-1">Définition des périphériques I<sup>2</sup>C</h3>
+<pre><code class="language-c"><span class="hljs-keyword">static</span> I2CMaster i2c_priv = {
+    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du contrôleur I2C.</span>
+    .intc     = intc,
+    <span class="hljs-comment">// Le masque des événements de fin de trame.</span>
+    .evt_mask = INTC_EVENTS_I2C,
+    <span class="hljs-comment">// Un pointeur vers le registre de données  (voir I2C/I2C.h).</span>
+    .data     = REG(<span class="hljs-type">uint32_t</span>, I2C_ADDRESS, I2C_DATA_REG),
+    <span class="hljs-comment">// Un pointeur vers le registre de contrôle (voir I2C/I2C.h).</span>
+    .control  = REG(<span class="hljs-type">uint32_t</span>, I2C_ADDRESS, I2C_CONTROL_REG)
+};
+
+I2CMaster *<span class="hljs-keyword">const</span> i2c = &amp;i2c_priv;
+</code></pre>
+<p>Si votre application utilise un module capteur de température sur bus I<sup>2</sup>C, vous pouvez ajouter&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-keyword">static</span> I2CDevice tmp_priv = {
+    <span class="hljs-comment">// Le contrôleur I2C utilisé pour communiquer avec le capteur de température.</span>
+    .i2c           = i2c,
+    <span class="hljs-comment">// L'adresse du capteur de température sur le bus I2C.</span>
+    .slave_address = <span class="hljs-number">0x4B</span>
+};
+
+I2CDevice *<span class="hljs-keyword">const</span> tmp = &amp;tmp_priv;
+</code></pre>
+<h3 id="definition-des-peripheriques-uart-supplementaires" tabindex="-1">Définition des périphériques UART supplémentaires</h3>
+<p>Pour un récepteur série, ajoutez&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-keyword">static</span> UART recv_priv = {
+    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements de l'UART</span>
+    .intc        = intc,
+    <span class="hljs-comment">// Le masque des événements en réception.</span>
+    .rx_evt_mask = INTC_EVENTS_RECV,
+    <span class="hljs-comment">// Le masque des événements en émission.</span>
+    .tx_evt_mask = <span class="hljs-number">0</span>,
+    <span class="hljs-comment">// Un pointeur vers le registre de données (regitre 0).</span>
+    .data        = REG(<span class="hljs-type">uint8_t</span>, RECV_ADDRESS, <span class="hljs-number">0</span>)
+};
+
+UART *<span class="hljs-keyword">const</span> recv = &amp;recv_priv;
+</code></pre>
+<p>Si votre application utilise un module sonar, vous pouvez ajouter&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-keyword">static</span> Sonar sonar_priv = {
+    .uart = recv
+};
+
+Sonar *<span class="hljs-keyword">const</span> sonar = &amp;sonar_priv;
+</code></pre>
+</section><section><h2 id="le-fichier-makefile" tabindex="-1">Le fichier Makefile</h2>
+<p>Ce fichier décrit la séquence de compilation de l’application.
+Il s’appuie sur le fichier <code>Virgule.make</code> présent dans le dossier
+<code>CoCiNum/scripts</code>.</p>
+<pre><code class="language-makefile"><span class="hljs-comment"># La taille de la RAM, en octets.</span>
+MEM_SIZE = 65536
+
+<span class="hljs-comment"># La liste des fichiers sources à ajouter à l'application, en plus de MyApp.c</span>
+C_DEPS = \
+	../LibC/string.c \
+    ../Utilities/int_to_string.c \
+	../InterruptController/InterruptController.c \
+	../UART/UART-buffered.c \
+    ../UART/Sonar.c \
+	../Timer/Timer.c \
+	../SPI/SPI.c \
+	../SPI/Joystick.c \
+	../SPI/Accelerometer.c \
+    ../I2C/I2C.c \
+    ../I2C/Thermometer.c \
+	Platform.c
+
+<span class="hljs-comment"># Les options de compilation de cette application.</span>
+<span class="hljs-comment"># Ici, minimiser la taille du programme exécutable.</span>
+C_FLAGS_USER = -Os
+
+<span class="hljs-comment"># Ce Makefile compilera le programme MyApp.c</span>
+<span class="hljs-comment"># et produira un exécutable au format Intel hex.</span>
+<span class="hljs-section">all: MyApp.hex</span>
+
+<span class="hljs-keyword">include</span> ../../../scripts/Virgule.make
+</code></pre>
+</section><section><h2 id="le-programme-principal" tabindex="-1">Le programme principal</h2>
+<p>Le fichier <code>MyApp.c</code> contiendra au moins la fonction <code>main</code>
+et la fonction de traitement d’interruptions <code>irq_handler</code>.</p>
+<h3 id="squelette-dapplication-utilisant-un-joystick-sur-bus-spi" tabindex="-1">Squelette d’application utilisant un joystick sur bus SPI</h3>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
+
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
+
+__attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
+<span class="hljs-type">void</span> <span class="hljs-title function_">irq_handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    <span class="hljs-comment">// Appeler le gestionnaire d'interruptions du pilote de l'interface série.</span>
+    UART_irq_handler(uart);
+
+    <span class="hljs-comment">// Incrémenter le compteur tick à chaque interruption du timer.</span>
+    <span class="hljs-keyword">if</span> (Timer_has_events(timer)) {
+        Timer_clear_event(timer);
+        tick ++;
+    }
+}
+
+<span class="hljs-type">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    <span class="hljs-comment">// Initialiser le pilote de l'interface série</span>
+    <span class="hljs-comment">// et afficher un message de bienvenue.</span>
+    UART_init(uart);
+    UART_puts(uart, <span class="hljs-string">"Joystick Demo.\n"</span>);
+
+    <span class="hljs-comment">// Configurer le timer pour demander des interruptions</span>
+    <span class="hljs-comment">// dix fois par seconde.</span>
+    Timer_init(timer);
+    Timer_set_limit(timer, CLK_FREQUENCY_HZ / <span class="hljs-number">10</span>);
+    Timer_enable_interrupts(timer);
+
+    <span class="hljs-comment">// Initialiser le contrôleur SPI et le pilote du joystick.</span>
+    Joystick_init(jstk);
+
+    JoystickState jstk_state;
+
+    tick = <span class="hljs-number">0</span>;
+    <span class="hljs-type">unsigned</span> tock = <span class="hljs-number">0</span>;
+
+    <span class="hljs-comment">// Exécuter jusqu'à ce que l'utilisateur presse une touche.</span>
+    <span class="hljs-keyword">while</span> (!UART_has_data(uart)) {
+        <span class="hljs-comment">// Si une ou plusieurs interruptions du timer ont été détectées.</span>
+        <span class="hljs-keyword">if</span> (tick != tock) {
+            <span class="hljs-comment">// Configurer la couleur de la LED du joystick.</span>
+            jstk_state.red   = ...;
+            jstk_state.green = ...;
+            jstk_state.blue  = ...;
+
+            <span class="hljs-comment">// Mettre à jour la couleur de la LED du joystick,</span>
+            <span class="hljs-comment">// lire les coordonnées du joystick et l'état des boutons.</span>
+            Joystick_update(jstk, &amp;jstk_state);
+
+            <span class="hljs-comment">// Ici, vous pouvez utiliser les champs suivants :</span>
+            <span class="hljs-comment">// jstk_state.x       : la coordonnée X du joystick (0 à 1023)</span>
+            <span class="hljs-comment">// jstk_state.y       : la coordonnée Y du joystick (0 à 1023)</span>
+            <span class="hljs-comment">// jstk_state.trigger : vaut 1 si l'utilisateur presse la gachette</span>
+            <span class="hljs-comment">// jstk_state.pressed : vaut 1 si l'utilisateur presse la manette</span>
+
+            tock ++;
+        }
+    }
+}
+</code></pre>
+<h3 id="squelette-dapplication-utilisant-un-accelerometre-sur-bus-spi" tabindex="-1">Squelette d’application utilisant un accéléromètre sur bus SPI</h3>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
+
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
+
+__attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
+<span class="hljs-type">void</span> <span class="hljs-title function_">irq_handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    <span class="hljs-comment">// Appeler le gestionnaire d'interruptions du pilote de l'interface série.</span>
+    UART_irq_handler(uart);
+
+    <span class="hljs-comment">// Incrémenter le compteur tick à chaque interruption du timer.</span>
+    <span class="hljs-keyword">if</span> (Timer_has_events(timer)) {
+        Timer_clear_event(timer);
+        tick ++;
+    }
+}
+
+<span class="hljs-type">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    <span class="hljs-comment">// Initialiser le pilote de l'interface série</span>
+    <span class="hljs-comment">// et afficher un message de bienvenue.</span>
+    UART_init(uart);
+    UART_puts(uart, <span class="hljs-string">"Accelerometer Demo.\n"</span>);
+
+    <span class="hljs-comment">// Configurer le timer pour demander des interruptions</span>
+    <span class="hljs-comment">// 10 fois par seconde.</span>
+    Timer_init(timer);
+    Timer_set_limit(timer, CLK_FREQUENCY_HZ / <span class="hljs-number">10</span>);
+    Timer_enable_interrupts(timer);
+
+    <span class="hljs-comment">// Initialiser le contrôleur SPI et le pilote de l'accéléromètre.</span>
+    Accelerometer_init(acl);
+
+    AccelerometerState acl_state;
+
+    tick = <span class="hljs-number">0</span>;
+    <span class="hljs-type">unsigned</span> tock = <span class="hljs-number">0</span>;
+
+    <span class="hljs-comment">// Exécuter jusqu'à ce que l'utilisateur presse une touche.</span>
+    <span class="hljs-keyword">while</span> (!UART_has_data(uart)) {
+        <span class="hljs-comment">// Si une ou plusieurs interruptions du timer ont été détectées.</span>
+        <span class="hljs-keyword">if</span> (tick != tock) {
+            <span class="hljs-comment">// Interroger l'accéléromètre.</span>
+            Accelerometer_update(acl, &amp;acl_state);
+
+            <span class="hljs-comment">// Ici, vous pouvez utiliser les champs suivants :</span>
+            <span class="hljs-comment">// acl_state.x : l'accélération selon l'axe X</span>
+            <span class="hljs-comment">// acl_state.y : l'accélération selon l'axe Y</span>
+            <span class="hljs-comment">// acl_state.z : l'accélération selon l'axe Z</span>
+            <span class="hljs-comment">// acl_state.t : la température mesurée par l'accéléromètre</span>
+
+            tock ++;
+        }
+    }
+}
+</code></pre>
+<h3 id="squelette-dapplication-utilisant-un-capteur-de-temperature-sur-bus-i2c" tabindex="-1">Squelette d’application utilisant un capteur de température sur bus I<sup>2</sup>C</h3>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
+
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
+
+__attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
+<span class="hljs-type">void</span> <span class="hljs-title function_">irq_handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    <span class="hljs-comment">// Appeler le gestionnaire d'interruptions du pilote de l'interface série.</span>
+    UART_irq_handler(uart);
+
+    <span class="hljs-comment">// Incrémenter le compteur tick à chaque interruption du timer.</span>
+    <span class="hljs-keyword">if</span> (Timer_has_events(timer)) {
+        Timer_clear_event(timer);
+        tick ++;
+    }
+}
+
+<span class="hljs-type">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    <span class="hljs-comment">// Initialiser le pilote de l'interface série</span>
+    <span class="hljs-comment">// et afficher un message de bienvenue.</span>
+    UART_init(uart);
+    UART_puts(uart, <span class="hljs-string">"Thermometer Demo.\n"</span>);
+
+    <span class="hljs-comment">// Configurer le timer pour demander des interruptions</span>
+    <span class="hljs-comment">// dix fois par seconde.</span>
+    Timer_init(timer);
+    Timer_set_limit(timer, CLK_FREQUENCY_HZ / <span class="hljs-number">10</span>);
+    Timer_enable_interrupts(timer);
+
+    <span class="hljs-comment">// Initialiser le contrôleur I2C et le pilote du capteur de température.</span>
+    Thermometer_init(tmp);
+
+    tick = <span class="hljs-number">0</span>;
+    <span class="hljs-type">unsigned</span> tock = <span class="hljs-number">0</span>;
+
+    <span class="hljs-comment">// Exécuter jusqu'à ce que l'utilisateur presse une touche.</span>
+    <span class="hljs-keyword">while</span> (!UART_has_data(uart)) {
+        <span class="hljs-comment">// Si une ou plusieurs interruptions du timer ont été détectées.</span>
+        <span class="hljs-keyword">if</span> (tick != tock) {
+            <span class="hljs-type">int16_t</span> t = Thermometer_get_temperature(tmp);
+
+            <span class="hljs-comment">// Ici, t contient la température courante, en 1/16 de degrés.</span>
+
+            tock ++;
+        }
+    }
+}
+</code></pre>
+<h3 id="squelette-dapplication-utilisant-un-sonar" tabindex="-1">Squelette d’application utilisant un sonar</h3>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
+
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
+
+__attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
+<span class="hljs-type">void</span> <span class="hljs-title function_">irq_handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    <span class="hljs-comment">// Appeler le gestionnaire d'interruptions du pilote de l'interface série.</span>
+    UART_irq_handler(uart);
+    UART_irq_handler(recv);
+
+    <span class="hljs-comment">// Incrémenter le compteur tick à chaque interruption du timer.</span>
+    <span class="hljs-keyword">if</span> (Timer_has_events(timer)) {
+        Timer_clear_event(timer);
+        tick ++;
+    }
+}
+
+<span class="hljs-type">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    <span class="hljs-comment">// Initialiser le pilote de l'interface série</span>
+    <span class="hljs-comment">// et afficher un message de bienvenue.</span>
+    UART_init(uart);
+    UART_puts(uart, <span class="hljs-string">"Sonar Demo.\n"</span>);
+
+    <span class="hljs-comment">// Configurer le timer pour demander des interruptions</span>
+    <span class="hljs-comment">// dix fois par seconde.</span>
+    Timer_init(timer);
+    Timer_set_limit(timer, CLK_FREQUENCY_HZ / <span class="hljs-number">10</span>);
+    Timer_enable_interrupts(timer);
+
+    <span class="hljs-comment">// Initialiser le récepteur série associé au sonar</span>
+    Sonar_init(sonar);
+
+    tick = <span class="hljs-number">0</span>;
+    <span class="hljs-type">unsigned</span> tock = <span class="hljs-number">0</span>;
+
+    <span class="hljs-comment">// Exécuter jusqu'à ce que l'utilisateur presse une touche.</span>
+    <span class="hljs-keyword">while</span> (!UART_has_data(uart)) {
+        <span class="hljs-comment">// Mettre à jour la distance mesurée par le sonar.</span>
+        <span class="hljs-type">uint8_t</span> dist = Sonar_update(sonar);
+
+        <span class="hljs-keyword">if</span> (tick != tock) {
+            <span class="hljs-comment">// Ici, on peut faire quelque chose avec dist.</span>
+            <span class="hljs-comment">// ...</span>
+
+            tock ++;
+        }
+    }
+}
+</code></pre>
+</section><section><h1 id="fonctions-daffichage" tabindex="-1">Fonctions d’affichage</h1>
+<p>La bibliothèque C fournie est très limitée.
+Par exemple, vous n’aurez pas accès aux fonctions <code>printf</code> ou <code>malloc</code>.</p>
+<p>Pour affichez des messages dans un terminal série, vous pouvez utiliser
+les fonctios <code>UART_putc</code> et <code>UART_puts</code> de la manière suivante&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-comment">// Envoyer le caractère 'X' sur la liaison série désignée par la variable uart.</span>
+UART_putc(uart, <span class="hljs-string">'X'</span>);
+
+<span class="hljs-comment">// Envoyer la chaîne "Hello", suivie d'un saut de ligne, sur la liaison série.</span>
+UART_puts(uart, <span class="hljs-string">"Hello\n"</span>);
+</code></pre>
+<p>Pour afficher des nombres, vous devez d’abord les convertir en chaînes
+de caractères.
+Des fonctions de conversion sont déclarées dans le fichier <code>Utilities/int_to_string.h</code>
+que vous devez d’abord inclure&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Utilities/int_to_string.h&gt;</span></span>
+</code></pre>
+<p>La fonction <code>uint32_to_string</code> prend un entier <strong>non signé</strong> sur 32 bits,
+calcule sa représentation décimale et la range dans une chaîne de caractères.
+La fonction <code>int32_to_string</code> fonctionne de la même manière avec des entiers
+négatifs ou positifs.
+Les valeurs négatives sont alors précédées par le signe «&nbsp;<code>-</code>&nbsp;».</p>
+<pre><code class="language-c"><span class="hljs-comment">// Déclarer un tableau de caractères capable de recevoir</span>
+<span class="hljs-comment">// la représentation décimale d'un nombre de 32 bits.</span>
+<span class="hljs-type">char</span> s[INT_TO_STRING_LEN];
+
+<span class="hljs-comment">// Convertir un entier en chaîne.</span>
+int32_to_string(s, <span class="hljs-number">4925</span>);
+
+<span class="hljs-comment">// Afficher le résultat, suivi d'un saut de ligne.</span>
+UART_puts(uart, s);
+UART_putc(uart, <span class="hljs-string">'\n'</span>);
+</code></pre>
+<div class="warning">
+<p>Comme Virgule ne possède pas d’instructions de multiplication et de division,
+les fonctions <code>uint32_to_string</code> et <code>int32_to_string</code> utilisent un algorithme
+par décalages et soustractions successives.</p>
+<p>Cet algorithme est relativement lent. Dans le pire des cas, nous avons mesuré
+une durée de conversion d’environ 116 microsecondes (c’est-à-dire 11600 périodes d’horloge).</p>
+</div>
+</section><section><h1 id="compilation" tabindex="-1">Compilation</h1>
+<p>Les commandes suivantes compilent le programme <code>MyApp.c</code>
+et produisent un fichier <code>MyApp.hex</code>&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/c/MyApp
+make
+</code></pre>
+</section><section><h1 id="chargement-sur-la-cible" tabindex="-1">Chargement sur la cible</h1>
+<div class="warning">
+<p>Avant de mettre la carte sous tension, reliez le module périphérique au connecteur
+d’extension de la carte Basys3.
+Vérifiez la correspondance des broches.</p>
+</div>
+<p>Reliez le connecteur micro-USB de la carte à un port USB de votre PC et
+mettez la carte sous tension.
+Ouvrez ensuite un terminal pour port série&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum
+./scripts/gtkterm
+</code></pre>
+<p>Dans le menu <em>Configuration</em> de GTKTerm, activez l’option <em>CR LF auto</em>.</p>
+<p>Connectez Vivado à votre carte Basys3&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Open Target</em> → <em>Auto-connect</em>.</p>
+<p>Configurez le FPGA&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Program Device</em>.</p>
+<p>Comme lors de l’étape précédente, la fenêtre GTKTerm doit à présent afficher le texte&nbsp;:</p>
+<pre><code>\\// This is the Virgule program loader. Please send an hex file to execute...
+</code></pre>
+<p>Dans la fenêtre terminal de Linux qui vous a servi à lancer GTKTerm,
+exécutez la commande&nbsp;:</p>
+<pre><code class="icon-term language-bash">cat <span class="hljs-variable">$HOME</span>/CoCiNum/src/c/MyApp/MyApp.hex &gt; /dev/ttyUSB1
+</code></pre>
+<!-- Dans le menu *File* de GTKTerm, choisissez *Send Raw File*
+et sélectionnez le fichier `CoCiNum/src/c/MyApp/MyApp.hex`. -->
+<p>Observez le résultat de l’exécution du programme.
+Dans GTKTerm, pressez une touche pour terminer.</p>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="virgule-sonar-activite.html">&larr;&nbsp;Activité : intégration d'un récepteur série pour sonar</a>
+    
+    
+        <a href="../essentiel-vhdl/index.html">L'essentiel de VHDL&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="virgule-logiciel-activite.html" class="current">Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

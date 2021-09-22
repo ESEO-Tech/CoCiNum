@@ -1,0 +1,1351 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Compteurs et diviseurs de fréquence</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="sequentiel-bascules-et-registres.html">&larr;&nbsp;Bascules et registres</a>
+    
+    
+        <a href="sequentiel-automates.html">Automates&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Compteurs et diviseurs de fréquence</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#compteurs">Compteurs</a></li>
+            
+                
+                <li><a href="#sequencement-dactions-repetitives">Séquencement d’actions répétitives</a></li>
+            
+                
+                <li><a href="#diviseurs-de-frequence">Diviseurs de fréquence</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#mise-en-cascade-de-diviseurs-de-frequence">Mise en cascade de diviseurs de fréquence</a></li>
+            
+            
+        </ul>
+            
+        </ul>
+            
+    
+    <section><h1 id="compteurs" tabindex="-1">Compteurs</h1>
+<p>Dans sa version la plus simple, un compteur est un circuit qui incrémente une
+valeur entière à chaque front montant d’un signal d’horloge.
+Un compteur est l’association de deux éléments&nbsp;:</p>
+<ul>
+<li>Un registre, qui mémorise la valeur courante du compteur entre les fronts
+d’horloge et qui la met à jour sur les fronts d’horloge.</li>
+<li>Une fonction logique combinatoire qui calcule la valeur suivante du compteur
+en fonction de sa valeur courante.</li>
+</ul>
+<p>L’exemple ci-dessous décrit un compteur modulo dix&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">architecture</span> Behavioral <span class="hljs-keyword">of</span> SomeEntity <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">signal</span> cnt_reg, cnt_next : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">9</span>;
+<span class="hljs-keyword">begin</span>
+    p_cnt_reg : <span class="hljs-keyword">process</span>(clk_i)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+            cnt_reg &lt;= cnt_next;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_cnt_reg;
+
+    cnt_next &lt;= <span class="hljs-number">0</span> <span class="hljs-keyword">when</span> cnt_reg = <span class="hljs-number">9</span> <span class="hljs-keyword">else</span> cnt_reg + <span class="hljs-number">1</span>;
+    ...
+<span class="hljs-keyword">end</span> Behavioral;
+</code></pre>
+<p>Dans cette architecture,</p>
+<ul>
+<li>le signal <code>cnt_reg</code> mémorise la valeur courante du compteur&nbsp;;</li>
+<li>le processus <code>p_cnt_reg</code> gère la mise à jour de <code>cnt_reg</code> sur les fronts montants de <code>clk_i</code>&nbsp;;</li>
+<li>Le signal <code>cnt_next</code> reçoit la valeur suivante du compteur dans une instruction
+d’affectation conditionnelle.</li>
+</ul>
+<p><a href="CounterMod10-waveforms.svg"><img src="CounterMod10-waveforms.svg" alt="Compteur modulo dix" width="800px"></a></p>
+<p>Le processus sera synthétisé comme un registre.
+L’instruction d’affectation concurrente sera synthétisée comme une fonction logique
+combinatoire composée d’un comparateur, d’un additionneur et d’un multiplexeur.</p>
+<p><a href="CounterMod10-architecture.svg"><img src="CounterMod10-architecture.svg" alt="Compteur modulo 10" width="550px"></a></p>
+<p>Le signal <code>cnt_next</code> peut être omis en regroupant dans le processus <code>p_cnt_reg</code>
+le calcul de la valeur suivante et la mise à jour du registre.
+Le circuit correspondant est rigoureusement le même&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">architecture</span> Behavioral <span class="hljs-keyword">of</span> SomeEntity <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">signal</span> cnt_reg : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">9</span>;
+<span class="hljs-keyword">begin</span>
+    p_cnt_reg : <span class="hljs-keyword">process</span>(clk_i)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> cnt_reg = <span class="hljs-number">9</span> <span class="hljs-keyword">then</span>
+                cnt_reg &lt;= <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">else</span>
+                cnt_reg &lt;= cnt_reg + <span class="hljs-number">1</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_cnt_reg;
+
+    ...
+<span class="hljs-keyword">end</span> Behavioral;
+</code></pre>
+</section><section><h1 id="sequencement-dactions-repetitives" tabindex="-1">Séquencement d’actions répétitives</h1>
+<p>Un compteur peut être utilisé comme un séquenceur pour commander des actions
+répétitives.
+La commande de feux tricolores est un exemple typique.
+Imaginons une intersection où les feux doivent respecter la séquence suivante&nbsp;:</p>
+<ul>
+<li>Feu vert pendant 4 périodes d’horloge.</li>
+<li>Feu orange pendant 1 période d’horloge.</li>
+<li>Feu rouge pendant 5 périodes d’horloge.</li>
+</ul>
+<p>Cette séquence peut être réalisée avec un compteur modulo 10 comme illustré
+par le tableau ci-dessous&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Compteur</th>
+<th style="text-align:left">Voie A</th>
+<th style="text-align:left">Voie B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">Vert</td>
+<td style="text-align:left">Rouge</td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">Vert</td>
+<td style="text-align:left">Rouge</td>
+</tr>
+<tr>
+<td style="text-align:left">2</td>
+<td style="text-align:left">Vert</td>
+<td style="text-align:left">Rouge</td>
+</tr>
+<tr>
+<td style="text-align:left">3</td>
+<td style="text-align:left">Vert</td>
+<td style="text-align:left">Rouge</td>
+</tr>
+<tr>
+<td style="text-align:left">4</td>
+<td style="text-align:left">Orange</td>
+<td style="text-align:left">Rouge</td>
+</tr>
+<tr>
+<td style="text-align:left">5</td>
+<td style="text-align:left">Rouge</td>
+<td style="text-align:left">Vert</td>
+</tr>
+<tr>
+<td style="text-align:left">6</td>
+<td style="text-align:left">Rouge</td>
+<td style="text-align:left">Vert</td>
+</tr>
+<tr>
+<td style="text-align:left">7</td>
+<td style="text-align:left">Rouge</td>
+<td style="text-align:left">Vert</td>
+</tr>
+<tr>
+<td style="text-align:left">8</td>
+<td style="text-align:left">Rouge</td>
+<td style="text-align:left">Vert</td>
+</tr>
+<tr>
+<td style="text-align:left">9</td>
+<td style="text-align:left">Rouge</td>
+<td style="text-align:left">Orange</td>
+</tr>
+</tbody>
+</table>
+<p>Dans la description VHDL suivante, la commande des feux de chaque voie est
+représentée par un vecteur de trois bits qui commandent respectivement les
+feux vert, orange et rouge.
+Pour améliorer la lisibilité, nous avons déclaré trois constantes
+<code>RED</code>, <code>ORANGE</code> et <code>GREEN</code> avec les trois valeurs possibles de ce vecteur.</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> TrafficLights <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">port</span>(
+        clk_i                  : <span class="hljs-keyword">in</span>  <span class="hljs-built_in">std_logic</span>;
+        lights_a_o, lights_b_o : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">2</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>)
+    );
+<span class="hljs-keyword">end</span> TrafficLights;
+
+<span class="hljs-keyword">architecture</span> Sequencer <span class="hljs-keyword">of</span> TrafficLights <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">signal</span> cnt_reg  : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">9</span>;
+
+    <span class="hljs-keyword">constant</span> RED    : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">2</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>) := <span class="hljs-string">"001"</span>;
+    <span class="hljs-keyword">constant</span> ORANGE : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">2</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>) := <span class="hljs-string">"010"</span>;
+    <span class="hljs-keyword">constant</span> GREEN  : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">2</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>) := <span class="hljs-string">"100"</span>;
+<span class="hljs-keyword">begin</span>
+    p_cnt_reg : <span class="hljs-keyword">process</span>(clk_i)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> cnt_reg = <span class="hljs-number">9</span> <span class="hljs-keyword">then</span>
+                cnt_reg &lt;= <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">else</span>
+                cnt_reg &lt;= cnt_reg + <span class="hljs-number">1</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_cnt_reg;
+
+    <span class="hljs-keyword">with</span> cnt_reg <span class="hljs-keyword">select</span>
+        lights_a_o &lt;= GREEN  <span class="hljs-keyword">when</span> <span class="hljs-number">0</span> | <span class="hljs-number">1</span> | <span class="hljs-number">2</span> | <span class="hljs-number">3</span>,
+                      ORANGE <span class="hljs-keyword">when</span> <span class="hljs-number">4</span>,
+                      RED    <span class="hljs-keyword">when</span> <span class="hljs-keyword">others</span>;
+
+    <span class="hljs-keyword">with</span> cnt_reg <span class="hljs-keyword">select</span>
+        lights_b_o &lt;= GREEN  <span class="hljs-keyword">when</span> <span class="hljs-number">5</span> | <span class="hljs-number">6</span> | <span class="hljs-number">7</span> | <span class="hljs-number">8</span>,
+                      ORANGE <span class="hljs-keyword">when</span> <span class="hljs-number">9</span>,
+                      RED    <span class="hljs-keyword">when</span> <span class="hljs-keyword">others</span>;
+<span class="hljs-keyword">end</span> Sequencer;
+</code></pre>
+<p>Son fonctionnement est illustré par ce chronogramme&nbsp;:</p>
+<p><a href="TrafficLights-waveforms.svg"><img src="TrafficLights-waveforms.svg" alt="Feux tricolores" width="800px"></a></p>
+<p>On pouvait aussi écrire&nbsp;:</p>
+<pre><code class="language-vhdl">lights_a_o &lt;= GREEN  <span class="hljs-keyword">when</span> cnt_reg &lt; <span class="hljs-number">4</span> <span class="hljs-keyword">else</span>
+              ORANGE <span class="hljs-keyword">when</span> cnt_reg &lt; <span class="hljs-number">5</span> <span class="hljs-keyword">else</span>
+              RED;
+
+lights_b_o &lt;= RED    <span class="hljs-keyword">when</span> cnt_reg &lt; <span class="hljs-number">5</span> <span class="hljs-keyword">else</span>
+              GREEN  <span class="hljs-keyword">when</span> cnt_reg &lt; <span class="hljs-number">9</span> <span class="hljs-keyword">else</span>
+              ORANGE <span class="hljs-keyword">when</span> <span class="hljs-keyword">others</span>;
+</code></pre>
+<p>Cela permet de proposer une version générique de ce séquenceur pour l’adapter à
+différents scénarios d’utilisation et à différentes fréquences d’horloge&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> TrafficLights <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">generic</span>(
+        RED_TIME    : <span class="hljs-built_in">positive</span>;
+        ORANGE_TIME : <span class="hljs-built_in">positive</span>;
+        GREEN_TIME  : <span class="hljs-built_in">positive</span>
+    );
+    <span class="hljs-keyword">port</span>(
+        clk_i                  : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+        lights_a_o, lights_b_o : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">2</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>)
+    );
+<span class="hljs-keyword">end</span> TrafficLights;
+
+<span class="hljs-keyword">architecture</span> Sequencer <span class="hljs-keyword">of</span> TrafficLights <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">constant</span> CNT_MAX : <span class="hljs-built_in">positive</span> := RED_TIME + ORANGE_TIME + GREEN_TIME - <span class="hljs-number">1</span>
+    <span class="hljs-keyword">signal</span> cnt_reg   : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> CNT_MAX;
+
+    <span class="hljs-keyword">constant</span> RED     : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">2</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>) := <span class="hljs-string">"001"</span>;
+    <span class="hljs-keyword">constant</span> ORANGE  : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">2</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>) := <span class="hljs-string">"010"</span>;
+    <span class="hljs-keyword">constant</span> GREEN   : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">2</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>) := <span class="hljs-string">"100"</span>;
+<span class="hljs-keyword">begin</span>
+    p_cnt_reg : <span class="hljs-keyword">process</span>(clk_i)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> cnt_reg = CNT_MAX <span class="hljs-keyword">then</span>
+                cnt_reg &lt;= <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">else</span>
+                cnt_reg &lt;= cnt_reg + <span class="hljs-number">1</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_cnt_reg;
+
+    lights_a_o &lt;= GREEN  <span class="hljs-keyword">when</span> cnt_reg &lt; GREEN_TIME               <span class="hljs-keyword">else</span>
+                  ORANGE <span class="hljs-keyword">when</span> cnt_reg &lt; GREEN_TIME + ORANGE_TIME <span class="hljs-keyword">else</span>
+                  RED;
+
+    lights_b_o &lt;= RED   <span class="hljs-keyword">when</span> cnt_reg  &lt; RED_TIME              <span class="hljs-keyword">else</span>
+                  GREEN  <span class="hljs-keyword">when</span> cnt_reg &lt; RED_TIME + GREEN_TIME <span class="hljs-keyword">else</span>
+                  ORANGE;
+<span class="hljs-keyword">end</span> Sequencer;
+</code></pre>
+<p>Par exemple, si <code>clk_i</code> a une fréquence de 100 MHz, une utilisation réaliste
+de cette entité pourrait être&nbsp;:</p>
+<pre><code class="language-vhdl">lights_inst : <span class="hljs-keyword">entity</span> work.TrafficLights
+    <span class="hljs-keyword">generic</span> <span class="hljs-keyword">map</span>(
+        RED_TIME    =&gt; <span class="hljs-number">3_000_000_000</span>, <span class="hljs-comment">-- 30 secondes</span>
+        ORANGE_TIME =&gt;   <span class="hljs-number">300_000_000</span>, <span class="hljs-comment">--  3 secondes</span>
+        GREEN_TIME  =&gt; <span class="hljs-number">2_700_000_000</span>  <span class="hljs-comment">-- 27 secondes</span>
+    )
+    <span class="hljs-keyword">port</span> <span class="hljs-keyword">map</span>(
+        clk_i      =&gt; ...,
+        lights_a_o =&gt; ...,
+        lights_b_o =&gt; ...
+    );
+</code></pre>
+</section><section><h1 id="diviseurs-de-frequence" tabindex="-1">Diviseurs de fréquence</h1>
+<p>Un diviseur de fréquence est un circuit capable de produire un signal périodique
+dont la fréquence est un sous-multiple de la fréquence d’un signal d’entrée.
+Diviser la fréquence par <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> revient à multiplier par <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> la durée d’une période.
+Autrement dit, une période du signal de sortie aura une durée égale à <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span>
+périodes du signal d’entrée.</p>
+<p>Le cas le plus simple est le diviseur de fréquence par deux, dans lequel un signal
+logique s’inverse à chaque front montant de l’horloge&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">signal</span> clk_div2_reg : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'0'</span>;
+...
+p_clk_div2_reg : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        clk_div2_reg &lt;= <span class="hljs-keyword">not</span> clk_div2_reg;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_clk_div2_reg;
+</code></pre>
+<div class="warning">
+<p>Dans l’exemple ci-dessus, en l’absence d’un signal de <em>reset</em>,
+pensez à indiquer une valeur initiale dans la déclaration de <code>clk_div2_reg</code>.</p>
+<p>En cas d’oubli, votre diviseur de fréquence fonctionnera sur un FPGA
+mais pas dans un simulateur.
+En simulation, <code>clk_div2_reg</code> vaudra <code>'U'</code> (<em>Uninitialized</em>) au démarrage de la simulation.</p>
+</div>
+<p><a href="Diviseur-de-frequence-par-deux.svg"><img src="Diviseur-de-frequence-par-deux.svg" alt="Division de fréquence par deux" width="350px"></a></p>
+<p>Pour <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>&gt;</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">N&gt;2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72243em;vertical-align:-0.0391em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">2</span></span></span></span>, un diviseur de fréquence par <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> peut être réalisé avec un compteur
+modulo <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> qui compte le nombre de périodes du signal d’entrée.
+C’est la technique que nous avons utilisée pour <a href="combinatoire-affectations-concurrentes-activite.html">réaliser un chronomètre</a>.</p>
+<p>Dans l’exemple ci-dessous, nous avons utilisé un compteur <code>timer_reg</code> modulo 10.
+Les signaux <code>half</code> et <code>cycle</code> sont à <code>'1'</code> pendant une période d’horloge
+à chaque fois que <code>timer_reg</code> atteint la moitié ou la fin de son cycle de comptage.
+Ces signaux sont utilisés pour déclencher l’inversion du signal <code>clk_div10_reg</code>&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">signal</span> timer_reg     : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">9</span>;
+<span class="hljs-keyword">signal</span> half, cycle   : <span class="hljs-built_in">std_logic</span>;
+<span class="hljs-keyword">signal</span> clk_div10_reg : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'0'</span>;
+...
+p_timer_reg : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> cycle = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            timer_reg &lt;= <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">else</span>
+            timer_reg &lt;= timer_reg + <span class="hljs-number">1</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_timer_reg;
+
+half  &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> timer_reg = <span class="hljs-number">4</span> <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+cycle &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> timer_reg = <span class="hljs-number">9</span> <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+
+p_clk_div10_reg : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> half = <span class="hljs-string">'1'</span> <span class="hljs-keyword">or</span> cycle = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            clk_div10_reg &lt;= <span class="hljs-keyword">not</span> clk_div10_reg;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_clk_div10_reg;
+</code></pre>
+<p>Le résultat est représenté sur ce chronogramme&nbsp;:</p>
+<p><a href="Diviseur-de-frequence.svg"><img src="Diviseur-de-frequence.svg" alt="Division de fréquence" width="800px"></a></p>
+<div class="info">
+<p>Lorsque <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> est pair, il est possible d’obtenir le même comportement avec
+un compteur modulo <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi mathvariant="normal">/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">N/2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord">/2</span></span></span></span>. Cela permet d’économiser un comparateur et une
+bascule D.</p>
+<p>Exercice&nbsp;: proposez une implémentation d’un diviseur de fréquence par 10
+utilisant un compteur modulo 5.</p>
+</div>
+</section><section><h2 id="mise-en-cascade-de-diviseurs-de-frequence" tabindex="-1">Mise en cascade de diviseurs de fréquence</h2>
+<p>Imaginons à présent que notre application doive produire deux signaux d’horloge&nbsp;:</p>
+<ul>
+<li>Un signal d’horloge <code>clk_div10</code> avec une fréquence 10 fois plus petite que celle de <code>clk_i</code>.</li>
+<li>Un signal d’horloge <code>clk_div60</code> avec une fréquence 60 fois plus petite que celle de <code>clk_i</code>.</li>
+</ul>
+<p>Une solution immédiate consiste à réaliser deux diviseurs de fréquence indépendants,
+un diviseur par 10 et un diviseur par 60, en utilisant la méthode décrite plus haut.
+Une autre solution consiste à observer que <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>60</mn><mo>=</mo><mn>10</mn><mo>×</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">60 = 10\times 6</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">60</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">10</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">6</span></span></span></span>, autrement dit,
+la sortie <code>clk_div60</code> peut être obtenue en appliquant une division de fréquence par 6
+au signal <code>clk_div10</code>.</p>
+<p>Dans l’exemple ci-dessous, nous avons repris la structure du diviseur de fréquence
+par 10, représenté par les signaux <code>timer_div10_reg</code>, <code>half_div10</code>, <code>cycle_div10</code> et <code>clk_div10_reg</code>&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">signal</span> timer_div10_reg         : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">9</span>;
+<span class="hljs-keyword">signal</span> half_div10, cycle_div10 : <span class="hljs-built_in">std_logic</span>;
+<span class="hljs-keyword">signal</span> clk_div10_reg           : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'0'</span>;
+...
+p_timer_div10_reg : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> cycle_div10 = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            timer_div10_reg &lt;= <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">else</span>
+            timer_div10_reg &lt;= timer_div10_reg + <span class="hljs-number">1</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_timer_div10_reg;
+
+half_div10  &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> timer_div10_reg = <span class="hljs-number">4</span> <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+cycle_div10 &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> timer_div10_reg = <span class="hljs-number">9</span> <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+
+p_clk_div10_reg : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> half_div10 = <span class="hljs-string">'1'</span> <span class="hljs-keyword">or</span> cycle_div10 = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            clk_div10_reg &lt;= <span class="hljs-keyword">not</span> clk_div10_reg;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_clk_div10_reg;
+</code></pre>
+<p>Le diviseur de fréquence par 6 suit la même structure, avec les signaux
+<code>timer_div60_reg</code>, <code>half_div60</code>, <code>cycle_div60</code> et <code>clk_div60_reg</code>.
+La mise en cascade des deux diviseurs est réalisée en utilisant le signal
+<code>cycle_div10</code> comme condition pour les opérations suivantes&nbsp;:</p>
+<ul>
+<li>La mise à jour du compteur <code>timer_div60_reg</code>.</li>
+<li>Le passage à <code>'1'</code> des signaux <code>half_div60</code> et <code>cycle_div60</code>.</li>
+</ul>
+<pre><code class="language-vhdl"><span class="hljs-keyword">signal</span> timer_div60_reg         : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">5</span>;
+<span class="hljs-keyword">signal</span> half_div60, cycle_div60 : <span class="hljs-built_in">std_logic</span>;
+<span class="hljs-keyword">signal</span> clk_div60_reg           : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'0'</span>;
+...
+p_timer_div60_reg : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> cycle_div60 = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            timer_div60_reg &lt;= <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">elsif</span> cycle_div10 = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            timer_div60_reg &lt;= timer_div60_reg + <span class="hljs-number">1</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_timer_div10_reg;
+
+half_div60  &lt;= cycle_div10 <span class="hljs-keyword">when</span> timer_div60_reg = <span class="hljs-number">2</span> <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+cycle_div60 &lt;= cycle_div10 <span class="hljs-keyword">when</span> timer_div60_reg = <span class="hljs-number">5</span> <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+
+p_clk_div60_reg : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> half_div60 = <span class="hljs-string">'1'</span> <span class="hljs-keyword">or</span> cycle_div60 = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            clk_div60_reg &lt;= <span class="hljs-keyword">not</span> clk_div60_reg;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_clk_div60_reg;
+</code></pre>
+<p><a href="Diviseur-de-frequence-cascade.svg"><img src="Diviseur-de-frequence-cascade.svg" alt="Division de fréquence" class="hfill"></a></p>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="sequentiel-bascules-et-registres.html">&larr;&nbsp;Bascules et registres</a>
+    
+    
+        <a href="sequentiel-automates.html">Automates&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html" class="current">Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

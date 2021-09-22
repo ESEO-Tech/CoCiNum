@@ -1,0 +1,1955 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Virgule : un cœur RISC-V minimal</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="../soc/soc-installation.html">&larr;&nbsp;Installation et configuration des outils de développement</a>
+    
+    
+        <a href="installation-xilinx-vivado.html">Installer Xilinx Vivado&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Virgule : un cœur RISC-V minimal</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#motivations">Motivations</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#references">Références</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#differences-entre-virgule-et-larchitecture-risc-v-officielle">Différences entre Virgule et l’architecture RISC-V officielle</a></li>
+            
+                
+                <li><a href="#registres">Registres</a></li>
+            
+                
+                <li><a href="#organisation-de-la-memoire">Organisation de la mémoire</a></li>
+            
+                
+                <li><a href="#jeu-dinstructions">Jeu d’instructions</a></li>
+            
+                
+                <li><a href="#gestion-des-interruptions">Gestion des interruptions</a></li>
+            
+                
+                <li><a href="#codage-des-instructions">Codage des instructions</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#formats">Formats</a></li>
+            
+                
+                <li><a href="#opcodes-de-base">Opcodes de base</a></li>
+            
+                
+                <li><a href="#liste-des-instructions">Liste des instructions</a></li>
+            
+            
+        </ul>
+            
+        </ul>
+            
+    
+    <p>Virgule est un <a href="https://en.wikipedia.org/wiki/Reduced_instruction_set_computer">processeur RISC</a>
+(<em>Reduced Instruction Set Computer</em>) développé par Guillaume Savaton
+dans un but pédagogique.
+Il implémente un sous-ensemble minimal du jeu d’instruction
+<a href="https://en.wikipedia.org/wiki/RISC-V">RISC-V</a> 32 bits.
+Ici, «&nbsp;minimal&nbsp;» signifie que ce processeur accepte toutes les instructions
+de traitement de données en nombres entiers, de branchement et d’accès mémoire
+susceptibles d’être produites par un compilateur C comme GCC pour un programme
+autonome typique.</p>
+<section><h1 id="motivations" tabindex="-1">Motivations</h1>
+<p>Les enseignements en architecture de l’ordinateur et en conception de circuits
+numériques visent l’acquisition des compétences suivantes&nbsp;:</p>
+<ul>
+<li>Être capable d’expliquer le fonctionnement d’un ordinateur typique.</li>
+<li>Être capable d’écrire un programme de bas niveau pour une architecture donnée.</li>
+<li>Être capable de réaliser une implémentation au niveau transferts de registres d’une architecture d’ordinateur.</li>
+</ul>
+<p>D’un point de vue pratique, le choix d’une architecture de processeur comme
+support pédagogique est souvent un compromis entre, d’une part le besoin de
+faciliter les apprentissages, et d’autre part l’adaptation de l’enseignement
+aux réalités industrielles.
+Nous avons ainsi identifié trois contraintes&nbsp;:</p>
+<ul>
+<li>Le jeu d’instructions doit être simple, mais suffisant pour servir de cible à la compilation d’un programme en langage C.</li>
+<li>L’architecture doit être représentative de l’état du marché, si possible avec des implémentations industrielles.</li>
+<li>L’architecture doit être prise en charge par des outils de développement existants (compilateur, debugger, simulateur).</li>
+</ul>
+<p>Parmi les candidates, l’architecture RISC-V remplit tous ces critères&nbsp;:</p>
+<ul>
+<li>Il s’agit d’une architecture RISC typique.</li>
+<li>Sa spécification définit séparément un jeu d’instructions de base,
+plutôt simple et très régulier, et des extensions facultatives.</li>
+<li>La fondation RISC-V regroupe de nombreux industriels.
+Des cœurs RISC-V sont présents dans plusieurs SoC du commerce.
+D’autres implémentations sont disponibles sous licences libres.</li>
+<li>La chaîne de compilation GNU est disponible.</li>
+</ul>
+</section><section><h2 id="references" tabindex="-1">Références</h2>
+<ul>
+<li><a href="https://riscv.org/">Le site web de la fondation RISC-V</a></li>
+<li><a href="https://riscv.org/specifications/">Documents de spécification de l’architecture RISC-V</a></li>
+<li><a href="https://riscv.org/exchange/cores-socs/">Liste d’implémentations de l’architecture RISC-V</a></li>
+<li><a href="https://github.com/riscv/riscv-gnu-toolchain">La chaîne de compilation GNU pour l’architecture RISC-V</a></li>
+<li><a href="https://gcc.gnu.org/onlinedocs/gcc/RISC-V-Options.html">Les options de compilation de GCC pour la cible RISC-V</a></li>
+</ul>
+</section><section><h1 id="differences-entre-virgule-et-larchitecture-risc-v-officielle" tabindex="-1">Différences entre Virgule et l’architecture RISC-V officielle</h1>
+<p>Virgule est capable d’exécuter toutes les instructions de traitement de données, de branchement
+et d’accès mémoire du jeu d’instructions de base (RV32I) de la spécification RISC-V.
+Nous avons également conservé une instruction de retour d’exception (<code>mret</code>), ce qui permet
+de prendre en charge les interruptions matérielles.</p>
+<p>Les instructions qui ont été écartées sont :</p>
+<ul>
+<li>Les instructions de séquencement des accès mémoire (<code>FENCE</code>),</li>
+<li>les instructions d’appel système et de debug (<code>ECALL</code>, <code>EBREAK</code>),</li>
+</ul>
+<p>L’architecture RISC-V supporte trois niveaux de privilèges (<em>utilisateur</em>, <em>superviseur</em>, <em>machine</em>).
+Le mode <em>machine</em> est obligatoire et les deux autres sont facultatifs.
+Le cœur Virgule fonctionne uniquement dans le mode <em>machine</em>.</p>
+<p>Par ailleurs, la gestion des interruptions a été simplifiée à l’extrême.</p>
+</section><section><h1 id="registres" tabindex="-1">Registres</h1>
+<p>Virgule possède les registres suivants, tous de largeur 32 bits&nbsp;:</p>
+<ul>
+<li>32 registres généraux nommés <code>x0</code> à <code>x31</code>.
+Le registre <code>x0</code> vaut toujours zéro.</li>
+<li>Le compteur d’instructions <code>pc</code>. Sa valeur est l’adresse de l’instruction en cours
+d’exécution et est toujours multiple de 4. Ce registre est mis à zéro au démarrage.</li>
+<li>Le registre <code>mepc</code> mémorise l’adresse de retour lors d’une exception en mode <em>machine</em>.
+Il est affecté avant le traitement d’une interruption.</li>
+</ul>
+<p>Pour un compilateur respectant l’ABI (<em>Application Binary Interface</em>) RISC-V,
+les registres généraux sont utilisés de la manière suivante&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Registre</th>
+<th style="text-align:left">Nom ABI</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>x0</code></td>
+<td style="text-align:left"><code>zero</code></td>
+<td style="text-align:left">Zéro câblé</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>x1</code></td>
+<td style="text-align:left"><code>ra</code></td>
+<td style="text-align:left">Adresse de retour</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>x2</code></td>
+<td style="text-align:left"><code>sp</code></td>
+<td style="text-align:left">Pointeur de pile</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>x3</code></td>
+<td style="text-align:left"><code>gp</code></td>
+<td style="text-align:left">Pointeur gobal</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>x4</code></td>
+<td style="text-align:left"><code>tp</code></td>
+<td style="text-align:left">Pointeur de thread</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>x5</code> à <code>x7</code></td>
+<td style="text-align:left"><code>t0</code> à <code>t2</code></td>
+<td style="text-align:left">Données temporaires</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>x8</code></td>
+<td style="text-align:left"><code>s0</code> ou <code>fp</code></td>
+<td style="text-align:left">Donnée sauvegardée</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>x9</code></td>
+<td style="text-align:left"><code>s1</code></td>
+<td style="text-align:left">Donnée sauvegardée</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>x10</code> à <code>x11</code></td>
+<td style="text-align:left"><code>a0</code> à <code>a1</code></td>
+<td style="text-align:left">Arguments et résultats de sous-programmes</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>x12</code> à <code>x17</code></td>
+<td style="text-align:left"><code>a2</code> à <code>a7</code></td>
+<td style="text-align:left">Arguments de sous-programmes</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>x18</code> à <code>x27</code></td>
+<td style="text-align:left"><code>s2</code> à <code>s11</code></td>
+<td style="text-align:left">Donnée sauvegardée</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>x28</code> à <code>x31</code></td>
+<td style="text-align:left"><code>t3</code> à <code>t6</code></td>
+<td style="text-align:left">Données temporaires</td>
+</tr>
+</tbody>
+</table>
+<p>Le pointeur global peut être utilisé pour simplifier l’accès aux variables
+globales en utilisant un adressage relatif.</p>
+<p>Par convention, les valeurs des registres <code>s0</code> à <code>s11</code> sont sauvegardés dans la
+pile en début de sous-programme et restaurées à la fin.
+Les valeurs des registres <code>t0</code> à <code>t6</code> doivent être sauvegardées par l’appelant
+s’il souhaite les conserver.</p>
+</section><section><h1 id="organisation-de-la-memoire" tabindex="-1">Organisation de la mémoire</h1>
+<p>Les formats de données utilisent la terminologie suivante&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Taille (bits)</th>
+<th style="text-align:left">Nom</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">8</td>
+<td style="text-align:left">Byte (<code>B</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left">16</td>
+<td style="text-align:left">Half word (<code>H</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left">32</td>
+<td style="text-align:left">Word (<code>W</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Les accès sur 16 ou 32 bits devront être alignés respectivement sur des adresses multiples de 2 ou 4.
+L’ordre des octets en mémoire suit la convention <em>little-endian</em>,
+c’est-à-dire que les valeurs sont rangées, de l’octet de poids faible à l’octet
+de poids fort, à des adresses croissantes.</p>
+</section><section><h1 id="jeu-dinstructions" tabindex="-1">Jeu d’instructions</h1>
+<p>Dans la syntaxe des instructions&nbsp;:</p>
+<ul>
+<li><code>{rd}</code> représente le numéro du registre de destination.</li>
+<li><code>{rs1}</code> et <code>{rs2}</code> représentent les numéros des registres sources.</li>
+<li><code>{imm}</code> représente une valeur immédiate.</li>
+</ul>
+<table class="small-font wider">
+<thead>
+<tr>
+<th style="text-align:left">Instruction</th>
+<th style="text-align:left">Signification</th>
+<th style="text-align:left">Opération</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>LUI x{rd}, {imm}</code></td>
+<td style="text-align:left">Load Upper Immediate</td>
+<td style="text-align:left"><code>x[rd] ← imm</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>AUIPC x{rd}, {imm}</code></td>
+<td style="text-align:left">Add Upper Immediate to PC</td>
+<td style="text-align:left"><code>x[rd] ← pc + imm</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>JAL x{rd}, {imm}</code></td>
+<td style="text-align:left">Jump And Link</td>
+<td style="text-align:left"><code>x[rd] ← pc + 4; pc ← pc + imm</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>JALR x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left">Jump And Link Register</td>
+<td style="text-align:left"><code>x[rd] ← pc + 4; pc ← x[rs1] + imm</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BEQ x{rs1}, x{rs2}, {imm}</code></td>
+<td style="text-align:left">Branch if Equal</td>
+<td style="text-align:left"><code>pc ← si x[rs1] = x[rs2]: pc + imm, sinon: pc + 4</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BNE x{rs1}, x{rs2}, {imm}</code></td>
+<td style="text-align:left">Branch if Not Equal</td>
+<td style="text-align:left"><code>pc ← si x[rs1] ≠ x[rs2]: pc + imm, sinon: pc + 4</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BLT x{rs1}, x{rs2}, {imm}</code></td>
+<td style="text-align:left">Branch if Less Than</td>
+<td style="text-align:left"><code>pc ← si signed(x[rs1]) &lt; signed(x[rs2]): pc + imm, sinon: pc + 4</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BGE x{rs1}, x{rs2}, {imm}</code></td>
+<td style="text-align:left">Branch if Greater or Equal</td>
+<td style="text-align:left"><code>pc ← si signed(x[rs1]) ≥ signed(x[rs2]): pc + imm, sinon: pc + 4</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BLTU x{rs1}, x{rs2}, {imm}</code></td>
+<td style="text-align:left">Branch if Less Than Unsigned</td>
+<td style="text-align:left"><code>pc ← si unsigned(x[rs1]) &lt; unsigned(x[rs2]): pc + imm, sinon: pc + 4</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BGEU x{rs1}, x{rs2}, {imm}</code></td>
+<td style="text-align:left">Branch if Greater or Equal Unsigned</td>
+<td style="text-align:left"><code>pc ← si unsigned(x[rs1]) ≥ unsigned(x[rs2]): pc + imm, sinon: pc + 4</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LB x{rd}, {imm}(x{rs1})</code></td>
+<td style="text-align:left">Load Byte</td>
+<td style="text-align:left"><code>x[rd] ← signed(mem[x[rs1]])</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LH x{rd}, {imm}(x{rs1})</code></td>
+<td style="text-align:left">Load Half word</td>
+<td style="text-align:left"><code>x[rd] ← signed(mem[x[rs1]:x[rs1]+1])</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LW x{rd}, {imm}(x{rs1})</code></td>
+<td style="text-align:left">Load Word</td>
+<td style="text-align:left"><code>x[rd] ← signed(mem[x[rs1]:x[rs1]+3])</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LBU x{rd}, {imm}(x{rs1})</code></td>
+<td style="text-align:left">Load Byte Unsigned</td>
+<td style="text-align:left"><code>x[rd] ← unsigned(mem[x[rs1]])</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LHU x{rd}, {imm}(x{rs1})</code></td>
+<td style="text-align:left">Load Half word Unsigned</td>
+<td style="text-align:left"><code>x[rd] ← unsigned(mem[x[rs1]:x[rs1]+1])</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SB x{rs2}, {imm}(x{rs1})</code></td>
+<td style="text-align:left">Store Byte</td>
+<td style="text-align:left"><code>mem[x[rs1]] ← x[rs2][7:0]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SH x{rs2}, {imm}(x{rs1})</code></td>
+<td style="text-align:left">Store Half word</td>
+<td style="text-align:left"><code>mem[x[rs1]:x[rs1]+1] ← x[rs2][15:0]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SW x{rs2}, {imm}(x{rs1})</code></td>
+<td style="text-align:left">Store Word</td>
+<td style="text-align:left"><code>mem[x[rs1]:x[rs1]+3] ← x[rs2]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ADDI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left">Add Immediate</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] + imm</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SLLI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left">Shift Left Logical Immediate</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] sll imm</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SLTI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left">Set on Less Than Immediate</td>
+<td style="text-align:left"><code>x[rd] ← si signed(x[rs1]) &lt; signed(imm): 1, sinon: 0</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SLTIU x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left">Set on Less Than Immediate Unsigned</td>
+<td style="text-align:left"><code>x[rd] ← si unsigned(x[rs1]) &lt; unsigned(imm): 1, sinon: 0</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>XORI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left">Exclusive Or Immediate</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] xor imm</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SRLI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left">Shift Right Logical Immediate</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] srl imm</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SRAI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left">Shift Right Arithmetic Immediate</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] sra imm</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ORI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left">Or Immediate</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] or imm</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ANDI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left">And Immediate</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] and imm</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ADD x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left">Add</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] + x[rs2]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SUB x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left">Subtract</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] - x[rs2]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SLL x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left">Shift Left Logical</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] sll x[rs2]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SLT x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left">Set on Less Than</td>
+<td style="text-align:left"><code>x[rd] ← si signed(x[rs1]) &lt; signed(x[rs2]): 1, sinon: 0</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SLTU x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left">Set on Less Than Unsigned</td>
+<td style="text-align:left"><code>x[rd] ← si unsigned(x[rs1]) &lt; unsigned(x[rs2]): 1, sinon: 0</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>XOR x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left">Exclusive Or</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] xor x[rs2]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SRL x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left">Shift Right Logical</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] srl x[rs2][4:0]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SRA x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left">Shift Right Arithmetic</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] sra x[rs2][4:0]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>OR x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left">Or</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] or x[rs2]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>AND x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left">And</td>
+<td style="text-align:left"><code>x[rd] ← x[rs1] and x[rs2]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>MRET</code></td>
+<td style="text-align:left">Machine Return</td>
+<td style="text-align:left"><code>pc ← mepc</code></td>
+</tr>
+</tbody>
+</table>
+<p>Les opérations logiques sont notées de la manière suivante&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Notation</th>
+<th style="text-align:left">Opération</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>and</code></td>
+<td style="text-align:left">Et logique bit à bit</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>or</code></td>
+<td style="text-align:left">Ou logique bit à bit</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>xor</code></td>
+<td style="text-align:left">Ou exclusif bit à bit</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>sll</code></td>
+<td style="text-align:left">Décalage <em>logique</em> à gauche (avec insertion de zéros par la droite)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>srl</code></td>
+<td style="text-align:left">Décalage <em>logique</em> à droite (avec insertion de zéros par la gauche)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>sra</code></td>
+<td style="text-align:left">Décalage <em>arithmétique</em> à droite (avec extension du bit de signe)</td>
+</tr>
+</tbody>
+</table>
+</section><section><h1 id="gestion-des-interruptions" tabindex="-1">Gestion des interruptions</h1>
+<p>Le cœur Virgule réalise un mécanisme simple d’interruption matérielle
+dans le mode <em>machine</em> du RISC-V.
+Aucun registre ou instruction de contrôle des interruptions n’est implémenté
+dans le processeur (cf les CSR de la spécification RISC-V).
+L’activation, la désactivation et l’interrogation de l’état des interruptions
+seront gérés, soit individuellement sur chaque périphérique, soit à l’aide d’un
+contrôleur d’interruption séparé.</p>
+<p>Dans le plan mémoire, le vecteur d’interruption se trouve à l’adresse 4.
+À cette adresse, on placera l’une des choses suivantes&nbsp;:</p>
+<ul>
+<li>le sous-programme de traitement de l’interruption, qui peut se résumer à une instruction <code>mret</code>,</li>
+<li>ou un branchement simple vers un sous-programme de traitement d’interruption (<code>jal zero, irq_handler</code>).</li>
+</ul>
+<p>Lors d’une demande d’interruption&nbsp;:</p>
+<ol>
+<li>Le processeur passe dans un mode non interruptible.</li>
+<li>La prochaine valeur de <code>pc</code> est mémorisée dans <code>mepc</code>.
+Si l’instruction en cours d’exécution est un branchement, alors <code>mepc</code> reçoit l’adresse de destination du branchement.
+Sinon, <code>mepc</code> reçoit <code>pc + 4</code>.</li>
+<li><code>pc</code> reçoit l’adresse du vecteur d’interruption.</li>
+</ol>
+<p>Lors d’un retour d’interruption (instruction <code>mret</code>)&nbsp;:</p>
+<ol>
+<li><code>pc</code> reçoit la valeur de <code>mepc</code>.</li>
+<li>Le processeur quitte le mode non interruptible.</li>
+</ol>
+</section><section><h1 id="codage-des-instructions" tabindex="-1">Codage des instructions</h1>
+</section><section><h2 id="formats" tabindex="-1">Formats</h2>
+<p>Le code d’une instruction se compose des champs suivants&nbsp;:</p>
+<ul>
+<li><code>funct7</code>, <code>funct3</code> et <code>opcode</code> définissent l’opération réalisée,</li>
+<li><code>imm</code> représente une valeur entière littérale (immédiate),</li>
+<li><code>rs1</code> et <code>rs2</code> sont des numéros de registres sources,</li>
+<li><code>rd</code> est le numéro du registre destination.</li>
+</ul>
+<p>On distingue six formats d’instructions qui utilisent chacun une partie des champs ci-dessus&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Format</th>
+<th style="text-align:left">31:25</th>
+<th style="text-align:left">24:20</th>
+<th style="text-align:left">19:15</th>
+<th style="text-align:left">14:12</th>
+<th style="text-align:left">11:7</th>
+<th style="text-align:left">6:0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>R</code></td>
+<td style="text-align:left"><code>funct7</code></td>
+<td style="text-align:left"><code>rs2</code></td>
+<td style="text-align:left"><code>rs1</code></td>
+<td style="text-align:left"><code>funct3</code></td>
+<td style="text-align:left"><code>rd</code></td>
+<td style="text-align:left"><code>opcode</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>I</code></td>
+<td style="text-align:left"><code>imm[11:5]</code>/<code>funct7</code></td>
+<td style="text-align:left"><code>imm[4:0]</code></td>
+<td style="text-align:left"><code>rs1</code></td>
+<td style="text-align:left"><code>funct3</code></td>
+<td style="text-align:left"><code>rd</code></td>
+<td style="text-align:left"><code>opcode</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>S</code></td>
+<td style="text-align:left"><code>imm[11:5]</code></td>
+<td style="text-align:left"><code>rs2</code></td>
+<td style="text-align:left"><code>rs1</code></td>
+<td style="text-align:left"><code>funct3</code></td>
+<td style="text-align:left"><code>imm[4:0]</code></td>
+<td style="text-align:left"><code>opcode</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>B</code></td>
+<td style="text-align:left"><code>imm[12,10:5]</code></td>
+<td style="text-align:left"><code>rs2</code></td>
+<td style="text-align:left"><code>rs1</code></td>
+<td style="text-align:left"><code>funct3</code></td>
+<td style="text-align:left"><code>imm[4:1,11]</code></td>
+<td style="text-align:left"><code>opcode</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>U</code></td>
+<td style="text-align:left"><code>imm[31:25]</code></td>
+<td style="text-align:left"><code>imm[24:20]</code></td>
+<td style="text-align:left"><code>imm[19:15]</code></td>
+<td style="text-align:left"><code>imm[14:12]</code></td>
+<td style="text-align:left"><code>rd</code></td>
+<td style="text-align:left"><code>opcode</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>J</code></td>
+<td style="text-align:left"><code>imm[20,10:5]</code></td>
+<td style="text-align:left"><code>imm[4:1,11]</code></td>
+<td style="text-align:left"><code>imm[19:15]</code></td>
+<td style="text-align:left"><code>imm[14:12]</code></td>
+<td style="text-align:left"><code>rd</code></td>
+<td style="text-align:left"><code>opcode</code></td>
+</tr>
+</tbody>
+</table>
+<p>Les valeurs immédiates subissent une extension de bit de signe pour atteindre 32 bits.
+Les bits de poids faible qui ne sont pas codés dans l’instruction sont mis à 0.</p>
+<p>Les formats <code>B</code> et <code>J</code> sont présentés comme des variantes des formats <code>S</code> et <code>U</code>.
+Dans les formats <code>B</code> et <code>J</code>, les valeurs immédiates sont toujours paires.
+Elles représentent un déplacement dans une instruction de branchement.
+Elles sont codées de manière à posséder un grand nombre de bits communs avec d’autres formats tout en plaçant leur bit de signe sur le bit 31 de l’instruction.</p>
+<p>La composition des valeurs immédiates est résumée dans le tableau ci-dessous&nbsp;:</p>
+<table class="small-font">
+<thead>
+<tr>
+<th style="text-align:left">Format</th>
+<th style="text-align:center"><code>imm[31:25]</code></th>
+<th style="text-align:center"><code>imm[24:21]</code></th>
+<th style="text-align:center"><code>imm[20]</code></th>
+<th style="text-align:center"><code>imm[19:15]</code></th>
+<th style="text-align:center"><code>imm[14:12]</code></th>
+<th style="text-align:center"><code>imm[11]</code></th>
+<th style="text-align:center"><code>imm[10:5]</code></th>
+<th style="text-align:center"><code>imm[4:1]</code></th>
+<th style="text-align:center"><code>imm[0]</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>I</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[30:25]</code></td>
+<td style="text-align:center"><code>inst[24:21]</code></td>
+<td style="text-align:center"><code>inst[20]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>S</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[30:25]</code></td>
+<td style="text-align:center"><code>inst[11:8]</code></td>
+<td style="text-align:center"><code>inst[7]</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>B</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[7]</code></td>
+<td style="text-align:center"><code>inst[30:25]</code></td>
+<td style="text-align:center"><code>inst[11:8]</code></td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>U</code></td>
+<td style="text-align:center"><code>inst[31:25]</code></td>
+<td style="text-align:center"><code>inst[24:21]</code></td>
+<td style="text-align:center"><code>inst[20]</code></td>
+<td style="text-align:center"><code>inst[19:15]</code></td>
+<td style="text-align:center"><code>inst[14:12]</code></td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>J</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[31]</code></td>
+<td style="text-align:center"><code>inst[19:15]</code></td>
+<td style="text-align:center"><code>inst[14:12]</code></td>
+<td style="text-align:center"><code>inst[20]</code></td>
+<td style="text-align:center"><code>inst[30:25]</code></td>
+<td style="text-align:center"><code>inst[24:21]</code></td>
+<td style="text-align:center">0</td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="opcodes-de-base" tabindex="-1">Opcodes de base</h2>
+<p>Le tableau ci-dessous liste les opcodes du jeu d’instructions RISC-V qui ont été
+conservés dans le cœur Virgule.
+À chaque opcode, correspond un format d’instruction.
+Dans la liste des instructions plus bas, on désignera les opcodes par leurs noms
+plutôt que par leurs valeurs binaires.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><code>inst[6:0]</code></th>
+<th style="text-align:left">Nom</th>
+<th style="text-align:center">Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">0000011</td>
+<td style="text-align:left"><code>LOAD</code></td>
+<td style="text-align:center"><code>I</code></td>
+</tr>
+<tr>
+<td style="text-align:left">0010011</td>
+<td style="text-align:left"><code>OP-IMM</code></td>
+<td style="text-align:center"><code>I</code></td>
+</tr>
+<tr>
+<td style="text-align:left">0010111</td>
+<td style="text-align:left"><code>AUIPC</code></td>
+<td style="text-align:center"><code>U</code></td>
+</tr>
+<tr>
+<td style="text-align:left">0100011</td>
+<td style="text-align:left"><code>STORE</code></td>
+<td style="text-align:center"><code>S</code></td>
+</tr>
+<tr>
+<td style="text-align:left">0110011</td>
+<td style="text-align:left"><code>OP</code></td>
+<td style="text-align:center"><code>R</code></td>
+</tr>
+<tr>
+<td style="text-align:left">0110111</td>
+<td style="text-align:left"><code>LUI</code></td>
+<td style="text-align:center"><code>U</code></td>
+</tr>
+<tr>
+<td style="text-align:left">1100011</td>
+<td style="text-align:left"><code>BRANCH</code></td>
+<td style="text-align:center"><code>B</code></td>
+</tr>
+<tr>
+<td style="text-align:left">1100111</td>
+<td style="text-align:left"><code>JALR</code></td>
+<td style="text-align:center"><code>I</code></td>
+</tr>
+<tr>
+<td style="text-align:left">1101111</td>
+<td style="text-align:left"><code>JAL</code></td>
+<td style="text-align:center"><code>J</code></td>
+</tr>
+<tr>
+<td style="text-align:left">1110011</td>
+<td style="text-align:left"><code>SYSTEM</code></td>
+<td style="text-align:center"><code>I</code></td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="liste-des-instructions" tabindex="-1">Liste des instructions</h2>
+<p>Dans le tableau ci-dessous, la colonne <code>opcode</code> fait référence aux noms figurant
+dans le tableau des opcodes de base.</p>
+<table class="small-font">
+<thead>
+<tr>
+<th style="text-align:left">Instruction</th>
+<th style="text-align:left"><code>opcode</code></th>
+<th style="text-align:center"><code>funct3</code></th>
+<th style="text-align:center"><code>funct7</code></th>
+<th style="text-align:center"><code>rs2</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>LUI</code></td>
+<td style="text-align:left"><code>LUI</code></td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>AUIPC</code></td>
+<td style="text-align:left"><code>AUIPC</code></td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>JAL</code></td>
+<td style="text-align:left"><code>JAL</code></td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>JALR</code></td>
+<td style="text-align:left"><code>JALR</code></td>
+<td style="text-align:center">000</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BEQ</code></td>
+<td style="text-align:left"><code>BRANCH</code></td>
+<td style="text-align:center">000</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BNE</code></td>
+<td style="text-align:left"><code>BRANCH</code></td>
+<td style="text-align:center">001</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BLT</code></td>
+<td style="text-align:left"><code>BRANCH</code></td>
+<td style="text-align:center">100</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BGE</code></td>
+<td style="text-align:left"><code>BRANCH</code></td>
+<td style="text-align:center">101</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BLTU</code></td>
+<td style="text-align:left"><code>BRANCH</code></td>
+<td style="text-align:center">110</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BGEU</code></td>
+<td style="text-align:left"><code>BRANCH</code></td>
+<td style="text-align:center">111</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LB</code></td>
+<td style="text-align:left"><code>LOAD</code></td>
+<td style="text-align:center">000</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LH</code></td>
+<td style="text-align:left"><code>LOAD</code></td>
+<td style="text-align:center">001</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LW</code></td>
+<td style="text-align:left"><code>LOAD</code></td>
+<td style="text-align:center">010</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LBU</code></td>
+<td style="text-align:left"><code>LOAD</code></td>
+<td style="text-align:center">100</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LHU</code></td>
+<td style="text-align:left"><code>LOAD</code></td>
+<td style="text-align:center">101</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SB</code></td>
+<td style="text-align:left"><code>STORE</code></td>
+<td style="text-align:center">000</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SH</code></td>
+<td style="text-align:left"><code>STORE</code></td>
+<td style="text-align:center">001</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SW</code></td>
+<td style="text-align:left"><code>STORE</code></td>
+<td style="text-align:center">010</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ADDI</code></td>
+<td style="text-align:left"><code>OP-IMM</code></td>
+<td style="text-align:center">000</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SLLI</code></td>
+<td style="text-align:left"><code>OP-IMM</code></td>
+<td style="text-align:center">001</td>
+<td style="text-align:center">0000000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SLTI</code></td>
+<td style="text-align:left"><code>OP-IMM</code></td>
+<td style="text-align:center">010</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SLTIU</code></td>
+<td style="text-align:left"><code>OP-IMM</code></td>
+<td style="text-align:center">011</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>XORI</code></td>
+<td style="text-align:left"><code>OP-IMM</code></td>
+<td style="text-align:center">100</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SRLI</code></td>
+<td style="text-align:left"><code>OP-IMM</code></td>
+<td style="text-align:center">101</td>
+<td style="text-align:center">0000000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SRAI</code></td>
+<td style="text-align:left"><code>OP-IMM</code></td>
+<td style="text-align:center">101</td>
+<td style="text-align:center">0100000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ORI</code></td>
+<td style="text-align:left"><code>OP-IMM</code></td>
+<td style="text-align:center">110</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ANDI</code></td>
+<td style="text-align:left"><code>OP-IMM</code></td>
+<td style="text-align:center">111</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ADD</code></td>
+<td style="text-align:left"><code>OP</code></td>
+<td style="text-align:center">000</td>
+<td style="text-align:center">0000000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SUB</code></td>
+<td style="text-align:left"><code>OP</code></td>
+<td style="text-align:center">000</td>
+<td style="text-align:center">0100000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SLL</code></td>
+<td style="text-align:left"><code>OP</code></td>
+<td style="text-align:center">001</td>
+<td style="text-align:center">0000000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SLT</code></td>
+<td style="text-align:left"><code>OP</code></td>
+<td style="text-align:center">010</td>
+<td style="text-align:center">0000000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SLTU</code></td>
+<td style="text-align:left"><code>OP</code></td>
+<td style="text-align:center">011</td>
+<td style="text-align:center">0000000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>XOR</code></td>
+<td style="text-align:left"><code>OP</code></td>
+<td style="text-align:center">100</td>
+<td style="text-align:center">0000000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SRL</code></td>
+<td style="text-align:left"><code>OP</code></td>
+<td style="text-align:center">101</td>
+<td style="text-align:center">0000000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SRA</code></td>
+<td style="text-align:left"><code>OP</code></td>
+<td style="text-align:center">101</td>
+<td style="text-align:center">0100000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>OR</code></td>
+<td style="text-align:left"><code>OP</code></td>
+<td style="text-align:center">110</td>
+<td style="text-align:center">0000000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>AND</code></td>
+<td style="text-align:left"><code>OP</code></td>
+<td style="text-align:center">111</td>
+<td style="text-align:center">0000000</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>MRET</code></td>
+<td style="text-align:left"><code>SYSTEM</code></td>
+<td style="text-align:center">000</td>
+<td style="text-align:center">0011000</td>
+<td style="text-align:center">00010</td>
+</tr>
+</tbody>
+</table>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="../soc/soc-installation.html">&larr;&nbsp;Installation et configuration des outils de développement</a>
+    
+    
+        <a href="installation-xilinx-vivado.html">Installer Xilinx Vivado&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="virgule.html" class="current">Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

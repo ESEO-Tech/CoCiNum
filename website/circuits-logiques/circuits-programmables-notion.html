@@ -1,0 +1,1099 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Notion de circuit logique programmable</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="automates-activite.html">&larr;&nbsp;Activité : automates</a>
+    
+    
+        <a href="circuits-programmables-simples.html">Circuits programmables simples (SPLD) et complexes (CPLD)&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Notion de circuit logique programmable</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#motivation-et-principes-generaux">Motivation et principes généraux</a></li>
+            
+                
+                <li><a href="#technologie-des-circuits-logiques-programmables">Technologie des circuits logiques programmables</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#circuits-a-fusibles">Circuits à fusibles</a></li>
+            
+                
+                <li><a href="#circuits-a-antifusibles">Circuits à antifusibles</a></li>
+            
+                
+                <li><a href="#circuits-a-memoire-volatile-ram">Circuits à mémoire volatile (RAM)</a></li>
+            
+                
+                <li><a href="#circuits-a-memoire-non-volatile-eeprom-flash">Circuits à mémoire non volatile (EEPROM, Flash)</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#resume">Résumé</a></li>
+            
+            
+        </ul>
+            
+    
+    <section><h1 id="motivation-et-principes-generaux" tabindex="-1">Motivation et principes généraux</h1>
+<p>Dans la section <a href="combinatoire-synthese-logique.html">Synthèse de fonctions logiques</a>, nous avons
+présenté une méthode qui permet de construire un circuit à partir d’une <a href="combinatoire-synthese-logique.html#table-de-verite">table de vérité</a>.
+Nous avons d’abord représenté la fonction à réaliser comme un
+système d’équations logiques de la forme <a href="combinatoire-synthese-logique.html#mise-en-equations">somme de produits</a>.
+Nous avons ensuite dessiné le <a href="combinatoire-synthese-logique.html#schema-du-circuit">schéma d’un circuit</a> directement inspiré de ces équations.
+Ce schéma est rappelé ci-dessous&nbsp;:</p>
+<p><a href="robot-synthese-manuel-noopt.svg"><img src="robot-synthese-manuel-noopt.svg" alt="Circuit de commande du robot" class="vfill"></a></p>
+<p>Si nous appliquons la même méthode pour développer un circuit réalisant une autre fonction logique,
+nous devinons que le circuit aura la même <em>allure</em>.
+On retrouvera&nbsp;:</p>
+<ul>
+<li>des inverseurs en entrée,</li>
+<li>des portes <em>ET</em> pour calculer les termes <em>produits</em>,</li>
+<li>des portes <em>OU</em> pour calculer les valeurs des sorties.</li>
+</ul>
+<p>Ainsi, plutôt que de construire un nouveau circuit en partant de zéro, nous pouvons partir d’un
+circuit de base dans lequel les portes logiques sont déjà en place et où les connexions
+restent à définir.
+On appelle <em>circuit logique programmable</em> un circuit logique qui peut être
+configuré – <em>programmé</em> – pour réaliser une fonction particulière.
+La figure ci-dessous représente une structure possible pour un tel circuit.</p>
+<p><a href="pla.svg"><img src="pla.svg" alt="Structure typique d'un PLA" class="hfill"></a></p>
+<p>Sur ce schéma, chaque cercle rouge représente une connexion que nous pouvons configurer.
+Soit nous choisissons de relier ensemble une ligne et une colonne, soit nous choisissons de
+ne pas les relier.
+Les résistances en entrée des portes <em>ET</em> et <em>OU</em> sont des résistances de tirage qui permettent
+de neutraliser les entrées non utilisées.</p>
+<ul>
+<li>Les entrées non utilisées des portes <em>ET</em> reçoivent un 1 logique à travers des résistances <em>pull-up</em>.</li>
+<li>Les entrées non utilisées des portes <em>OU</em> reçoivent un 0 logique à travers des résistances <em>pull-down</em>.</li>
+</ul>
+<p>Dans la suite de ce document, nous utiliserons une représentation <em>allégée</em>
+dans laquelle nous ne dessinerons pas les résistances de tirage et nous regrouperons sur une même
+colonne ou ligne les entrées des portes.</p>
+<p><a href="pla-simplifie.svg"><img src="pla-simplifie.svg" alt="Représentation allégée d'un PLA" width="500px"></a></p>
+<p>Le circuit ci-dessus permet ainsi de réaliser toutes les fonctions logiques combinatoires dans lesquelles
+il y a au maximum quatre entrées, quatre sorties et huit termes produits différents.
+Dans les sections qui suivent, nous allons nous intéresser aux techniques permettant de réaliser
+des connexions configurables.</p>
+</section><section><h1 id="technologie-des-circuits-logiques-programmables" tabindex="-1">Technologie des circuits logiques programmables</h1>
+<p>Une connexion configurable est un point du circuit où l’utilisateur peut choisir
+d’établir ou de couper le contact entre deux conducteurs.
+Les technologies disponibles pour réaliser ces connexions se distinguent par différents critères&nbsp;:</p>
+<ul>
+<li>Le caractère <em>définitif</em> ou <em>modifiable</em> de la configuration.</li>
+<li>Pour les connexions modifiables, le caractère <em>volatile</em> ou <em>permanent</em> de la configuration.</li>
+</ul>
+</section><section><h2 id="circuits-a-fusibles" tabindex="-1">Circuits à fusibles</h2>
+<p>Un <a href="https://fr.wikipedia.org/wiki/Fusible_%28%C3%A9lectricit%C3%A9%29">fusible</a> est un filament conducteur
+qui fond lorsque l’intensité du courant qui le traverse dépasse un certain seuil.
+Ils servent habituellement à protéger des installations électriques.</p>
+<p>Dans les premières générations de circuits programmables, chaque connexion configurable était réalisée à l’aide d’un fusible.
+Dans un circuit vierge, tous les fusibles étaient intacts.
+Pour réaliser une fonction logique particulière, il suffisait de repérer les connexions à couper
+et de faire fondre les fusibles correspondants.
+En fonctionnement normal, les fusibles restants se comportaient comme de simples conducteurs.</p>
+<p><a href="pld-fusible.svg"><img src="pld-fusible.svg" alt="Circuit à fusibles" width="600px"></a></p>
+<p>La figure ci-dessus illustre une configuration des entrées d’une porte <em>ET</em> afin de réaliser
+la fonction <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>⋅</mo><mover accent="true"><mi>B</mi><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">A\cdot\overline B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.8833300000000001em;vertical-align:0em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833300000000001em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span><span style="top:-3.80333em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span></span></span></span>.
+Ici, deux fusibles ont été supprimés et deux ont été laissés intacts.</p>
+<p>Une fois programmé, un tel circuit ne peut pas être effacé pour réaliser une autre fonction.
+En effet, un fusible fondu ne peut pas redevenir conducteur.
+En anglais, on parle de circuit <em>OTP</em> pour <em>One Time Programmable</em>.</p>
+</section><section><h2 id="circuits-a-antifusibles" tabindex="-1">Circuits à antifusibles</h2>
+<p>Un antifusible est un composant qui se comporte à l’inverse d’un fusible.
+Initialement isolant, il devient conducteur lorsqu’il est soumis à une tension électrique suffisamment élevée.</p>
+<p>Dans de nombreuses familles de circuits programmables, les connexions configurables sont réalisées
+avec des antifusibles.
+Pour réaliser une fonction logique particulière, il suffit de repérer les connexions à établir
+et de rendre conducteurs les antifusibles correspondants.</p>
+<p><a href="pld-antifusible.svg"><img src="pld-antifusible.svg" alt="Circuit à antifusibles" width="600px"></a></p>
+<p>La figure ci-dessus illustre une configuration des entrées d’une porte <em>ET</em> afin de réaliser
+la fonction <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>⋅</mo><mover accent="true"><mi>B</mi><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">A\cdot\overline B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.8833300000000001em;vertical-align:0em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833300000000001em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span><span style="top:-3.80333em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span></span></span></span>.
+Ici, deux antifusibles sont devenus conducteurs et deux ont été laissés intacts.</p>
+<p>Lorsqu’il est devenu conducteur, un antifusible ne peut pas redevenir isolant.
+Une fois programmé, un circuit à antifusibles ne peut pas être effacé pour réaliser une autre fonction.</p>
+</section><section><h2 id="circuits-a-memoire-volatile-ram" tabindex="-1">Circuits à mémoire volatile (RAM)</h2>
+<p>Pour réaliser des circuits dont la configuration peut être effacée et modifiée,
+on utilise couramment des éléments de mémorisation.
+Dans un circuit à base de <a href="https://fr.wikipedia.org/wiki/M%C3%A9moire_vive">RAM statique</a>,
+ces éléments de mémorisation sont des verrous ou des bascules.
+Le circuit programmable est alors organisé en deux plans superposés&nbsp;:</p>
+<ul>
+<li>un plan contenant les portes logiques qui constituent la structure de base du circuit,</li>
+<li>un plan contenant de la mémoire pour mémoriser la configuration.</li>
+</ul>
+<p><a href="pld-ram.svg"><img src="pld-ram.svg" alt="Circuit à cellules de RAM" width="600px"></a></p>
+<p>Sur la figure ci-dessus, nous avons représenté un circuit comportant quatre connexions configurables
+réalisées avec quatre <a href="combinatoire-premiers-circuits-logiques.html#briques-de-base-dun-circuit-logique-cmos">transistors NMOS</a>
+commandés par quatre éléments de mémorisation.
+Chaque transistor se comportera comme un interrupteur ouvert ou fermé en fonction de la valeur courante
+de la cellule de mémoire qui lui est associée.</p>
+<p>Dans un tel circuit, il suffit de modifier le contenu de la RAM pour réaliser une autre fonction logique.
+En revanche, les informations mémorisées dans une RAM sont perdues lorsque le circuit n’est plus alimenté.
+Il faut donc le reconfigurer à chaque mise sous tension.</p>
+</section><section><h2 id="circuits-a-memoire-non-volatile-eeprom-flash" tabindex="-1">Circuits à mémoire non volatile (EEPROM, Flash)</h2>
+<p>Une <a href="https://fr.wikipedia.org/wiki/Electrically-erasable_programmable_read-only_memory">EEPROM</a>
+est une mémoire non volatile effaçable électriquement.
+Les <a href="https://fr.wikipedia.org/wiki/M%C3%A9moire_flash">mémoires Flash</a> sont un cas particulier d’EEPROM.</p>
+<p>Comme pour les circuits à base de RAM, un circuit programmable utilisant de l’EEPROM est constitué d’un plan
+contenant la structure de base du circuit et d’un plan de mémoire dans lequel la configuration est enregistrée.</p>
+<p><a href="pld-ram.svg"><img src="pld-ram.svg" alt="Circuit à cellules d'EEPROM" width="600px"></a></p>
+<p>Les mémoires EEPROM et Flash conservent les informations mémorisées lorsque le circuit n’est plus alimenté.
+Pour le moment, les circuits programmables à base d’EEPROM restent plus chers que les circuits à base de RAM
+car ils nécessitent un procédé de fabrication spécifique.</p>
+<div class="info">
+<h1 id="resume" tabindex="-1">Résumé</h1>
+<p>On appelle <em>circuit logique programmable</em> un circuit logique qui peut être
+configuré – <em>programmé</em> – pour réaliser une fonction particulière.</p>
+<p>Dans un circuit logique programmable, les portes logiques sont déjà en place
+mais les connexions restent à définir.</p>
+<p>Les connexions configurables peuvent être réalisées au moyen de différentes technologies.</p>
+<ul>
+<li>Les circuits à fusibles et antifusibles sont programmables une seule fois.</li>
+<li>Les circuits à base de RAM et d’EEPROM permettent d’effacer la configuration et d’en écrire une nouvelle</li>
+<li>Les circuits à base de RAM doivent être reconfigurés à chaque mise sous tension
+tandis que les circuits à base d’EEPROM conservent leur configuration lorsque le circuit n’est plus alimenté.</li>
+</ul>
+</div>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="automates-activite.html">&larr;&nbsp;Activité : automates</a>
+    
+    
+        <a href="circuits-programmables-simples.html">Circuits programmables simples (SPLD) et complexes (CPLD)&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="circuits-programmables-notion.html" class="current">Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

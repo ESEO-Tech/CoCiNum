@@ -1,0 +1,1225 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Arithmétique en virgule fixe</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="producteur-consommateur.html">&larr;&nbsp;Connecter producteurs et consommateurs : le protocole ready/valid</a>
+    
+    
+        <a href="vocoder-pkg.html">Le paquetage Vocoder_pkg&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Arithmétique en virgule fixe</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#types-de-donnees-pour-travailler-avec-des-nombres-reels">Types de données pour travailler avec des nombres réels</a></li>
+            
+                
+                <li><a href="#le-type-sfixed">Le type sfixed</a></li>
+            
+                
+                <li><a href="#operations-en-virgule-fixe">Opérations en virgule fixe</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#operations-arithmetiques">Opérations arithmétiques</a></li>
+            
+                
+                <li><a href="#comparaisons">Comparaisons</a></li>
+            
+                
+                <li><a href="#decalages">Décalages</a></li>
+            
+                
+                <li><a href="#conversions-et-redimensionnement">Conversions et redimensionnement</a></li>
+            
+            
+        </ul>
+            
+        </ul>
+            
+    
+    <section><h1 id="types-de-donnees-pour-travailler-avec-des-nombres-reels" tabindex="-1">Types de données pour travailler avec des nombres réels</h1>
+<p>En VHDL, la représentation et la manipulation des nombres entiers s’effectuent
+le plus souvent à l’aide des types <code>integer</code>, <code>signed</code> et <code>unsigned</code>.
+Les types <code>signed</code> et <code>unsigned</code> sont définis comme des vecteurs logiques et
+sont plus adaptés lorsque la description d’un circuit utilise les mêmes signaux
+dans des opérations arithmétiques et des manipulations de valeurs binaires.</p>
+<p>Pour travailler avec des nombres réels en VHDL, il existe plusieurs possibilités&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Paquetage</th>
+<th style="text-align:left">Types</th>
+<th style="text-align:left">Définition</th>
+<th style="text-align:left">Utilisation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Standard</td>
+<td style="text-align:left"><code>real</code></td>
+<td style="text-align:left">Intervalle de valeurs</td>
+<td style="text-align:left">Nombre réel <em>abstrait</em></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>float_pkg</code></td>
+<td style="text-align:left"><code>float</code></td>
+<td style="text-align:left">Vecteur logique</td>
+<td style="text-align:left">Nombre en virgule flottante</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fixed_pkg</code></td>
+<td style="text-align:left"><code>sfixed</code>, <code>ufixed</code></td>
+<td style="text-align:left">Vecteur logique</td>
+<td style="text-align:left">Nombre en virgule fixe</td>
+</tr>
+</tbody>
+</table>
+<p>Le type <code>real</code> fonctionne un peu comme le type <code>integer</code>&nbsp;: on peut l’utiliser
+lorsqu’on ne s’intéresse pas à la façon dont une valeur est codée en binaire.
+Mais contrairement au type <code>integer</code>, les opérations sur le type <code>real</code> ne sont
+généralement pas prises en charge par les outils de synthèse.
+On peut utiliser ce type dans les bancs de test en simulation.</p>
+<p>Le type <code>float</code> s’appuie sur la norme <a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a>,
+la plus utilisée aujourd’hui pour représenter des nombres en virgule flottante.
+Sur le principe, ce type est utilisable pour décrire et synthétiser un circuit
+qui manipule des nombres en virgule flottante.
+Cependant, les opérations sur ces nombres sont coûteuses, en temps de calcul
+et en ressources matérielles, et peuvent aboutir à des circuits peu performants.</p>
+<p>Les types <code>sfixed</code> et <code>ufixed</code> permettent de représenter des nombres
+signés ou non signés avec une partie entière et une partie fractionnaire
+de tailles fixes.
+Les valeurs en virgule fixe sont plus limitées, mais beaucoup plus simples à
+manipuler que les valeurs en virgule flottante.
+Souvent, un circuit en virgule fixe utilise les mêmes opérations
+que si l’on travaillait avec des entiers, mais avec des décalages binaires
+pour tenir compte de la position de la virgule.</p>
+</section><section><h1 id="le-type-sfixed" tabindex="-1">Le type <code>sfixed</code></h1>
+<p>Dans ce projet, nous allons utiliser le type signé en virgule fixe <code>sfixed</code>.
+Une valeur en virgule fixe est un vecteur logique dans lequel l’intervalle
+des indices spécifie la largeur de la partie entière et de la partie
+fractionnaire.</p>
+<p>En VHDL, l’astuce consiste à utiliser des indices positifs ou nuls
+pour les bits de la partie entière, et des indices négatifs pour les bits de la
+partie fractionnaire.
+Dans l’exemple ci-dessous, <code>s</code> possède 4 bits de partie entière (bits 3 à 0)
+et 12 bits de partie fractionnaire (bits -1 à -12)&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">signal</span> s : sfixed(<span class="hljs-number">3</span> <span class="hljs-keyword">downto</span> -<span class="hljs-number">12</span>);
+</code></pre>
+<p>Cette convention est cohérente avec la numération binaire habituelle,
+dans laquelle chaque bit d’indice <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal">n</span></span></span></span> a pour poids <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">2^n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.664392em;vertical-align:0em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.664392em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span>.
+Dans l’instruction ci-dessous, <code>s</code> reçoit la valeur  6,625
+qui se décompose comme suit&nbsp;:</p>
+<pre><code class="language-vhdl">s &lt;= <span class="hljs-string">"0110010100000000"</span>;
+</code></pre>
+<table style="text-align: center;">
+<tbody><tr> <th>Indice</th> <td>3</td>  <td>2</td> <td>1</td> <td>0</td><td> </td><td>-1</td>  <td>-2</td>  <td>-3</td>  <td>-4</td>   <td>…</td> <td>-12</td>    </tr>
+<tr> <th>Poids</th>  <td>-8</td> <td>4</td> <td>2</td> <td>1</td><td> </td><td>1/2</td> <td>1/4</td> <td>1/8</td> <td>1/16</td> <td>…</td> <td>1/4096</td> </tr>
+<tr> <th>Valeur</th> <td>0</td>  <td>1</td> <td>1</td> <td>0</td><td>.</td><td>1</td>   <td>0</td>   <td>1</td>   <td>0</td>    <td>…</td> <td>0</td>      </tr>
+</tbody></table>
+<p>Le type <code>sfixed</code> peut représenter des nombres positifs et négatifs en
+appliquant le principe du <em>complément à deux</em> exactement comme pour les entiers.
+Une manière de l’indiquer, comme dans le tableau ci-dessus, est de donner un poids
+négatif au bit le plus à gauche.
+Dans notre exemple, le signal <code>s</code> peut prendre des valeurs comprises entre
+-8 et 7,9997559 (8-1/4096).</p>
+</section><section><h1 id="operations-en-virgule-fixe" tabindex="-1">Opérations en virgule fixe</h1>
+<p>Le paquetage <code>fixed_pkg</code> que nous fournissons dans le cadre de ce projet est
+une version allégée du paquetage officiel de l’IEEE.
+Son code source est entièrement disponible dans le fichier <code>fixed_pkg.vhd</code>
+de votre dossier de travail.
+Vous pouvez l’utiliser en ajoutant la clause suivante dans vos fichiers sources&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">use</span> work.fixed_pkg.<span class="hljs-keyword">all</span>;
+</code></pre>
+<div class="info">
+<p>Dans les tableaux ci-dessous, <code>a</code> est toujours de type <code>sfixed</code>
+tandis que <code>b</code> peut être de type <code>sfixed</code> ou <code>integer</code>.</p>
+<p>Lorsque <code>b</code> est de type <code>integer</code>, il est automatiquement converti
+en virgule fixe avec le même intervalle d’indices que <code>a</code>.
+Il faut donc que le type de <code>a</code> ait une partie entière assez large pour
+contenir <code>b</code>.</p>
+</div>
+</section><section><h2 id="operations-arithmetiques" tabindex="-1">Opérations arithmétiques</h2>
+<p>L’addition, la soustraction et la multiplication produisent
+toujours un résultat plus large que leurs opérandes.
+Si nécessaire, ce résultat peut être redimensionné avec la fonction <code>resize</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Opération</th>
+<th style="text-align:left">Résultat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>abs a</code></td>
+<td style="text-align:left">La valeur absolue de <code>a</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>- a</code></td>
+<td style="text-align:left">L’opposée de <code>a</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a - b</code></td>
+<td style="text-align:left">La différence entre <code>a</code> et <code>b</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a + b</code></td>
+<td style="text-align:left">La somme de <code>a</code> et <code>b</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a * b</code></td>
+<td style="text-align:left">Le produit de <code>a</code> et <code>b</code></td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="comparaisons" tabindex="-1">Comparaisons</h2>
+<p>Ces opérations retournent un résultat de type <code>boolean</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Opération</th>
+<th style="text-align:left">Le résultat vaut <code>true</code> si</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>a = b</code></td>
+<td style="text-align:left"><code>a</code> est égal à <code>b</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a /= b</code></td>
+<td style="text-align:left"><code>a</code> est différent de <code>b</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a &gt; b</code></td>
+<td style="text-align:left"><code>a</code> est strictement supérieur à <code>b</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a &gt;= b</code></td>
+<td style="text-align:left"><code>a</code> est supérieur ou égal à <code>b</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a &lt; b</code></td>
+<td style="text-align:left"><code>a</code> est strictement inférieur à <code>b</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a &lt;= b</code></td>
+<td style="text-align:left"><code>a</code> est inférieur ou égal à <code>b</code></td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="decalages" tabindex="-1">Décalages</h2>
+<p>Ces opérations traitent une valeur de type <code>sfixed</code> en tant que vecteur.
+Elles peuvent être utilisées pour effectuer des divisions par des puissances de deux.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Opération</th>
+<th style="text-align:left">Résultat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>a srl n</code></td>
+<td style="text-align:left"><code>a</code> décalé de <code>n</code> bits vers la droite, en insérant des zéros à gauche</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a sra n</code></td>
+<td style="text-align:left"><code>a</code> décalé de <code>n</code> bits vers la droite, avec extension du bit de signe</td>
+</tr>
+</tbody>
+</table>
+<p>Dans les deux cas, <code>n</code> doit être un entier positif ou nul.
+Le résultat a le même type que <code>a</code>.</p>
+<p>L’opérateur <code>sra</code> (<em>Shift Right Arithmetic</em>) préserve le signe du résultat
+tandis que <code>srl</code> (<em>Shift Right Logical</em>) traite <code>a</code> comme un vecteur logique
+non signé.</p>
+</section><section><h2 id="conversions-et-redimensionnement" tabindex="-1">Conversions et redimensionnement</h2>
+<p>Dans les expressions ci-dessous, <code>v</code> peut être de type <code>integer</code> ou <code>real</code>&nbsp;;
+<code>l</code> et <code>r</code> sont des entiers&nbsp;; <code>a</code> et <code>s</code> sont de type <code>sfixed</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Expression</th>
+<th style="text-align:left">Résultat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>to_signed(a)</code></td>
+<td style="text-align:left">Un vecteur de type <code>signed</code> de même largeur, et avec le même contenu que <code>a</code> (non standard)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>to_unsigned(a)</code></td>
+<td style="text-align:left">Un vecteur de type <code>unsigned</code> de même largeur, et avec le même contenu que <code>a</code> (non standard)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>to_std_logic_vector(a)</code></td>
+<td style="text-align:left">Un vecteur de type <code>std_logic_vector</code> de même largeur, et avec le même contenu que <code>a</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>to_real(a)</code></td>
+<td style="text-align:left">La valeur de <code>a</code> convertie en <code>real</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>to_string(a)</code></td>
+<td style="text-align:left">Le contenu binaire de <code>a</code> sous la forme d’une chaîne de caractères, avec un point pour séparer la partie entière et la partie fractionnaire</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>to_sfixed(v, l, r)</code></td>
+<td style="text-align:left">Le nombre <code>v</code>, converti en <code>sfixed(l downto r)</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>to_sfixed(v, s)</code></td>
+<td style="text-align:left">Le nombre <code>v</code>, converti en <code>sfixed</code> avec le même intervalle d’indices que <code>s</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>resize(a, l, r)</code></td>
+<td style="text-align:left">Le vecteur <code>a</code>, redimensionné avec l’intervalle d’indices <code>l downto r</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>resize(a, s)</code></td>
+<td style="text-align:left">Le vecteur <code>a</code>, redimensionné avec le même intervalle d’indices que <code>s</code></td>
+</tr>
+</tbody>
+</table>
+<p>Les fonctions <code>to_real</code> et <code>to_string</code> peuvent être utilisées dans les bancs de test.</p>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="producteur-consommateur.html">&larr;&nbsp;Connecter producteurs et consommateurs : le protocole ready/valid</a>
+    
+    
+        <a href="vocoder-pkg.html">Le paquetage Vocoder_pkg&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="virgule-fixe.html" class="current">Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,1203 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Décrire et interconnecter des composants</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="index.html">&larr;&nbsp;Découverte du langage Verilog</a>
+    
+    
+        <a href="declarations.html">Déclarations et types de données&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Décrire et interconnecter des composants</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#modules">Modules</a></li>
+            
+                
+                <li><a href="#ports">Ports</a></li>
+            
+                
+                <li><a href="#parametres">Paramètres</a></li>
+            
+                
+                <li><a href="#linstruction-dinstanciation">L’instruction d’instanciation</a></li>
+            
+            
+        </ul>
+            
+    
+    <section><h1 id="modules" tabindex="-1">Modules</h1>
+<p>Contrairement à VHDL, le langage Verilog ne sépare pas la description
+de l’interface d’un circuit et la description de son implémentation.
+Les deux notions sont regroupées sous la forme de <em>modules</em>.</p>
+<p>À titre de comparaison, voici la description d’un circuit
+comparateur en VHDL&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> Comparator <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">port</span>(
+        a_i, b_i         : <span class="hljs-keyword">in</span>  <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">255</span>;
+        lt_o, eq_o, gt_o : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>
+    );
+<span class="hljs-keyword">end</span> Comparator;
+
+<span class="hljs-keyword">architecture</span> Behavioral <span class="hljs-keyword">of</span> Comparator <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">signal</span> lt, gt : <span class="hljs-built_in">std_logic</span>;
+<span class="hljs-keyword">begin</span>
+    lt   &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> a_i &lt; b_i <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+    gt   &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> a_i &gt; b_i <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+    lt_o &lt;= lt;
+    gt_o &lt;= gt;
+    eq_o &lt;= lt <span class="hljs-keyword">nor</span> gt;
+<span class="hljs-keyword">end</span> Behavioral;
+</code></pre>
+<p>Et voici une traduction possible en Verilog&nbsp;:</p>
+<pre><code class="language-verilog"><span class="hljs-keyword">module</span> Comparator (
+    <span class="hljs-keyword">input</span>  [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] a_i,
+    <span class="hljs-keyword">input</span>  [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] b_i,
+    <span class="hljs-keyword">output</span>       lt_o,
+    <span class="hljs-keyword">output</span>       gt_o,
+    <span class="hljs-keyword">output</span>       eq_o
+);
+
+<span class="hljs-keyword">assign</span> lt_o = a_i &lt; b_i;
+<span class="hljs-keyword">assign</span> gt_o = a_i &gt; b_i;
+<span class="hljs-keyword">assign</span> eq_o = ~(lt_o | gt_o);
+
+<span class="hljs-keyword">endmodule</span>
+</code></pre>
+<p>La syntaxe générale d’un module est&nbsp;:</p>
+<pre><code class="language-verilog-syntax"><span class="hljs-keyword">module</span> <span class="hljs-non-terminal">nom du module</span> (
+    <span class="hljs-non-terminal">port</span>, <span class="hljs-non-terminal">port</span>, ...
+);
+
+<span class="hljs-non-terminal">déclarations et instructions</span>
+
+<span class="hljs-keyword">endmodule</span>
+</code></pre>
+<p>ou, pour les versions récentes du langage&nbsp;:</p>
+<pre><code class="language-verilog-syntax"><span class="hljs-keyword">module</span> <span class="hljs-non-terminal">nom du module</span> #(
+    <span class="hljs-non-terminal">paramètre</span>, <span class="hljs-non-terminal">paramètre</span>, ...
+)
+(
+    <span class="hljs-non-terminal">port</span>, <span class="hljs-non-terminal">port</span>, ...
+);
+
+<span class="hljs-non-terminal">déclarations et instructions</span>
+
+<span class="hljs-keyword">endmodule</span>
+</code></pre>
+</section><section><h1 id="ports" tabindex="-1">Ports</h1>
+<p>Selon la version du langage utilisée, la déclaration des ports pourra prendre
+différentes formes.
+Dans l’exemple ci-dessous, on déclare les ports suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Port</th>
+<th style="text-align:left">Direction</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>a_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Vecteur de 8 bits numérotés de 7 à 0</td>
+<td style="text-align:left">La première valeur à comparer</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>b_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Vecteur de 8 bits numérotés de 7 à 0</td>
+<td style="text-align:left">La première valeur à comparer</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>lt_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">1 si <code>a_i</code> est strictement inférieur à <code>b_i</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>gt_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">1 si <code>a_i</code> est strictement supérieur à <code>b_i</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>eq_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">1 si <code>a_i</code> est égale à <code>b_i</code></td>
+</tr>
+</tbody>
+</table>
+<p>En Verilog 1995&nbsp;:</p>
+<pre><code class="language-verilog"><span class="hljs-keyword">module</span> Comparator (a_i, b_i, lt_o, gt_o, eq_o);
+
+<span class="hljs-keyword">input</span>  [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] a_i;
+<span class="hljs-keyword">input</span>  [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] b_i;
+<span class="hljs-keyword">output</span>       lt_o;
+<span class="hljs-keyword">output</span>       gt_o;
+<span class="hljs-keyword">output</span>       eq_o;
+
+...
+
+<span class="hljs-keyword">endmodule</span>
+</code></pre>
+<p>À partir de Verilog 2001, on peut placer les déclarations de ports
+entre les parenthèses&nbsp;:</p>
+<pre><code class="language-verilog"><span class="hljs-keyword">module</span> Comparator (
+    <span class="hljs-keyword">input</span>  [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] a_i,
+    <span class="hljs-keyword">input</span>  [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] b_i,
+    <span class="hljs-keyword">output</span>       lt_o,
+    <span class="hljs-keyword">output</span>       gt_o,
+    <span class="hljs-keyword">output</span>       eq_o
+);
+
+...
+
+<span class="hljs-keyword">endmodule</span>
+</code></pre>
+<p>ou encore&nbsp;:</p>
+<pre><code class="language-verilog"><span class="hljs-keyword">module</span> Comparator (
+    <span class="hljs-keyword">input</span>  [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] a_i, b_i,
+    <span class="hljs-keyword">output</span>       lt_o, gt_o, eq_o
+);
+
+...
+
+<span class="hljs-keyword">endmodule</span>
+</code></pre>
+</section><section><h1 id="parametres" tabindex="-1">Paramètres</h1>
+<p>En Verilog, le mot-clé <code>parameter</code> introduit un paramètre d’un module,
+similaire aux <a href="../essentiel-vhdl/unites-de-conception.html#parametres-generiques">paramètres génériques</a> du VHDL.</p>
+<p>Par exemple, dans le module <code>Comparator</code>, on peut rendre le nombre de bits des
+entrées réglable de la manière suivante.
+Si la valeur du paramètre n’est pas précisée à l’instanciation,
+c’est la valeur indiquée après l’opérateur <code>=</code> qui sera utilisée&nbsp;:</p>
+<pre><code class="language-verilog"><span class="hljs-keyword">module</span> Comparator (a_i, b_i, lt_o, gt_o, eq_o);
+
+<span class="hljs-keyword">parameter</span> WIDTH = <span class="hljs-number">8</span>;
+
+<span class="hljs-keyword">input</span>  [WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] a_i;
+<span class="hljs-keyword">input</span>  [WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] b_i;
+<span class="hljs-keyword">output</span>             lt_o;
+<span class="hljs-keyword">output</span>             gt_o;
+<span class="hljs-keyword">output</span>             eq_o;
+
+...
+
+<span class="hljs-keyword">endmodule</span>
+</code></pre>
+<p>Avec des versions récentes de Verilog, on peut écrire&nbsp;:</p>
+<pre><code class="language-verilog"><span class="hljs-keyword">module</span> Comparator #(
+    <span class="hljs-keyword">parameter</span> WIDTH = <span class="hljs-number">8</span>
+)
+(
+    <span class="hljs-keyword">input</span>  [WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] a_i,
+    <span class="hljs-keyword">input</span>  [WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] b_i,
+    <span class="hljs-keyword">output</span>             lt_o,
+    <span class="hljs-keyword">output</span>             gt_o,
+    <span class="hljs-keyword">output</span>             eq_o
+);
+
+...
+
+<span class="hljs-keyword">endmodule</span>
+</code></pre>
+</section><section><h1 id="linstruction-dinstanciation" tabindex="-1">L’instruction d’instanciation</h1>
+<p>L’instanciation crée un <em>exemplaire</em> d’un module à l’intérieur d’un autre
+module.
+Par exemple, si je souhaite utiliser le module <code>Comparator</code>
+en tant que composant dans un circuit plus grand, je peux écrire&nbsp;:</p>
+<pre><code class="language-verilog"><span class="hljs-keyword">module</span> MyCircuit (
+    ...
+);
+
+...
+
+<span class="hljs-keyword">wire</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] a;
+<span class="hljs-keyword">wire</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] b;
+<span class="hljs-keyword">wire</span>       lt;
+<span class="hljs-keyword">wire</span>       gt;
+<span class="hljs-keyword">wire</span>       eq;
+
+Comparator my_comparator (a, b, lt, gt, eq);
+</code></pre>
+<p>Ici, les ports de l’instance <code>my_comparator</code> seront reliés à des <em>signaux</em>
+<code>a</code>, <code>b</code>, <code>lt</code>, <code>gt</code>, <code>eq</code> qui doivent être indiqués dans le bon ordre
+entre les parenthèses.</p>
+<p>Une pratique courante, <a href="../essentiel-vhdl/instructions-concurrentes.html#instanciation">en VHDL</a> comme en Verilog,
+consiste à spécifier les associations de ports par noms&nbsp;:</p>
+<pre><code class="language-verilog">Comparator my_comparator (
+    <span class="hljs-variable">.a_i</span>(a), <span class="hljs-comment">// Le port a_i de my_comparator est relié au signal a</span>
+    <span class="hljs-variable">.b_i</span>(b),
+    <span class="hljs-variable">.lt_o</span>(lt),
+    <span class="hljs-variable">.gt_o</span>(gt),
+    <span class="hljs-variable">.eq_o</span>(eq)
+);
+
+...
+
+<span class="hljs-keyword">endmodule</span>
+</code></pre>
+<p>Si l’on souhaite donner une valeur particulière au paramètre <code>WIDTH</code> du module
+<code>Comparator</code>, on peut l’indiquer de la manière suivante&nbsp;:</p>
+<pre><code class="language-verilog">...
+
+<span class="hljs-keyword">wire</span> [<span class="hljs-number">11</span>:<span class="hljs-number">0</span>] a;
+<span class="hljs-keyword">wire</span> [<span class="hljs-number">11</span>:<span class="hljs-number">0</span>] b;
+
+...
+
+Comparator my_comparator #(
+    <span class="hljs-variable">.WIDTH</span>(<span class="hljs-number">12</span>)
+)
+(
+    <span class="hljs-variable">.a_i</span>(a),
+    <span class="hljs-variable">.b_i</span>(b),
+    <span class="hljs-variable">.lt_o</span>(lt),
+    <span class="hljs-variable">.gt_o</span>(gt),
+    <span class="hljs-variable">.eq_o</span>(eq)
+);
+
+...
+
+<span class="hljs-keyword">endmodule</span>
+</code></pre>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="index.html">&larr;&nbsp;Découverte du langage Verilog</a>
+    
+    
+        <a href="declarations.html">Déclarations et types de données&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="structure.html" class="current">Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

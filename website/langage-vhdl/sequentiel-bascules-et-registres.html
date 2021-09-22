@@ -1,0 +1,1382 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Bascules et registres</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="combinatoire-processus-activite.html">&larr;&nbsp;Activité : processus</a>
+    
+    
+        <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html">Compteurs et diviseurs de fréquence&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Bascules et registres</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#memorisation">Mémorisation</a></li>
+            
+                
+                <li><a href="#bascules-et-registres-simples">Bascules et registres simples</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#avec-lattribut-event">Avec l’attribut event</a></li>
+            
+                
+                <li><a href="#avec-la-fonction-risingedge">Avec la fonction rising_edge</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#reinitialisation">Réinitialisation</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#reinitialisation-asynchrone">Réinitialisation asynchrone</a></li>
+            
+                
+                <li><a href="#reinitialisation-synchrone">Réinitialisation synchrone</a></li>
+            
+                
+                <li><a href="#reinitialisation-dans-les-fpga">Réinitialisation dans les FPGA</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#autorisation-de-mise-a-jour">Autorisation de mise à jour</a></li>
+            
+                
+                <li><a href="#exemples-a-ne-pas-suivre">Exemples à ne pas suivre</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#un-meme-processus-contient-plusieurs-detections-de-fronts">Un même processus contient plusieurs détections de fronts</a></li>
+            
+                
+                <li><a href="#une-detection-de-front-est-imbriquee-dans-une-autre-instruction-if-case-ou-une-boucle-for">Une détection de front est imbriquée dans une autre instruction if, case ou une boucle for</a></li>
+            
+                
+                <li><a href="#la-condition-de-reinitialisation-nest-pas-un-simple-signal-logique">La condition de réinitialisation n’est pas un simple signal logique</a></li>
+            
+                
+                <li><a href="#la-valeur-initiale-dun-signal-nest-pas-une-constante">La valeur initiale d’un signal n’est pas une constante</a></li>
+            
+                
+                <li><a href="#dans-un-meme-processus-certaines-affectations-sont-synchronisees-et-dautres-non">Dans un même processus, certaines affectations sont synchronisées et d’autres non</a></li>
+            
+            
+        </ul>
+            
+        </ul>
+            
+    
+    <section><h1 id="memorisation" tabindex="-1">Mémorisation</h1>
+<p>En VHDL, les signaux sont sujet à un <em>effet mémoire</em>, c’est-à-dire qu’ils
+conservent leur valeur entre deux affectations successives.
+Considérons par exemple l’instruction suivante&nbsp;:</p>
+<pre><code class="language-vhdl">y &lt;= x <span class="hljs-keyword">when</span> e = <span class="hljs-string">'1'</span>;
+</code></pre>
+<p>Cette instruction aura le comportement suivant&nbsp;:</p>
+<ul>
+<li>Lorsque <code>e</code> vaut <code>'1'</code>, la valeur de <code>x</code> est copiée dans <code>y</code>.</li>
+<li>Lorsque <code>e</code> vaut <code>'0'</code>, <code>y</code> conserve la dernière valeur qui lui a été affectée.</li>
+</ul>
+<p>Ce comportement est également valable dans un processus avec l’instruction <code>if</code>&nbsp;:</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(x, e)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> e = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+        y &lt;= x;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+<p>Les deux exemples ci-dessus décrivent un circuit de mémorisation appelé <em>verrou</em>
+(ou <em>latch</em> en anglais).
+Dans un circuit synchrone, l’utilisation de verrous est interdite.
+On impose l’utilisation de bascules D qui mettent à jour leur valeur sur
+des <em>fronts</em> d’un signal d’horloge.</p>
+<div class="warning">
+<p>L’effet mémoire apparaît dans les situations suivantes&nbsp;:</p>
+<ul>
+<li>Une instruction d’affectation concurrente conditionnelle (<code>when-else</code>) sans
+clause <code>else</code> finale.</li>
+<li>Une instruction d’affectation concurrente avec sélection (<code>with-select</code>) dans
+laquelle certains cas ont été omis, et sans clause <code>when others</code>.</li>
+<li>Une instruction <code>if</code> sans clause <code>else</code> finale.</li>
+<li>Une instruction <code>if</code> ou <code>case</code> dans laquelle un signal n’est pas affecté dans
+toutes les branches.</li>
+<li>Une liste de sensibilité incomplète dans un processus.</li>
+</ul>
+<p>Dans le code que vous allez écrire, l’effet mémoire sera parfois intentionnel,
+et parfois le résultat d’un oubli ou d’une erreur de conception.
+Si vous souhaitez décrire une fonction logique combinatoire, vérifiez que
+les signaux concernés reçoivent bien une valeur dans tous les cas possibles.
+Si vous souhaitez décrire une mémorisation, vérifiez que vous respectez les
+recommandations données ci-après.</p>
+</div>
+</section><section><h1 id="bascules-et-registres-simples" tabindex="-1">Bascules et registres simples</h1>
+<p>Pour décrire une bascule ou un registre D, il suffit de reprendre les exemples
+ci-dessus et de remplacer la condition <code>e = '1'</code> par une expression qui
+vaut <code>true</code> si un front d’horloge vient de se produire et <code>false</code> dans le cas
+contraire.</p>
+<p>Il existe différentes manières de décrire la détection d’un front d’horloge en VHDL.
+Dans cette page, nous nous limitons aux écritures qui seront reconnues sans
+ambiguïté par les outils de synthèse.</p>
+</section><section><h2 id="avec-lattribut-event" tabindex="-1">Avec l’attribut <code>event</code></h2>
+<p>Pour un signal <code>s</code>, l’expression <code>s'event</code> vaut <code>true</code> si <code>s</code> vient
+juste de changer de valeur, et <code>false</code> si <code>s</code> est resté stable dans le dernier
+cycle delta.
+On utilise typiquement l’expression <code>s'event and s='1'</code> pour vérifier
+si un front montant vient de se produire sur <code>s</code>.</p>
+<p>Pour mettre à jour un signal <code>y</code> sur les fronts montants d’un signal <code>clk_i</code>, on
+pourra donc écrire&nbsp;:</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> clk_i<span class="hljs-symbol">'event</span> <span class="hljs-keyword">and</span> clk_i=<span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+        y &lt;= x;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+<p>Ce processus décrit une bascule ou un registre D avec les connexions suivantes&nbsp;:</p>
+<ul>
+<li>Son entrée horloge est reliée au signal <code>clk_i</code>.</li>
+<li>Son entrée D est reliée au signal <code>x</code>.</li>
+<li>Sa sortie Q est reliée au signal <code>y</code>.</li>
+</ul>
+<p><a href="bascule-d-simple.svg"><img src="bascule-d-simple.svg" alt="Bascule D simple" width="500px"></a></p>
+<p>Si <code>x</code> et <code>y</code> transportent des données qui peuvent être représentées sur un seul
+bit, le circuit sera constitué d’une seule bascule D.
+Si plusieurs bits sont nécessaires, les outils de synthèse sont capables de
+construire un circuit contenant le nombre approprié de bascules D.</p>
+<div class="info">
+<p>Observons que seul le signal <code>clk_i</code> figure dans la liste de sensibilité du processus.
+En effet, une bascule D ne réagit pas aux variations de son entrée D.
+Seuls les fronts d’horloge produisent un effet.</p>
+</div>
+</section><section><h2 id="avec-la-fonction-risingedge" tabindex="-1">Avec la fonction <code>rising_edge</code></h2>
+<p>Pour un signal <code>s</code> de type <code>std_logic</code>, l’expression <code>s'event and s='1'</code> n’est
+pas fiable pour détecter un front montant.
+En effet, le type <code>std_logic</code> définit d’autres valeurs que <code>'0'</code> et <code>'1'</code>.
+Ainsi, lorsque <code>s'event and s='1'</code> est vraie, cela ne signifie pas forcément que
+<code>s</code> valait <code>'0'</code> avant de passer à <code>'1'</code>.</p>
+<p>Pour le type <code>std_logic</code>, il existe une fonction prédéfinie appelée <code>rising_edge</code>
+qui permet de traiter les cas problématiques.
+On l’utilise de la manière suivante&nbsp;:</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        y &lt;= x;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+<p>Matériellement, ce processus décrit le même circuit que l’exemple précédent.</p>
+</section><section><h1 id="reinitialisation" tabindex="-1">Réinitialisation</h1>
+<p>Les bascules D sont souvent équipées d’entrées permettant de forcer leur valeur
+à <code>'0'</code>ou à <code>'1'</code> sans passer par l’entrée D.
+Ce forçage peut avoir lieu au démarrage ou lorsqu’il faut réinitialiser le circuit
+au cours de son fonctionnement.</p>
+</section><section><h2 id="reinitialisation-asynchrone" tabindex="-1">Réinitialisation asynchrone</h2>
+<p>Une réinitialisation asynchrone prend effet immédiatement, sans attendre un
+front du signal d’horloge.
+Dans l’exemple ci-dessous, le signal <code>reset_i</code> déclenche la remise à <code>'0'</code> du
+signal <code>y</code>&nbsp;:</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i, reset_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+        y &lt;= <span class="hljs-string">'0'</span>
+    <span class="hljs-keyword">elsif</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        y &lt;= x;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+<p>La réinitialisation asynchrone est caractérisée par les deux constructions suivantes&nbsp;:</p>
+<ul>
+<li>Le signal <code>reset_i</code> figure dans la liste de sensibilité du processus.
+Le processus peut donc réagir aux variations de <code>reset_i</code> sans attendre un front
+de <code>clk_i</code>.</li>
+<li>La condition <code>reset_i = '1'</code> est vérifiée en premier. Elle est prioritaire sur
+la détection du front d’horloge.</li>
+</ul>
+<p><a href="bascule-d-reset.svg"><img src="bascule-d-reset.svg" alt="Bascule D avec réinitialisation" width="600px"></a></p>
+</section><section><h2 id="reinitialisation-synchrone" tabindex="-1">Réinitialisation synchrone</h2>
+<p>Une réinitialisation synchrone prend effet si la commande de réinitialisation
+est valide sur un front du signal d’horloge.
+Dans l’exemple ci-dessous, le signal <code>reset_i</code> déclenche la remise à <code>'0'</code> du
+signal <code>y</code>&nbsp;:</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            y &lt;= <span class="hljs-string">'0'</span>
+        <span class="hljs-keyword">else</span>
+            y &lt;= x;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+<p>La réinitialisation synchrone est caractérisée par les deux constructions suivantes&nbsp;:</p>
+<ul>
+<li>Le signal <code>reset_i</code> ne figure <em>pas</em> dans la liste de sensibilité du processus.</li>
+<li>La condition <code>reset_i = '1'</code> est vérifiée <em>après</em> la détection du front d’horloge.</li>
+</ul>
+</section><section><h2 id="reinitialisation-dans-les-fpga" tabindex="-1">Réinitialisation dans les FPGA</h2>
+<p>À la mise sous tension, la séquence de démarrage d’un FPGA comprend souvent
+une étape d’initialisation des éléments de mémorisation, à la fin du chargement du bitstream.
+Les valeurs initiales des signaux, telles qu’elles sont indiquées dans le code
+source VHDL, font partie des données enregistrées dans le bitstream.</p>
+<p>Sauf indication contraire, au démarrage, les signaux prennent la valeur la plus
+à gauche dans la définition de leur type.
+Les signaux de type <code>std_logic</code> se comporteront différemment dans le simulateur
+et sur le matériel&nbsp;:</p>
+<ul>
+<li>Par défaut, au démarrage d’une simulation, les signaux de type <code>std_logic</code> valent <code>'U'</code> (<em>Uninitialized</em>).</li>
+<li>À la mise sous tension du FPGA, les bascules D correspondantes sont à <code>'0'</code>.</li>
+</ul>
+<p>Voici quelques exemples&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">subtype</span> temperature_t <span class="hljs-keyword">is</span> <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> -<span class="hljs-number">50</span> <span class="hljs-keyword">to</span> <span class="hljs-number">150</span>;
+<span class="hljs-keyword">type</span> color_enum_t     <span class="hljs-keyword">is</span> (BLACK, RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN, WHITE);
+
+                                 <span class="hljs-comment">-- Valeur initiale:</span>
+<span class="hljs-keyword">signal</span> a_reg : <span class="hljs-built_in">std_logic</span>;        <span class="hljs-comment">-- 'U' en simulation, '0' dans le FPGA</span>
+<span class="hljs-keyword">signal</span> b_reg : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'1'</span>; <span class="hljs-comment">-- '1'</span>
+<span class="hljs-keyword">signal</span> c_reg : <span class="hljs-built_in">integer</span>;          <span class="hljs-comment">-- −2 147 483 648</span>
+<span class="hljs-keyword">signal</span> z_reg : <span class="hljs-built_in">integer</span> := <span class="hljs-number">12</span>;    <span class="hljs-comment">-- 12</span>
+<span class="hljs-keyword">signal</span> t_reg : temperature_t;    <span class="hljs-comment">-- -50</span>
+<span class="hljs-keyword">signal</span> c_reg : color_enum_t;     <span class="hljs-comment">-- BLACK</span>
+</code></pre>
+<div class="warning">
+<p>Donner une valeur initiale à un signal combinatoire n’a pas de sens d’un point
+de vue matériel.
+Seuls les signaux à mémoire, c’est-à-dire ceux correspondant à des sorties de
+bascules D peuvent avoir une valeur initiale.</p>
+<p>Les valeurs initiales des autres signaux sont ignorées par les outils de synthèse.</p>
+</div>
+<div class="info">
+<p>Dans le document <a href="https://www.xilinx.com/support/documentation/white_papers/wp272.pdf">Get Smart About Reset: Think Local, Not Global</a>
+(Ken Chapman, Xilinx, 2008), l’auteur donne des arguments contre l’utilisation d’un signal de <em>reset</em> global.
+Les principales raisons invoquées sont&nbsp;:</p>
+<ul>
+<li>Les entrées de réinitialisation des bascules utilisent des lignes dédiées,
+ce qui rend le routage plus difficile et limite les optimisations possibles.</li>
+<li>Le signal de <em>reset</em> global ne peut pas être fusionné avec un autre mécanisme de remise
+à zéro prévu dans le fonctionnement du circuit (par exemple, un compteur qui revient à zéro à la fin de son cycle de comptage).</li>
+<li><a href="../circuits-logiques/circuits-programmables-fpga.html#utilisations-avancees-des-lut">L’utilisation des LUT comme éléments de mémorisation</a>
+n’est pas compatible avec un signal de réinitialisation global.</li>
+</ul>
+</div>
+</section><section><h1 id="autorisation-de-mise-a-jour" tabindex="-1">Autorisation de mise à jour</h1>
+<p>Les bascules D sont souvent équipées d’une entrée E (<em>enable</em>) qui permet
+d’autoriser ou d’interdire la mise à jour sur certains fronts d’horloge.</p>
+<p>On écrira typiquement&nbsp;:</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> e = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            y &lt;= x;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+<p><a href="bascule-d-enable.svg"><img src="bascule-d-enable.svg" alt="Bascule D avec autorisation" width="600px"></a></p>
+<p>Il est possible de combiner la présence d’une commande de réinitialisation
+avec la présence d’une autorisation de mise à jour&nbsp;:</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i, reset_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+        y &lt;= <span class="hljs-string">'0'</span>;
+    <span class="hljs-keyword">elsif</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> e = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            y &lt;= x;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+<div class="warning">
+<p>L’attribut <code>event</code> et la fonction <code>rising_edge</code> ne doivent jamais être utilisés
+pour autre chose que pour créer des bascules D.</p>
+<p>De plus, dans une description VHDL respectant les principes de la conception
+synchrone, tous les processus qui contiennent une détection de front doivent
+utiliser le même signal d’horloge.</p>
+</div>
+</section><section><h1 id="exemples-a-ne-pas-suivre" tabindex="-1">Exemples à ne pas suivre</h1>
+<p>Pour les outils de synthèse, les exemples donnés dans les paragraphes précédents
+seront reconnus sans ambiguïté comme la description de bascules D.
+Si vous respectez les mêmes constructions dans vos propres descriptions, vous
+obtiendrez des circuits conformes à ce que vous aurez décrit.</p>
+<p>Les exemples suivants, au contraire, risquent de faire échouer la synthèse de
+vos circuits&nbsp;:</p>
+</section><section><h2 id="un-meme-processus-contient-plusieurs-detections-de-fronts" tabindex="-1">Un même processus contient plusieurs détections de fronts</h2>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">and</span> e = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+        y &lt;= w;
+    <span class="hljs-keyword">elsif</span> rising_edge(clk_i) <span class="hljs-keyword">and</span> f = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+        y &lt;= x;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+<p>Réécrire ce processus de la manière suivante&nbsp;:</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> e = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            y &lt;= w;
+        <span class="hljs-keyword">elsif</span> f = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            y &lt;= x;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+</section><section><h2 id="une-detection-de-front-est-imbriquee-dans-une-autre-instruction-if-case-ou-une-boucle-for" tabindex="-1">Une détection de front est imbriquée dans une autre instruction <code>if</code>, <code>case</code> ou une boucle <code>for</code></h2>
+<p>Dans ce processus, la détection de front n’est pas prioritaire sur l’entrée E.</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i, e)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> e = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+            y &lt;= x;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+<p>Réécrire ce processus de la manière suivante&nbsp;:</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> e = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            y &lt;= x;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+</section><section><h2 id="la-condition-de-reinitialisation-nest-pas-un-simple-signal-logique" tabindex="-1">La condition de réinitialisation n’est pas un simple signal logique</h2>
+<p>La commande de réinitialisation devrait être un simple signal logique
+dédié à cet usage et non pas le résultat d’un calcul.</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i, reset_i, clear)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">or</span> clear = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+        y &lt;= <span class="hljs-string">'0'</span>;
+    <span class="hljs-keyword">elsif</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        y &lt;= x;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+<p>Dans ce cas, utiliser une réinitialisation synchrone.
+Vous pouvez également combiner les deux types de réinitialisation
+mais ce n’est pas conseillé&nbsp;:</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i, reset_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+        y &lt;= <span class="hljs-string">'0'</span>;
+    <span class="hljs-keyword">elsif</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> clear = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            y &lt;= <span class="hljs-string">'0'</span>;
+        <span class="hljs-keyword">else</span>
+            y &lt;= x;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+</section><section><h2 id="la-valeur-initiale-dun-signal-nest-pas-une-constante" tabindex="-1">La valeur initiale d’un signal n’est pas une constante</h2>
+<p>Considérons l’exemple ci-dessous où <code>w</code> est un signal.
+La réinitialisation ne peut pas utiliser les entrées <em>set</em> et <em>reset</em> des
+bascules D puisque la valeur de <code>w</code> n’est pas connue à l’avance.</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i, reset_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+        y &lt;= w;
+    <span class="hljs-keyword">elsif</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        y &lt;= x;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+<p>Dans ce cas, utiliser une réinitialisation synchrone&nbsp;:</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            y &lt;= w;
+        <span class="hljs-keyword">else</span>
+            y &lt;= x;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+</section><section><h2 id="dans-un-meme-processus-certaines-affectations-sont-synchronisees-et-dautres-non" tabindex="-1">Dans un même processus, certaines affectations sont synchronisées et d’autres non</h2>
+<p>Dans cet exemple, l’affectation de <code>u</code> n’est pas soumise à la détection d’un
+front de <code>clk_i</code>.
+Le type de circuit qui doit gérer le signal <code>u</code> n’est pas clairement identifié.</p>
+<pre><code class="language-vhdl">p_yu : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        y &lt;= x;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    u &lt;= w;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_yu;
+</code></pre>
+<p>Deux solutions sont envisageables&nbsp;:</p>
+<ul>
+<li>Mettre à jour le signal <code>u</code> sur front d’horloge également&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl">p_yu : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        y &lt;= x;
+        u &lt;= w;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_yu;
+</code></pre>
+<ul>
+<li>Gérer le signal <code>u</code> séparément, dans une instruction d’affectation concurrente
+ou un autre processus&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        y &lt;= x;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+
+u &lt;= w;
+</code></pre>
+<p>C’est à vous de déterminer laquelle de ces deux solutions est la plus pertinente.</p>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="combinatoire-processus-activite.html">&larr;&nbsp;Activité : processus</a>
+    
+    
+        <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html">Compteurs et diviseurs de fréquence&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="sequentiel-bascules-et-registres.html" class="current">Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

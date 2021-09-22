@@ -1,0 +1,1248 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Travailler avec des logiciels libres</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="installation-xilinx-vivado.html">&larr;&nbsp;Installer Xilinx Vivado</a>
+    
+    
+</nav>
+
+    
+                <h1>Travailler avec des logiciels libres</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#liste-des-logiciels-recommandes">Liste des logiciels recommandés</a></li>
+            
+                
+                <li><a href="#recette-pour-la-construction-de-la-machine-virtuelle">Recette pour la construction de la machine virtuelle</a></li>
+            
+                
+                <li><a href="#installation-sous-gnulinux">Installation sous GNU/Linux</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#ghdl">GHDL</a></li>
+            
+                
+                <li><a href="#gtkwave-et-cocotb">GtkWave et CocoTB</a></li>
+            
+                
+                <li><a href="#logisim-evolution">Logisim-evolution</a></li>
+            
+                
+                <li><a href="#outil-de-gestion-de-version">Outil de gestion de version</a></li>
+            
+                
+                <li><a href="#editeur-de-texte">Éditeur de texte</a></li>
+            
+                
+                <li><a href="#outils-de-compilation-pour-larchitecture-risc-v">Outils de compilation pour l’architecture RISC-V</a></li>
+            
+                
+                <li><a href="#terminaux-pour-ports-serie">Terminaux pour ports série</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#tester-linstallation-de-ghdl-et-cocotb">Tester l’installation de GHDL et cocotb</a></li>
+            
+            
+        </ul>
+            
+    
+    <div class="comment">
+<p>En 2020, l’unité d’enseignement <em>Conception de Circuits Numériques</em> s’est
+entièrement déroulée à distance.
+Dans ce contexte, les étudiants ont pu utiliser des outils de développement
+VHDL libres que nous avons fournis pré-installés dans une machine virtuelle.</p>
+<p>Cette page donne les instructions d’installation de ces outils selon deux
+modalités possibles&nbsp;:</p>
+<ul>
+<li>Si vous avez installé une distribution Linux sur votre ordinateur, vous
+pouvez installer les logiciels directement. Allez à la section <a href="#installation-sous-gnulinux">Installation sous GNU/Linux</a>.</li>
+<li>Sinon, vous pouvez construire vous-même votre machine virtuelle en suivant
+les instructions de la section <a href="#recette-pour-la-construction-de-la-machine-virtuelle">Recette pour la construction de la machine virtuelle</a>.</li>
+</ul>
+</div>
+<section><h1 id="liste-des-logiciels-recommandes" tabindex="-1">Liste des logiciels recommandés</h1>
+<p>Pour avoir un environnement de simulation complet, vous pouvez utiliser
+les logiciels suivants&nbsp;:</p>
+<ul>
+<li><a href="https://github.com/ghdl/ghdl">GHDL</a>&nbsp;: simulateur VHDL.</li>
+<li><a href="http://gtkwave.sourceforge.net/">GTKWave</a>&nbsp;: affichage de chronogrammes.</li>
+<li><a href="https://docs.cocotb.org">cocotb</a>&nbsp;: environnement de test.</li>
+<li>GTKTerm&nbsp;: émulateur de terminal pour port série.</li>
+<li><a href="https://github.com/reds-heig/logisim-evolution">Logisim-evolution</a>&nbsp;: simulateur de circuits logiques.</li>
+<li>La chaîne de compilation GCC pour les processeurs RISC-V.</li>
+</ul>
+<div class="comment">
+<h1 id="recette-pour-la-construction-de-la-machine-virtuelle" tabindex="-1">Recette pour la construction de la machine virtuelle</h1>
+<p>La machine virtuelle que nous proposons a été testée avec <a href="https://www.virtualbox.org/wiki/Download_Old_Builds_6_0">VirtualBox 6.0</a>.
+Vous pouvez la construire vous-mêmes en utilisant les indications suivantes&nbsp;:</p>
+<ol>
+<li>Télécharger une image de CD d’installation par le réseau de <a href="https://www.debian.org/CD/netinst/">Debian 10.3 «&nbsp;Buster&nbsp;»</a>.</li>
+<li>Télécharger et installer <a href="https://www.virtualbox.org/wiki/Download_Old_Builds_6_0">VirtualBox 6.0</a>.</li>
+<li>Ouvrir VirtualBox et créer une nouvelle machine virtuelle&nbsp;:
+<ul>
+<li>Nom&nbsp;: CoCiNum (choisir un autre nom si vous avez déjà une VM qui possède le même nom).</li>
+<li>Type&nbsp;: Linux</li>
+<li>Version&nbsp;: Debian (32-bit)</li>
+<li>Taille de la mémoire&nbsp;: 1024 Mio</li>
+<li>Créer un disque dur virtuel maintenant</li>
+<li>Garder les options par défaut pour le disque dur&nbsp;: taille 8 Gio, type de fichier VDI</li>
+</ul>
+</li>
+<li>Dans VirtualBox, ouvrir la fenêtre de configuration de la nouvelle machine virtuelle&nbsp;:
+<ul>
+<li>Général → Avancé → Presse-papier partagé&nbsp;: Bidirectionnel.</li>
+<li>Système → Accélération&nbsp;: désactiver VT-x ou AMD-V si le support matériel de la virtualisation n’est pas activé dans le BIOS de votre PC.</li>
+<li>Stockage → Contrôleur IDE&nbsp;: sélectionner l’icône représentant un CD.
+À droite du champ <em>Lecteur optique</em>, pressez l’autre icône représentant un CD, puis <em>Choisissez un fichier de disque optique virtuel</em>.
+Sélectionnez le fichier <code>debian-10.3.0-i386-netinst.iso</code>.</li>
+<li>USB&nbsp;: choisir USB 1.1</li>
+<li>Pressez OK pour terminer la configuration.</li>
+</ul>
+</li>
+<li>Démarrez la machine virtuelle.</li>
+</ol>
+<p>L’installation de Debian dans la machine virtuelle s’effectue de la manière suivante&nbsp;:</p>
+<ol>
+<li>Dans le menu de l’installeur, choisir <em>Graphical Install</em>.</li>
+<li>Choisir les paramètres de langue, de situation géographique, de clavier.</li>
+<li>Nom de la machine&nbsp;: <code>cocinum-vm</code>.</li>
+<li>Configurer le réseau&nbsp;: ne rien faire.</li>
+<li>Mot de passe du superutilisateur («&nbsp;root&nbsp;»)&nbsp;: laisser vide.</li>
+<li>Nom complet du nouvel utilisateur&nbsp;: <em>Conception de Circuits Numériques</em>.</li>
+<li>Identifiant pour le compte utilisateur&nbsp;: <code>cocinum</code>.</li>
+<li>Mot de passe pour le nouvel utilisateur&nbsp;: <code>c0c1num</code> (avec un «&nbsp;zéro&nbsp;» et un «&nbsp;un&nbsp;» à la place du «&nbsp;o&nbsp;» et du «&nbsp;i&nbsp;»).</li>
+<li>Partitionner les disques&nbsp;: <em>Assisté - utiliser un disque entier</em>.</li>
+<li>Schéma de partitionnement&nbsp;: <em>Tout dans une seule partition</em>.</li>
+<li>Accepter les modifications.</li>
+<li>Faut-il analyser un autre CD ou DVD&nbsp;: Non.</li>
+<li>Acceptez les choix par défaut pour l’accès aux dépôts de paquets.</li>
+<li>Participer à l’étude statistique sur l’utilisation des paquets<sub>?</sub>: Non.</li>
+<li>Sélection des logiciels&nbsp;:
+<ul>
+<li>Environnement de bureau Debian → LXQt.</li>
+<li>Utilitaires usuels du système.</li>
+<li>On peut désactiver l’installation du serveur d’impression.</li>
+</ul>
+</li>
+<li>Installer le programme de démarrage GRUB sur le secteur d’amorçage&nbsp;: Oui.</li>
+<li>Choisir <code>/dev/sda</code>.</li>
+</ol>
+<p>À la fin de l’installation, la machine virtuelle redémarre.
+Connectez-vous avec l’utilisateur <code>cocinum</code>.</p>
+<p>La machine virtuelle que nous distribuons est configurée pour&nbsp;:</p>
+<ul>
+<li>Ouvrir une session avec l’utilisateur <code>cocinum</code> automatiquement au démarrage.</li>
+<li>Démarrer un terminal automatiquement à l’ouverture de session.</li>
+</ul>
+<p>Nous pouvons également retirer les logiciels qui ne sont pas indispensable pour
+nos activités&nbsp;: LibreOffice, Thunderbird, lecteurs audio et vidéo.</p>
+<p>Si vous prévoyez d’installer les <em>Guest additions</em> de VirtualBox,
+ouvrez un terminal et exécutez cette commande&nbsp;:</p>
+<pre><code class="icon-term language-bash">sudo apt install gcc make perl linux-headers-686
+</code></pre>
+<p>L’installation des logiciels de simulation VHDL est détaillée ci-après.</p>
+</div>
+</section><section><h1 id="installation-sous-gnulinux" tabindex="-1">Installation sous GNU/Linux</h1>
+<p>Les instructions d’installation on été testées sous Ubuntu 19.10, Ubuntu 20.04
+et Debian 10.3.</p>
+</section><section><h2 id="ghdl" tabindex="-1">GHDL</h2>
+<p>Sous Ubuntu 19.10, Debian 10.3, ou des versions ultérieures, exécutez la commande
+suivante dans un terminal&nbsp;:</p>
+<pre><code class="icon-term language-bash">sudo apt install ghdl-llvm
+</code></pre>
+<p>Pour les versions précédentes d’Ubuntu, à partir de la version 18.04,
+GHDL peut s’installer de la manière suivante&nbsp;:</p>
+<pre><code class="icon-term language-bash">wget http://fr.archive.ubuntu.com/ubuntu/pool/universe/g/ghdl/ghdl_0.35+git20181129+dfsg-4ubuntu1_amd64.deb
+wget http://fr.archive.ubuntu.com/ubuntu/pool/universe/g/ghdl/ghdl-llvm_0.35+git20181129+dfsg-4ubuntu1_amd64.deb
+sudo dpkg -i ghdl_0.35+git20181129+dfsg-4ubuntu1_amd64.deb
+<span class="hljs-comment"># Cette commande se termine avec une erreur mais elle sera réparée par la commande suivante</span>
+sudo dpkg -i ghdl-llvm_0.35+git20181129+dfsg-4ubuntu1_amd64.deb
+sudo apt -f install
+</code></pre>
+</section><section><h2 id="gtkwave-et-cocotb" tabindex="-1">GtkWave et CocoTB</h2>
+<p>Ces commandes installent les outils de test et d’affichage des chronogrammes&nbsp;:</p>
+<pre><code class="icon-term language-bash">sudo apt install gtkwave python3 python3-dev python3-tk python3-pip make gcc
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+sudo pip3 install cocotb
+</code></pre>
+</section><section><h2 id="logisim-evolution" tabindex="-1">Logisim-evolution</h2>
+<p>Logisim-evolution est distribué sous la forme d’un fichier jar
+à copier dans <code>/opt</code>&nbsp;:</p>
+<pre><code class="icon-term language-bash">sudo apt install default-jre
+sudo wget -P /opt https://github.com/reds-heig/logisim-evolution/releases/download/v3.3.0/logisim-evolution-3.3.0-all.jar
+</code></pre>
+</section><section><h2 id="outil-de-gestion-de-version" tabindex="-1">Outil de gestion de version</h2>
+<p>Installer git à l’aide du gestionnaire de paquets&nbsp;:</p>
+<pre><code class="icon-term language-bash">sudo apt install git
+</code></pre>
+</section><section><h2 id="editeur-de-texte" tabindex="-1">Éditeur de texte</h2>
+<p>Cette commande installe l’éditeur Gedit.
+Vous pouvez en installer un autre selon vos préférences.</p>
+<pre><code class="icon-term language-bash">sudo apt install gedit gedit-plugins
+</code></pre>
+</section><section><h2 id="outils-de-compilation-pour-larchitecture-risc-v" tabindex="-1">Outils de compilation pour l’architecture RISC-V</h2>
+<p>Disponible seulement à partir d’Ubuntu 19.10.</p>
+<pre><code class="icon-term language-bash">sudo apt install gcc-riscv64-unknown-elf
+</code></pre>
+</section><section><h2 id="terminaux-pour-ports-serie" tabindex="-1">Terminaux pour ports série</h2>
+<p>Cette commande installe trois logiciels terminaux pour ports série,
+graphiques ou en ligne de commande&nbsp;:</p>
+<pre><code class="icon-term language-bash">sudo apt install gtkterm minicom picocom
+</code></pre>
+</section><section><h1 id="tester-linstallation-de-ghdl-et-cocotb" tabindex="-1">Tester l’installation de GHDL et cocotb</h1>
+<p>Créer les dossiers de travail&nbsp;:</p>
+<pre><code class="icon-term language-bash">mkdir -p ghdl-demo/src
+mkdir -p ghdl-demo/tests
+</code></pre>
+<p>Nous utiliserons les trois fichiers suivants&nbsp;:</p>
+<ul>
+<li>L’entité VHDL à tester&nbsp;: <code>ghdl-demo/src/InToOut.vhd</code></li>
+</ul>
+<pre><code class="language-vhdl"><span class="hljs-keyword">library</span> ieee;
+<span class="hljs-keyword">use</span> ieee.std_logic_1164.<span class="hljs-keyword">all</span>;
+
+<span class="hljs-keyword">entity</span> InToOut <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">port</span>(
+        x : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+        y : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>
+    );
+<span class="hljs-keyword">end</span> InToOut;
+
+<span class="hljs-keyword">architecture</span> Behavioral <span class="hljs-keyword">of</span> InToOut <span class="hljs-keyword">is</span>
+<span class="hljs-keyword">begin</span>
+    y &lt;= x;
+<span class="hljs-keyword">end</span> Behavioral;
+</code></pre>
+<ul>
+<li>Le banc de test cocotb, en Python&nbsp;: <code>ghdl-demo/tests/test_intoout.py</code></li>
+</ul>
+<pre><code class="language-python"><span class="hljs-keyword">import</span> cocotb
+<span class="hljs-keyword">from</span> cocotb.triggers <span class="hljs-keyword">import</span> Timer
+
+<span class="hljs-keyword">import</span> tkinter <span class="hljs-keyword">as</span> tk
+<span class="hljs-keyword">from</span> datetime <span class="hljs-keyword">import</span> datetime, timedelta
+
+led_color_on  = <span class="hljs-string">"lime"</span>
+led_color_off = <span class="hljs-string">"dark slate gray"</span>
+
+refresh_time = timedelta(milliseconds=<span class="hljs-number">40</span>)
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Gui</span>:
+	<span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, dut</span>):
+		self.dut = dut
+
+		self.root = tk.Tk()
+		self.root.protocol(<span class="hljs-string">"WM_DELETE_WINDOW"</span>, self.on_close)
+
+		btn = tk.Button(self.root, text=<span class="hljs-string">"Click here"</span>)
+		btn.pack(side=tk.TOP)
+		btn.bind(<span class="hljs-string">"&lt;ButtonPress&gt;"</span>, self.on_press)
+		btn.bind(<span class="hljs-string">"&lt;ButtonRelease&gt;"</span>, self.on_release)
+
+		self.canvas = tk.Canvas(self.root, width=<span class="hljs-number">100</span>, height=<span class="hljs-number">100</span>, bg=<span class="hljs-string">"black"</span>, relief=<span class="hljs-string">"flat"</span>)
+		self.canvas.pack(side=tk.BOTTOM)
+		self.led = self.canvas.create_oval(<span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">90</span>, <span class="hljs-number">90</span>, fill=led_color_off)
+
+		self.state = <span class="hljs-number">0</span>
+		self.closed = <span class="hljs-literal">False</span>
+		self.last_update = datetime.now()
+
+	<span class="hljs-keyword">def</span> <span class="hljs-title function_">on_close</span>(<span class="hljs-params">self</span>):
+		self.root.quit()
+		self.closed = <span class="hljs-literal">True</span>
+
+	<span class="hljs-keyword">def</span> <span class="hljs-title function_">on_press</span>(<span class="hljs-params">self, evt</span>):
+		self.state = <span class="hljs-number">1</span>
+
+	<span class="hljs-keyword">def</span> <span class="hljs-title function_">on_release</span>(<span class="hljs-params">self, evt</span>):
+		self.state = <span class="hljs-number">0</span>
+
+	<span class="hljs-keyword">def</span> <span class="hljs-title function_">update</span>(<span class="hljs-params">self</span>):
+		t = datetime.now()
+		delta = t - self.last_update
+
+		<span class="hljs-keyword">if</span> delta &gt;= refresh_time:
+			self.last_update = t
+			self.dut.x = self.state
+			self.canvas.itemconfig(self.led, fill=led_color_on <span class="hljs-keyword">if</span> self.dut.y.value.binstr == <span class="hljs-string">'1'</span> <span class="hljs-keyword">else</span> led_color_off)
+
+		self.root.update()
+
+<span class="hljs-meta">@cocotb.test()</span>
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">run</span>(<span class="hljs-params">dut</span>):
+	gui = Gui(dut)
+
+	dut.x = <span class="hljs-number">0</span>
+
+	<span class="hljs-keyword">while</span> <span class="hljs-keyword">not</span> gui.closed:
+		<span class="hljs-keyword">yield</span> Timer(<span class="hljs-number">250</span>, <span class="hljs-string">"us"</span>)
+		gui.update()
+</code></pre>
+<ul>
+<li>Le fichier de configuration et de lancement du banc de test&nbsp;: <code>ghdl-demo/tests/Makefile</code></li>
+</ul>
+<pre><code class="language-make">SRCDIR = <span class="hljs-variable">$(PWD)</span>/../src
+VHDL_SOURCES = <span class="hljs-variable">$(SRCDIR)</span>/InToOut.vhd
+TOPLEVEL = intoout
+MODULE = test_intoout
+SIM = ghdl
+SIM_ARGS = --wave=InToOut.ghw
+<span class="hljs-keyword">export</span> COCOTB_REDUCED_LOG_FMT = 1
+
+<span class="hljs-keyword">include</span> <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> cocotb-config --makefiles)</span>/Makefile.inc
+<span class="hljs-keyword">include</span> <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> cocotb-config --makefiles)</span>/Makefile.sim
+</code></pre>
+<p>Dans un terminal, déplacez-vous vers le dossier <code>ghdl-demo/tests</code>
+à l’aide de la commande <code>cd</code>, puis exécutez la commande <code>make</code>.
+Dans la machine virtuelle que nous fournissons, les fichiers sont déjà présents&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> ghdl-demo/tests
+make
+</code></pre>
+<p>Une fenêtre <code>tk</code> doit s’afficher. Chaque pression sur le bouton met à <code>'1'</code>
+l’entrée <code>x</code> de l’entité <code>InToOut</code>.
+Sous le bouton, un disque coloré se met au vert lorsque la sortie <code>y</code> vaut <code>'1'</code>.</p>
+<p>Après avoir fermé la fenêtre <code>tk</code>, affichez les chronogrammes&nbsp;:</p>
+<pre><code class="icon-term language-bash">gtkwave sim_build/InToOut.ghw
+</code></pre>
+<p>Dans les panneaux de gauche, sélectionnez les signaux <code>x</code> et <code>y</code>.
+Réglez le niveau de zoom pour observer leurs variations sur toute la durée
+de simulation.</p>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="installation-xilinx-vivado.html">&larr;&nbsp;Installer Xilinx Vivado</a>
+    
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="installation-ghdl-cocotb.html" class="current">Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

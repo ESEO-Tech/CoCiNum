@@ -1,0 +1,1506 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Entrée audio</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="vocodeur.html">&larr;&nbsp;Vocodeur</a>
+    
+    
+        <a href="../langage-verilog/index.html">Découverte du langage Verilog&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Entrée audio</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#le-module-pmodmic3">Le module PmodMIC3</a></li>
+            
+                
+                <li><a href="#lentite-microphonereceiver">L’entité MicrophoneReceiver</a></li>
+            
+                
+                <li><a href="#realisation-du-recepteur">Réalisation du récepteur</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#machine-a-etats-et-signaux-de-controle">Machine à états et signaux de contrôle</a></li>
+            
+                
+                <li><a href="#horloge-serialclko">Horloge serial_clk_o</a></li>
+            
+                
+                <li><a href="#memorisation-des-donnees-recues">Mémorisation des données reçues</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#application-de-demonstration">Application de démonstration</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#synthetiser-et-implementer-le-circuit">Synthétiser et implémenter le circuit</a></li>
+            
+                
+                <li><a href="#configurer-le-fpga">Configurer le FPGA</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#implementation-de-reference">Implémentation de référence</a></li>
+            
+            
+        </ul>
+            
+    
+    <section><h1 id="le-module-pmodmic3" tabindex="-1">Le module PmodMIC3</h1>
+<p>Le module <a href="https://reference.digilentinc.com/pmod:pmod:mic3">PmodMIC3</a> de Digilent permet de connecter un microphone
+sur un connecteur Pmod d’une carte à FPGA du même constructeur.
+Il comporte un microphone analogique et un convertisseur analogique/numérique ADCS7476 de Texas Instruments.</p>
+<p>Ce convertisseur se pilote à travers une interface série synchrone très répandue sous le nom de
+<a href="https://en.wikipedia.org/wiki/Serial_Peripheral_Interface">bus SPI</a>.
+Dans ce projet, le FPGA jouera le rôle de <em>maître</em> sur le bus SPI et le module PmodMIC3 jouera le rôle d’<em>esclave</em>.
+Le FPGA devra donc contenir la logique nécessaire à la transmission de données en respectant le protocole SPI.</p>
+<p><a href="Microphone-PmodMIC3.svg"><img src="Microphone-PmodMIC3.svg" alt="Connexion entre le FPGA et le module PmodMIC3" width="700px"></a></p>
+<p>Les documentations correspondantes sont disponibles ci-dessous&nbsp;:</p>
+<div class="download">
+<ul>
+<li><a href="../assets/datasheets/PmodMIC3_rm.pdf"><i class="fa fa-download"></i>Digilent – PmodMIC3 Reference Manual</a></li>
+<li><a href="../assets/datasheets/PmodMIC-ADCS7476.pdf"><i class="fa fa-download"></i>Texas Instruments – ADCS7476 ADCS7477 ADCS7478 1MSPS, 12-/10-/8-Bit A/D Converters in SOT-23 &amp; LLP</a></li>
+</ul>
+</div>
+</section><section><h1 id="lentite-microphonereceiver" tabindex="-1">L’entité <code>MicrophoneReceiver</code></h1>
+<p>Vous allez développer l’entité <code>MicrophoneReceiver</code> qui sera chargée de recevoir
+des données audio en provenance du module PmodMIC3.</p>
+<p><a href="MicrophoneReceiver-entity.svg"><img src="MicrophoneReceiver-entity.svg" alt="Interface de l'entité MicrophoneReceiver" width="550px"></a></p>
+<p>Cette entité possédera les paramètres génériques suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Paramètre</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>CLK_FREQUENCY_HZ</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">La fréquence du signal d’horloge global du système, en Hz</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BIT_RATE_HZ</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">La vitesse de communication sur le bus de données série, en Hz</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BITS_PER_SAMPLE</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">Le nombre de bits par échantillon du signal audio</td>
+</tr>
+</tbody>
+</table>
+<p>L’entité <code>MicrophoneReceiver</code> produit un flux de données en utilisant le <a href="producteur-consommateur.html">protocole ready/valid</a>.
+Elle joue le rôle de producteur&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Port</th>
+<th style="text-align:left">Direction</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>clk_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge global du système</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>reset_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">La commande de réinitialisation du système</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>chip_select_n_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">La commande de sélection du convertisseur A/N (active au niveau bas)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>serial_clk_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge série à destination du convertisseur A/N</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>serial_data_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Les données série en provenance du convertisseur A/N</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>valid_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Indique qu’un nouvel échantillon audio est disponible</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ready_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Indique que le consommateur est prêt à recevoir un nouvel échantillon audio</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>data_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Vecteur logique signé</td>
+<td style="text-align:left">La valeur de l’échantillon audio courant</td>
+</tr>
+</tbody>
+</table>
+<div class="info">
+<p>Pour les valeurs logiques, vous utiliserez le type <code>std_logic</code> du package
+<code>ieee.std_logic_1164</code>.</p>
+<p>Pour les vecteurs logiques représentant des nombres signés, vous utiliserez
+le type <code>signed</code> du package <code>ieee.numeric_std</code>.</p>
+</div>
+</section><section><h1 id="realisation-du-recepteur" tabindex="-1">Réalisation du récepteur</h1>
+<p>Au cours de son fonctionnement, l’entité <code>MicrophoneReceiver</code> communique avec le
+convertisseur analogique/numérique du module PmodMIC3 pour déclencher des
+acquisitions et recevoir les valeurs d’échantillons.
+L’acquisition d’un échantillon s’effectue de la manière suivante&nbsp;:</p>
+<ul>
+<li>Sélectionner le convertisseur en mettant <code>chip_select_n_o</code> à <code>'0'</code>.</li>
+<li>Produire un signal d’horloge sur <code>serial_clk_o</code> avec une fréquence correspondant à la vitesse de communication souhaitée (<code>BIT_RATE_HZ</code>).</li>
+<li>Au rythme de l’horloge série, recevoir et mémoriser les données que le convertisseur retourne sur l’entrée <code>serial_data_i</code>.</li>
+<li>Libérer le convertisseur en mettant <code>chip_select_n_o</code> à <code>'1'</code>.</li>
+</ul>
+<p>Lorsque la communication avec le convertisseur est terminée, la sortie <code>valid_o</code> est mise à <code>'1'</code>.
+La valeur du nouvel échantillon est disponible sur la sortie <code>data_o</code>.
+L’entité <code>MicrophoneReceiver</code> attend que <code>ready_i</code> soit activé pour lire
+l’échantillon suivant.</p>
+<p>Un scénario typique de fonctionnement est décrit par le chronogramme suivant&nbsp;:</p>
+<p><a href="MicrophoneReceiver-chronogramme.svg"><img src="MicrophoneReceiver-chronogramme.svg" alt="Chronogramme de fonctionnement de l'entité MicrophoneReceiver"></a></p>
+<p>Dans l’exemple ci-dessus, l’entité est paramétrée pour retourner des échantillons sur 16 bits signés
+(<code>BITS_PER_SAMPLE</code> = 16).
+Le convertisseur, lui, retourne des échantillons sur 12 bits non signés, la valeur 0 correspondant à la plus petite valeur
+possible.
+Malgré cela, la communication s’effectue toujours sur 16 cycles de <code>serial_clk_o</code>,
+dont seuls les 12 derniers servent à transporter des données utiles sur <code>serial_data_i</code>.</p>
+</section><section><h2 id="machine-a-etats-et-signaux-de-controle" tabindex="-1">Machine à états et signaux de contrôle</h2>
+<p>Le fonctionnement du récepteur sera géré par une machine à trois états avec
+les états suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Nom</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>INIT_STATE</code></td>
+<td style="text-align:left">État initial</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BUSY_STATE</code></td>
+<td style="text-align:left">Acquisition en cours</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>VALID_STATE</code></td>
+<td style="text-align:left">Donnée disponible</td>
+</tr>
+</tbody>
+</table>
+<p>Lors de sa réinitialisation (<code>reset_i</code>), le récepteur doit se mettre dans
+l’état <code>INIT_STATE</code>.
+Au front d’horloge suivant, il doit passer dans l’état <code>BUSY_STATE</code> pour
+déclencher une première conversion.</p>
+<p>Il reste dans l’état <code>BUSY_STATE</code> pendant toute la durée d’une communication
+avec le module PmodMIC3. La sortie <code>chip_select_n_o</code> vaut <code>'0'</code>.</p>
+<p>Dans l’état <code>VALID_STATE</code>, il met la sortie <code>valid_o</code> à <code>'1'</code> et attend que <code>ready_i</code> passe à <code>'1'</code>.
+Ensuite, il retourne dans l’état <code>BUSY_STATE</code>.</p>
+<p><a href="MicrophoneReceiver-etat-chronogramme.svg"><img src="MicrophoneReceiver-etat-chronogramme.svg" alt="États du récepteur"></a></p>
+<p>Pour mesurer la durée dans l’état <code>BUSY_STATE</code>, nous recommandons de créer deux compteurs&nbsp;:
+un pour compter le nombre de bits et un pour mesurer la durée d’un bit.
+En fonction de <code>CLK_FREQUENCY_HZ</code> et <code>BIT_RATE_HZ</code>, proposez une expression permettant de calculer
+le nombre de périodes de <code>clk_i</code> pour recevoir un bit.</p>
+<p>En respectant les règles de conception de circuits synchrones, complétez le
+fichier <code>MicrophoneReceiver.vhd</code>.</p>
+<h3 id="simulation" tabindex="-1">Simulation</h3>
+<p>Le fichier <code>MicrophoneReceiverTestbench.vhd</code> contient un <em>banc de test</em> pour
+l’entité <code>MicrophoneReceiver</code>.</p>
+<p>Pour exécuter la simulation, nous fournissons un script qui automatise
+le démarrage du simulateur et l’exécution d’une séquence de commandes&nbsp;:</p>
+<ol>
+<li>Dans le menu <em>Tools</em>, choisissez <em>Run Tcl Script</em>.</li>
+<li>Allez dans le dossier <code>src/Microphone</code> et sélectionnez le fichier <code>MicrophoneReceiverTestbench.tcl</code>.</li>
+</ol>
+<p>Au cours de la simulation, le banc de test affiche des messages dans l’onglet
+<em>Tcl Console</em> lorsque le comportement de votre entité n’est pas conforme aux
+attentes.
+À cette étape, vous pouvez obtenir les messages suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Message</th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>chip_select_n</code> is low too early</td>
+<td style="text-align:left">La sortie <code>chip_select_n_o</code> reste à <code>'1'</code> pendant moins de 10 ns</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>chip_select_n</code> is high too early</td>
+<td style="text-align:left">La sortie <code>chip_select_n_o</code> revient à <code>'0'</code> avant d’avoir reçu toutes les données</td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="horloge-serialclko" tabindex="-1">Horloge <code>serial_clk_o</code></h2>
+<p>Au repos, la sortie <code>serial_clk_o</code> est à <code>'1'</code>.
+Pendant la durée d’une communication avec le convertisseur analogique/numérique, elle prend la forme d’un signal
+carré sur 16 périodes en commençant par un niveau haut.</p>
+<p><a href="MicrophoneReceiver-serial-clk-chronogramme.svg"><img src="MicrophoneReceiver-serial-clk-chronogramme.svg" alt="Génération de serial_clk_o"></a></p>
+<p>Vous devez piloter <code>serial_clk_o</code> en visant à atteindre un rapport cyclique de 50%.
+En pratique, ce sera le cas si une période de <code>serial_clk_o</code> correspond à un nombre
+pair de périodes de <code>clk_i</code>.
+Dans les autres cas, la documentation constructeur du convertisseur indique que
+le rapport cyclique de <code>serial_clk_o</code> doit être compris entre 40% et 60%.</p>
+<p>En respectant les règles de conception de circuits synchrones, complétez l’architecture <code>RTL</code>
+de manière à produire un signal <code>serial_clk_o</code> ayant la forme ci-dessus.</p>
+<p>Relancez la simulation et validez le fonctionnement du circuit.</p>
+<p>Vérifiez les messages affichés par le banc de test dans l’onglet <em>Tcl Console</em>.
+À cette étape, vous pouvez obtenir les messages suivants lorsque <code>serial_clk_o</code>
+a une valeur incorrecte, change de valeur au mauvais moment, ou a des durées
+incorrectes à l’état haut ou bas&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Message</th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Expected <code>serial_clk = '1'</code></td>
+<td style="text-align:left">La sortie <code>serial_clk_o</code> n’est pas à <code>'1'</code> au repos</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>serial_clk</code> is low too early</td>
+<td style="text-align:left">La sortie <code>serial_clk_o</code> passe à <code>'0'</code> trop tôt après le début d’une communication</td>
+</tr>
+<tr>
+<td style="text-align:left">Wrong <code>serial_clk</code> high pulse duration</td>
+<td style="text-align:left">La durée à l’état haut de <code>serial_clk_o</code> n’est pas celle attendue</td>
+</tr>
+<tr>
+<td style="text-align:left">Wrong <code>serial_clk</code> low pulse duration</td>
+<td style="text-align:left">La durée à l’état bas de <code>serial_clk_o</code> n’est pas celle attendue</td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="memorisation-des-donnees-recues" tabindex="-1">Mémorisation des données reçues</h2>
+<p>L’entrée <code>serial_data_i</code> transporte la valeur de l’échantillon, bit par bit au rythme de <code>serial_clk_o</code>,
+en commençant par le bit de poids fort.
+Elle est mise à jour à chaque front descendant de <code>serial_clk_o</code>.</p>
+<p>D’après la documentation constructeur, dans le pire des cas, il peut s’écouler 40 ns
+entre le front descendant de <code>serial_clk_o</code> et le moment où <code>serial_data_i</code> devient stable.
+Pour la vitesse de communication la plus élevée (20 MHz, soit 50 ns par période), il est donc souhaitable
+de mémoriser les données à la fin de la période de <code>serial_clk_o</code>.
+Le plus simple pour nous est de toujours effectuer la mémorisation juste avant de déclencher
+le prochain front descendant de <code>serial_clk_o</code>.</p>
+<p>En respectant les règles de conception de circuits synchrones, complétez l’architecture <code>RTL</code>
+de manière à mémoriser <code>serial_data_i</code> en exploitant le principe du registre à décalage illustré par ce chronogramme&nbsp;:</p>
+<p><a href="MicrophoneReceiver-data-chronogramme.svg"><img src="MicrophoneReceiver-data-chronogramme.svg" alt="Mémorisation des données"></a></p>
+<p>Sur le chronogramme ci-dessus, vous noterez qu’on ne mémorise pas directement le bit de poids fort <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>D</mi><mn>11</mn></msub></mrow><annotation encoding="application/x-tex">D_{11}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.02778em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">11</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>,
+mais que l’on prend son inverse <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><msub><mi>D</mi><mn>11</mn></msub><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">\overline{D_{11}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.03333em;vertical-align:-0.15em;"></span><span class="mord overline"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8833300000000001em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.02778em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">11</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.80333em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span> (voir les explications dans l’encadré ci-dessous).</p>
+<div class="warning">
+<p>Les valeurs fournies par le convertisseur analogique/numérique sont codées en <em>binaire décalé</em> selon
+le principe suivant&nbsp;: <code>0000 0000 0000</code> représente la plus petite valeur négative et
+<code>1111 1111 1111</code> représente la plus grande valeur positive.
+Le tableau ci-dessous donne quelques exemples en précisant la représentation de ces nombres en complément à deux.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:right">Décimal</th>
+<th style="text-align:center">Binaire décalé</th>
+<th style="text-align:center">Complément à deux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">2047</td>
+<td style="text-align:center">1111 1111 1111</td>
+<td style="text-align:center">0111 1111 1111</td>
+</tr>
+<tr>
+<td style="text-align:right">2046</td>
+<td style="text-align:center">1111 1111 1110</td>
+<td style="text-align:center">0111 1111 1110</td>
+</tr>
+<tr>
+<td style="text-align:right">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:center">1000 0000 0011</td>
+<td style="text-align:center">0000 0000 0011</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:center">1000 0000 0010</td>
+<td style="text-align:center">0000 0000 0010</td>
+</tr>
+<tr>
+<td style="text-align:right">1</td>
+<td style="text-align:center">1000 0000 0001</td>
+<td style="text-align:center">0000 0000 0001</td>
+</tr>
+<tr>
+<td style="text-align:right">0</td>
+<td style="text-align:center">1000 0000 0000</td>
+<td style="text-align:center">0000 0000 0000</td>
+</tr>
+<tr>
+<td style="text-align:right">-1</td>
+<td style="text-align:center">0111 1111 1111</td>
+<td style="text-align:center">1111 1111 1111</td>
+</tr>
+<tr>
+<td style="text-align:right">-2</td>
+<td style="text-align:center">0111 1111 1110</td>
+<td style="text-align:center">1111 1111 1110</td>
+</tr>
+<tr>
+<td style="text-align:right">-3</td>
+<td style="text-align:center">0111 1111 1101</td>
+<td style="text-align:center">1111 1111 1101</td>
+</tr>
+<tr>
+<td style="text-align:right">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+</tr>
+<tr>
+<td style="text-align:right">-2047</td>
+<td style="text-align:center">0000 0000 0001</td>
+<td style="text-align:center">1000 0000 0001</td>
+</tr>
+<tr>
+<td style="text-align:right">-2048</td>
+<td style="text-align:center">0000 0000 0000</td>
+<td style="text-align:center">1000 0000 0000</td>
+</tr>
+</tbody>
+</table>
+<p>Pour passer du binaire décalé à la notation en complément à deux,
+nous remarquons qu’il suffit d’inverser le bit de poids fort.</p>
+</div>
+<p>La taille du registre <code>data_reg</code> est fixée à 12 bits.
+Le port de sortie <code>data_o</code>, de son côté, a une taille réglable définie par le paramètre générique <code>BITS_PER_SAMPLE</code>.
+Pour copier la valeur du registre sur le port de sortie, il faut donc tenir compte d’une éventuelle
+différence de taille et effectuer, si nécessaire, une extension du bit de poids fort afin de préserver le signe.
+Pour ce faire, vous pouvez utiliser la fonction <code>resize</code> du package <code>ieee.numeric_std</code>&nbsp;:</p>
+<pre><code class="language-vhdl">data_o &lt;= resize(data_reg, BITS_PER_SAMPLE);
+</code></pre>
+<p>Relancez la simulation et validez le fonctionnement du circuit.
+Vérifiez les messages affichés par le banc de test dans l’onglet <em>Tcl Console</em>.
+À cette étape, vous pouvez obtenir le message suivant lorsque <code>data_o</code>
+a une valeur incorrecte au moment où <code>done</code> passe à <code>'1'</code>&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Message</th>
+<th style="text-align:left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Wrong value for <code>data</code></td>
+<td style="text-align:left">Lorsque <code>valid_o</code> vaut <code>'1'</code>, la valeur du signal <code>data_o</code> n’est pas celle attendue</td>
+</tr>
+</tbody>
+</table>
+</section><section><h1 id="application-de-demonstration" tabindex="-1">Application de démonstration</h1>
+<p>Nous vous proposons de réaliser une application permettant de valider votre contrôleur de microphone sur le matériel.
+Cette application consistera à reproduire sur une sortie audio les sons capturés par le microphone.
+Pour ce faire, on reliera simplement une instance de votre entité <code>MicrophoneReceiver</code> avec une instance
+de l’entité <code>I2STransmitter</code>.</p>
+<p>L’entité <code>MicrophoneDemo</code> devra posséder les ports suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Port</th>
+<th style="text-align:left">Direction</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>clk_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge global du système</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>btn_center_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le bouton de réinitialisation du système</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>led_o</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Une LED indiquant le verrouillage de l’horloge secondaire</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>mic_chip_select_n_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">La commande de sélection du convertisseur A/N (active au niveau bas)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>mic_serial_clk_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge série à destination du convertisseur A/N</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>mic_serial_data_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Les données série en provenance du convertisseur A/N</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>i2s_master_clk_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge maître à destination du récepteur I<sup>2</sup>S</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>i2s_serial_clk_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge série à destination du récepteur I<sup>2</sup>S</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>i2s_serial_data_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Les données série à destination du récepteur I<sup>2</sup>S</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>i2s_left_right_clk_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Le signal d’horloge sélectionnant la voie gauche ou droite</td>
+</tr>
+</tbody>
+</table>
+<p>L’architecture structurelle est constituée des éléments suivants&nbsp;:</p>
+<ul>
+<li>Un générateur d’horloge.</li>
+<li>Une instance de <code>MicrophoneReceiver</code>, qui recevra des données audio en provenance du module PmodMIC3.</li>
+<li>Une instance de <code>I2STransmitter</code>, qui transmettra les données audio vers le module PmodI2S.</li>
+</ul>
+<p><a href="MicrophoneDemo-architecture.svg"><img src="MicrophoneDemo-architecture.svg" alt="Architecture de la démo MicrophoneDemo"></a></p>
+<div class="caption">
+<p><a href="../langage-vhdl/legende.svg" target="_blank"><i class="fas fa-info-circle"></i> Afficher la légende des schémas.</a></p>
+</div>
+<p>Le microphone fournissant un signal audio sur une seule voie, les données en sortie de <code>MicrophoneReceiver</code> seront
+mises à l’échelle et copiées sur les voies gauche et droite de l’entité <code>I2STransmitter</code>.
+La synchronisation des deux instances est assurée par les signaux <code>mic_valid</code> et <code>i2s_ready</code>.</p>
+<div class="info">
+<p>Lorsque vous aurez validé cette application de démonstration,
+insérez une instance de <code>Vocoder</code> entre l’instance de <code>MicrophoneReceiver</code>
+et l’instance de <code>I2STransmitter</code>.</p>
+</div>
+</section><section><h2 id="synthetiser-et-implementer-le-circuit" tabindex="-1">Synthétiser et implémenter le circuit</h2>
+<p>Indiquez que l’entité <code>MicrophoneDemo</code> est l’entité principale du circuit&nbsp;:</p>
+<pre><code class="icon-keyboard language-tcl">set_property top MicrophoneDemo [get_filesets sources_1]
+</code></pre>
+<p>Générez le fichier binaire à charger dans le FPGA&nbsp;:
+<em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
+<p><img src="../assets/images/langage-vhdl/vivado-generate-bitstream.png" alt="Vivado generate bitstream"></p>
+<p>Vivado va enchaîner toutes les étapes d’analyse des fichiers sources, de synthèse logique, de placement et routage,
+pour terminer par la génération d’un fichier binaire à charger dans le FPGA.</p>
+<p>À la fin des opérations, la boîte de dialogue <em>Bitstream Generation Completed</em> s’affiche.
+Choisissez <em>Open Hardware Manager</em>.</p>
+</section><section><h2 id="configurer-le-fpga" tabindex="-1">Configurer le FPGA</h2>
+<p>Vérifiez que l’interrupteur d’alimentation de votre carte Basys3 est en position <em>OFF</em>.
+Le cavalier situé à côté de l’interrupteur doit être en position <em>USB</em>.</p>
+<p>Branches le module PmodMIC3 sur le connecteur <em>JB</em> (en haut sur le côté droit de la carte).
+Branchez le module PmodI2S sur le connecteur <em>JA</em> (en haut sur le côté gauche de la carte)
+et branchez un casque stéréo ou des enceintes sur le connecteur jack.</p>
+<div class="warning">
+<p>Vous ne connaissez pas à l’avance le volume de la sortie audio.
+Ne mettez pas vos écouteurs sur les oreilles avant d’être sûr
+que le son n’est pas trop fort.</p>
+</div>
+<p>Reliez le connecteur micro-USB de la carte à un port USB de votre PC.
+Mettez la carte sous tension.</p>
+<p>En haut du panneau <em>Hardware Manager</em>, pressez <em>Open target</em> et choisissez <em>Auto Connect</em>.</p>
+<p><img src="../assets/images/langage-vhdl/vivado-open-target.png" alt="Vivado open target"></p>
+<p>Pressez ensuite <em>Program Device</em> et sélectionnez le fichier <code>MicrophoneDemo.bit</code>.</p>
+<p><img src="../assets/images/langage-vhdl/vivado-program-device.png" alt="Vivado program device"></p>
+</section><section><h1 id="implementation-de-reference" tabindex="-1">Implémentation de référence</h1>
+<p>Pour vous éviter de rester bloqués à cette étape, nous fournissons deux fichiers
+de référence&nbsp;:</p>
+<ul>
+<li><code>src/Microphone/MicrophoneReceiver-ref.vhd</code> est un fichier source VHDL du récepteur,
+dont le contenu a été volontairement rendu illisible, et dont les valeurs de paramètres
+génériques ont été figées.
+Nous vous conseillons de ne pas perdre de temps à essayer de le rendre lisible.</li>
+<li><code>ref/MicrophoneDemo-ref.bit</code> est le fichier binaire de l’application de démonstration à
+charger directement dans le FPGA à partir du <em>Hardware Manager</em> de Vivado.
+Effectuez l’action <em>Program Device</em> et choisissez le fichier <code>MicrophoneDemo-ref.bit</code>.</li>
+</ul>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="vocodeur.html">&larr;&nbsp;Vocodeur</a>
+    
+    
+        <a href="../langage-verilog/index.html">Découverte du langage Verilog&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="microphone.html" class="current">Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

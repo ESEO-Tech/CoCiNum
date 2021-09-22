@@ -1,0 +1,1516 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Développement logiciel</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="soc-tutorial-os.html">&larr;&nbsp;Configuration du système d'exploitation</a>
+    
+    
+        <a href="soc-projet.html">Projet : développement d'un capteur connecté&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Développement logiciel</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#creer-un-pilote-de-peripherique">Créer un pilote de périphérique</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#declarer-le-peripherique-dans-le-device-tree">Déclarer le périphérique dans le device tree</a></li>
+            
+                
+                <li><a href="#creer-un-module-noyau">Créer un module noyau</a></li>
+            
+                
+                <li><a href="#recompiler-et-redemarrer">Recompiler et redémarrer</a></li>
+            
+                
+                <li><a href="#commander-les-voyants-et-les-boutons">Commander les voyants et les boutons</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#executer-une-application-sur-la-carte-zybo">Exécuter une application sur la carte ZYBO</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#creer-une-nouvelle-application-dans-larborescence-de-petalinux">Créer une nouvelle application dans l’arborescence de PetaLinux</a></li>
+            
+                
+                <li><a href="#recompiler-et-redemarrer-1">Recompiler et redémarrer</a></li>
+            
+                
+                <li><a href="#executer-lapplication">Exécuter l’application</a></li>
+            
+            
+        </ul>
+            
+        </ul>
+            
+    
+    <p>Dans cette section, nous allons ajouter un pilote de périphérique personnalisé
+pour nos voyants et boutons.
+Nous testerons ce pilote à partir de la ligne de commande, puis dans un
+exemple d’application.</p>
+<section><h1 id="creer-un-pilote-de-peripherique" tabindex="-1">Créer un pilote de périphérique</h1>
+<p>Le noyau Linux contient déjà un pilote pour les composants GPIO de notre
+architecture matérielle.</p>
+<p>Ici, nous avons choisi de créer notre propre pilote afin d’illustrer les
+mécanismes de base pour accéder aux registres d’un périphérique.
+Vous pourrez vous en inspirer pour la suite de l’activité.</p>
+</section><section><h2 id="declarer-le-peripherique-dans-le-device-tree" tabindex="-1">Déclarer le périphérique dans le device tree</h2>
+<p>Revenez dans le terminal où vous avez lancé <code>bitbake</code>.</p>
+<div class="info">
+<p>Dans ce terminal, toutes les commandes doivent être exécutées à partir
+du dossier <code>/Data/etudiant/soc2020/build</code>.</p>
+<p>Si vous ne l’avez pas encore fait dans le shell courant, exécutez les commandes
+suivantes&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> /Data/etudiant/soc2020/poky
+<span class="hljs-built_in">source</span> oe-init-build-env ../build
+</code></pre>
+</div>
+<p>Dans le dossier <code>meta-eseo</code>, créez la structure de dossiers
+où nous allons modifier la <em>recette</em> de construction du noyau&nbsp;:</p>
+<pre><code class="icon-term language-bash">mkdir -p ../meta-eseo/recipes-kernel/linux/files
+</code></pre>
+<p>Créez le fichier <code>meta-eseo/recipes-kernel/linux/files/zybo-minimal.dts</code> avec le contenu suivant&nbsp;:</p>
+<pre><code class="language-dts"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"zynq-zybo.dts"</span></span>
+
+<span class="hljs-title class_">/</span> <span class="hljs-punctuation">{</span>
+<span class="hljs-symbol">    amba_pl:</span> <span class="hljs-title class_">amba_pl</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-meta">#address-cells = &lt;1&gt;;</span>
+        <span class="hljs-meta">#size-cells = &lt;1&gt;;</span>
+        <span class="hljs-attr">compatible</span> <span class="hljs-operator">=</span> <span class="hljs-string">"simple-bus"</span><span class="hljs-punctuation">;</span>
+        ranges <span class="hljs-punctuation">;</span>
+
+        <span class="hljs-title class_">simple-io-device</span> <span class="hljs-punctuation">{</span>
+            <span class="hljs-attr">compatible</span> <span class="hljs-operator">=</span> <span class="hljs-string">"eseo,simple-io-device"</span><span class="hljs-punctuation">;</span>
+            <span class="hljs-attr">reg</span> <span class="hljs-operator">=</span> <span class="hljs-params">&lt;<span class="hljs-number">0x41200000</span> <span class="hljs-number">4</span> <span class="hljs-number">0x41210000</span> <span class="hljs-number">4</span>&gt;</span><span class="hljs-punctuation">;</span>
+        <span class="hljs-punctuation">};</span>
+    <span class="hljs-punctuation">};</span>
+<span class="hljs-punctuation">};</span>
+</code></pre>
+<p>Nous déclarons le bus entre le processeur et la logique programmable sous le nom <code>amba_pl</code>.
+Nous déclarons un périphérique <code>simple-io-device</code> connecté à ce bus.
+Le champ <code>compatible</code> permet d’associer ce périphérique à une famille
+de composants qui pourraient être gérés par le même pilote.</p>
+<p>Le champ <code>reg</code> indique les plages d’adresse réservées à ce périphériques sur le bus.
+Ici, nous déclarons deux plages&nbsp;:</p>
+<ul>
+<li>4 octets à l’adresse 0x41200000</li>
+<li>4 octets à l’adresse 0x41210000</li>
+</ul>
+<p>Vérifiez que ces adresses correspondent à celles affichées dans Vivado.
+Modifiez-les si nécessaires.</p>
+<p>Créez ensuite le fichier <code>meta-eseo/recipes-kernel/linux/linux-xlnx_%.bbappend</code> avec le contenu suivant&nbsp;:</p>
+<pre><code>FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+
+SRC_URI += "file://zybo-minimal.dts;subdir=git/arch/${ARCH}/boot/dts"
+
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
+KERNEL_DEVICETREE_zybo-zynq7 += "zybo-minimal.dtb"
+</code></pre>
+<p>Ce fichier est une extension de la recette de construction du noyau Linux,
+dans laquelle nous ajoutons le choix d’un autre fichier <em>device tree</em> que celui
+par défaut.</p>
+</section><section><h2 id="creer-un-module-noyau" tabindex="-1">Créer un module noyau</h2>
+<p>Dans le dossier <code>meta-eseo</code>, créez la structure de dossiers
+des sources d’un nouveau pilote de périphériques&nbsp;:</p>
+<pre><code class="icon-term language-bash">mkdir -p ../meta-eseo/recipes-kernel/simple-io-driver/files
+</code></pre>
+<p>Créez le fichier <code>meta-eseo/recipes-kernel/simple-io-driver/files/simple-io-driver.c</code>
+avec le code ci-dessous.
+Ce module s’enregistre comme pilote pour le périphérique <code>simple-io-device</code>.
+Il lit le contenu du device tree afin de connaître les adresses des deux composants GPIO.
+Il crée deux entrées <em>sysfs</em> qui permettront d’accéder directement aux états
+des LED et des boutons.
+Il définit deux commandes <em>ioctl</em> pour gérer les entrées/sorties depuis une
+application.</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/fs.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/io.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/slab.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/of_address.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/of_platform.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/uaccess.h&gt;</span></span>
+
+MODULE_LICENSE(<span class="hljs-string">"GPL"</span>);
+MODULE_AUTHOR(<span class="hljs-string">"ESEO"</span>);
+MODULE_DESCRIPTION(<span class="hljs-string">"simple-io-driver - Custom I/O driver"</span>);
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> DEVICE_NAME <span class="hljs-string">"simple-io-device"</span></span>
+
+<span class="hljs-comment">/// Données utilisées par le driver.</span>
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> {</span>
+    <span class="hljs-comment">/// Numéro majeur du périphérique caractère.</span>
+    <span class="hljs-type">int</span> major;
+    <span class="hljs-comment">/// Classe du périphérique.</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-keyword">class</span> *<span class="hljs-keyword">class</span>;</span>
+    <span class="hljs-comment">/// Périphérique caractère.</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">chrdev</span>;</span>
+    <span class="hljs-comment">/// Le registre où écrire l'état des LED.</span>
+    <span class="hljs-type">void</span> *leds_reg;
+    <span class="hljs-comment">/// Le registre où lire l'état des boutons.</span>
+    <span class="hljs-type">void</span> *btns_reg;
+} simple_io_driver_data;
+
+<span class="hljs-comment">/** Affecter l'état des LED.
+ *
+ * Chaque bit du paramètre state représente le nouvel état d'une LED.
+ * Le bit de poids faible correspond à la LED numéro 0 sur la carte.
+ *
+ * @param state Le nouvel état des LED.
+ */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">simple_io_driver_set_leds</span><span class="hljs-params">(<span class="hljs-type">int</span> state)</span> {
+    iowrite32(state, simple_io_driver_data.leds_reg);
+}
+
+<span class="hljs-comment">/** Lire l'état des boutons.
+ *
+ * Chaque bit du résultat représente l'état courant d'un bouton.
+ * Le bit de poids faible correspond au bouton numéro 0 sur la carte.
+ *
+ * @return L'état des boutons.
+ */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_get_btns</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    <span class="hljs-keyword">return</span> ioread32(simple_io_driver_data.btns_reg);
+}
+
+<span class="hljs-comment">/** Affecter l'état des LED à partir d'un attribut du périphérique dans /sys
+ *
+ * Écrire la valeur sous forme de chaîne de caractères dans
+ * /sys/class/eseo/simple-io-device/leds.
+ * Le préfixe 0x permet d'entrer une valeur en hexadécimal.
+ *
+ * @param dev Un pointeur sur la structure de données représentant le périphérique.
+ * @param attr Un pointeur sur la structure de données de l'attribut du périphérique à affecter.
+ * @param buf La chaîne de caractère qui contient la valeur à affecter.
+ * @param count La longueur de la chaîne de caractères.
+ * @return Le nombre d'octets traités.
+ */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">leds_store</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> device *dev, <span class="hljs-keyword">struct</span> device_attribute *attr, <span class="hljs-keyword">const</span> <span class="hljs-type">char</span> *buf, <span class="hljs-type">size_t</span> count)</span> {
+    <span class="hljs-type">int</span> arg;
+    <span class="hljs-keyword">if</span> (kstrtoint(buf, <span class="hljs-number">0</span>, &amp;arg)) {
+        dev_err(dev, <span class="hljs-string">"Invalid value.\n"</span>);
+    }
+    <span class="hljs-keyword">else</span> {
+        simple_io_driver_set_leds(arg);
+    }
+    <span class="hljs-keyword">return</span> count;
+}
+
+<span class="hljs-comment">/** Attribut permettant l'accès aux LED, en écriture seule.
+ *
+ * L'attribut est automatiquement associé à la fonction leds_store ci-dessus.
+ */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-title function_">DEVICE_ATTR_WO</span><span class="hljs-params">(leds)</span>;
+
+<span class="hljs-comment">/** Lire l'état des boutons à partir d'un attribut du périphérique dans /sys
+ *
+ * La lecture du fichier /sys/class/eseo/simple-io-device/btns
+ * retourne une chaîne de caractères représentant une valeur entière en
+ * hexadécimal avec le préfixe 0x.
+ *
+ * @param dev Un pointeur sur la structure de données représentant le périphérique.
+ * @param attr Un pointeur sur la structure de données de l'attribut du périphérique à affecter.
+ * @param buf La chaîne de caractère qui recevra la valeur de l'attribut.
+ * @return Le nombre d'octets écrits dans buf.
+ */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">btns_show</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> device *dev, <span class="hljs-keyword">struct</span> device_attribute *attr, <span class="hljs-type">char</span> *buf)</span> {
+    <span class="hljs-keyword">return</span> scnprintf(buf, PAGE_SIZE, <span class="hljs-string">"0x%x\n"</span>, simple_io_driver_get_btns());
+}
+
+<span class="hljs-comment">/** Attribut permettant l'accès aux boutons, en lecture seule.
+ *
+ * L'attribut est automatiquement associé à la fonction btns_show ci-dessus.
+ */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-title function_">DEVICE_ATTR_RO</span><span class="hljs-params">(btns)</span>;
+
+<span class="hljs-comment">/** Interface ioctl
+ *
+ * @param f Un descripteur du fichier sur lequel la fonction ioctl est appelée.
+ * @param cmd La commande à exécuter.
+ * @param arg L'argument de la commande (ici un pointeur).
+ * @return Un code d'erreur.
+ */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-type">long</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_ioctl</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *f, <span class="hljs-type">unsigned</span> cmd, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> arg)</span> {
+    <span class="hljs-type">int</span> value;
+    <span class="hljs-keyword">switch</span> (cmd) {
+        <span class="hljs-keyword">case</span> <span class="hljs-number">0</span>:
+            copy_from_user(&amp;value, (<span class="hljs-type">int</span>*)arg, <span class="hljs-keyword">sizeof</span>(<span class="hljs-type">int</span>));
+            simple_io_driver_set_leds(value);
+            <span class="hljs-keyword">break</span>;
+
+        <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>:
+            value = simple_io_driver_get_btns();
+            copy_to_user((<span class="hljs-type">int</span>*)arg, &amp;value, <span class="hljs-keyword">sizeof</span>(<span class="hljs-type">int</span>));
+            <span class="hljs-keyword">break</span>;
+
+        <span class="hljs-keyword">default</span>:
+            pr_err(<span class="hljs-string">"Invalid ioctl command: %u\n"</span>, cmd);
+            <span class="hljs-keyword">return</span> -EINVAL;
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+
+<span class="hljs-comment">/// Interface du pilote pour les opérations sur les fichiers.</span>
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">simple_io_driver_ops</span> =</span> {
+    .unlocked_ioctl = simple_io_driver_ioctl
+};
+
+<span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_remove</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> platform_device *pdev)</span>;
+
+<span class="hljs-comment">/** Initialisation du pilote de périphérique.
+ *
+ * @param dev Un pointeur sur la structure de données représentant le périphérique.
+ * @return Un code d'erreur, 0 en cas de succès.
+ */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_probe</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> platform_device *pdev)</span> {
+    <span class="hljs-type">int</span> err = <span class="hljs-number">0</span>;
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">dev</span> =</span> &amp;pdev-&gt;dev;
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">resource</span> <span class="hljs-title">leds_res</span>, <span class="hljs-title">btns_res</span>;</span>
+
+    <span class="hljs-comment">// Créer un périphérique caractère "simple-io-device"</span>
+    <span class="hljs-comment">// pour la classe de périphériques "eseo".</span>
+    simple_io_driver_data.major = register_chrdev(<span class="hljs-number">0</span>, DEVICE_NAME, &amp;simple_io_driver_ops);
+    <span class="hljs-keyword">if</span> (simple_io_driver_data.major &lt; <span class="hljs-number">0</span>) {
+        err = simple_io_driver_data.major;
+        dev_err(dev, <span class="hljs-string">"Failed to register character device. Error: %d\n"</span>, err);
+        <span class="hljs-keyword">goto</span> probe_error;
+    }
+
+    simple_io_driver_data.class = class_create(THIS_MODULE, <span class="hljs-string">"eseo"</span>);
+    <span class="hljs-keyword">if</span> (IS_ERR(simple_io_driver_data.class)) {
+        err = PTR_ERR(simple_io_driver_data.class);
+        dev_err(dev, <span class="hljs-string">"Failed to create device class. Error: %d\n"</span>, err);
+        <span class="hljs-keyword">goto</span> probe_error;
+    }
+
+    simple_io_driver_data.chrdev = device_create(simple_io_driver_data.class, <span class="hljs-literal">NULL</span>, MKDEV(simple_io_driver_data.major, <span class="hljs-number">0</span>), <span class="hljs-literal">NULL</span>, DEVICE_NAME);
+    <span class="hljs-keyword">if</span> (IS_ERR(simple_io_driver_data.chrdev)) {
+        err = PTR_ERR(simple_io_driver_data.class);
+        dev_err(dev, <span class="hljs-string">"Failed to create character device. Error: %d\n"</span>, err);
+        <span class="hljs-keyword">goto</span> probe_error;
+    }
+
+    <span class="hljs-comment">// Lire le champ "reg" du périphérique dans le device tree</span>
+    <span class="hljs-comment">// pour connaître la région du plan d'adressage associée aux GPIO des LED</span>
+    <span class="hljs-comment">// et des boutons.</span>
+    err = of_address_to_resource(dev-&gt;of_node, <span class="hljs-number">0</span>, &amp;leds_res);
+    <span class="hljs-keyword">if</span> (err) {
+        dev_err(dev, <span class="hljs-string">"Failed to read memory segment for LEDs. Error: %d\n"</span>, err);
+        <span class="hljs-keyword">goto</span> probe_error;
+    }
+    dev_info(dev, <span class="hljs-string">"Found LEDs at address: 0x%08x\n"</span>, leds_res.start);
+
+    err = of_address_to_resource(dev-&gt;of_node, <span class="hljs-number">1</span>, &amp;btns_res);
+    <span class="hljs-keyword">if</span> (err) {
+        dev_err(dev, <span class="hljs-string">"Failed to read memory segment for buttons. Error: %d\n"</span>, err);
+        <span class="hljs-keyword">goto</span> probe_error;
+    }
+    dev_info(dev, <span class="hljs-string">"Found buttons at address: 0x%08x\n"</span>, btns_res.start);
+
+    <span class="hljs-comment">// Réserver les régions du plan d'adressage associées au GPIO.</span>
+    <span class="hljs-comment">// Associer les adresses physiques aux adresses virtuelles du noyau</span>
+    <span class="hljs-comment">// et obtenir des pointeurs sur ces régions.</span>
+    simple_io_driver_data.leds_reg = devm_ioremap_resource(dev, &amp;leds_res);
+    <span class="hljs-keyword">if</span> (IS_ERR(simple_io_driver_data.leds_reg)) {
+        err = PTR_ERR(simple_io_driver_data.leds_reg);
+        dev_err(dev, <span class="hljs-string">"Failed to map memory segment for LEDs. Error: %d\n"</span>, err);
+        <span class="hljs-keyword">goto</span> probe_error;
+    }
+
+    simple_io_driver_data.btns_reg = devm_ioremap_resource(dev, &amp;btns_res);
+    <span class="hljs-keyword">if</span> (IS_ERR(simple_io_driver_data.btns_reg)) {
+        err = PTR_ERR(simple_io_driver_data.btns_reg);
+        dev_err(dev, <span class="hljs-string">"Failed to map memory segment for buttons. Error: %d\n"</span>, err);
+        <span class="hljs-keyword">goto</span> probe_error;
+    }
+
+    <span class="hljs-comment">// Créer des fichiers dans /sys pour les attributs "leds" et "btns".</span>
+    err = device_create_file(simple_io_driver_data.chrdev, &amp;dev_attr_leds);
+    <span class="hljs-keyword">if</span> (err) {
+        dev_err(dev, <span class="hljs-string">"Failed to create /sys endpoint for LEDs. Error: %d\n"</span>, err);
+        <span class="hljs-keyword">goto</span> probe_error;
+    }
+
+    err = device_create_file(simple_io_driver_data.chrdev, &amp;dev_attr_btns);
+    <span class="hljs-keyword">if</span> (err) {
+        dev_err(dev, <span class="hljs-string">"Failed to create /sys endpoint for buttons. Error: %d\n"</span>, err);
+        <span class="hljs-keyword">goto</span> probe_error;
+    }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+
+probe_error:
+    simple_io_driver_remove(pdev);
+    <span class="hljs-keyword">return</span> err;
+}
+
+<span class="hljs-comment">/** Terminaison du pilote de périphérique.
+ *
+ * La plupart des ressources allouées dans simple_io_driver_probe sont
+ * "device-managed" (cf les fonctions préfixées par "devm_").
+ * Elles sont désallouées automatiquement si l'initialisation échoue ou
+ * lorsque ce module se termine.
+ *
+ * @param dev Un pointeur sur la structure de données représentant le périphérique.
+ * @return Un code d'erreur, 0 en cas de succès.
+ */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_remove</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> platform_device *pdev)</span> {
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">dev</span> =</span> &amp;pdev-&gt;dev;
+
+    device_remove_file(dev, &amp;dev_attr_leds);
+    device_remove_file(dev, &amp;dev_attr_btns);
+
+    <span class="hljs-keyword">if</span> (!IS_ERR(simple_io_driver_data.chrdev)) {
+        device_destroy(simple_io_driver_data.class, MKDEV(simple_io_driver_data.major, <span class="hljs-number">0</span>));
+    }
+
+    <span class="hljs-keyword">if</span> (!IS_ERR(simple_io_driver_data.class)) {
+        class_destroy(simple_io_driver_data.class);
+    }
+
+    <span class="hljs-keyword">if</span> (simple_io_driver_data.major &gt;= <span class="hljs-number">0</span>) {
+        unregister_chrdev(simple_io_driver_data.major, DEVICE_NAME);
+    }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+
+<span class="hljs-comment">/// Table de critères pour la détection du périphérique.</span>
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">of_device_id</span> <span class="hljs-title">simple_io_driver_of_match</span>[] =</span> {
+    { .compatible = <span class="hljs-string">"eseo,simple-io-device"</span>, },
+    { <span class="hljs-comment">/* end of list */</span> },
+};
+
+MODULE_DEVICE_TABLE(of, simple_io_driver_of_match);
+
+<span class="hljs-comment">/// La structure de données permettant d'enregistrer ce pilote de périphérique auprès du noyau.</span>
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">platform_driver</span> <span class="hljs-title">simple_io_driver_driver</span> =</span> {
+    .driver = {
+    .name = <span class="hljs-string">"simple-io-driver"</span>,
+    .owner = THIS_MODULE,
+    .of_match_table	= simple_io_driver_of_match,
+    },
+    .probe  = simple_io_driver_probe,
+    .remove = simple_io_driver_remove,
+};
+
+<span class="hljs-comment">/** Initialisation du module.
+ *
+ * @return Un code d'erreur, 0 en cas de succès.
+ */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">simple_io_driver_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    <span class="hljs-keyword">return</span> platform_driver_register(&amp;simple_io_driver_driver);
+}
+
+<span class="hljs-comment">/// Terminaison du module.</span>
+<span class="hljs-keyword">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">simple_io_driver_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    platform_driver_unregister(&amp;simple_io_driver_driver);
+}
+
+module_init(simple_io_driver_init);
+module_exit(simple_io_driver_exit);
+</code></pre>
+<p>Ajoutez le fichier <code>meta-eseo/recipes-kernel/simple-io-driver/files/Makefile</code>
+avec le contenu suivant (attention à bien utiliser des tabulations pour indenter,
+pas des espaces)&nbsp;:</p>
+<pre><code class="language-makefile">obj-m := simple-io-driver.o
+ccflags-y := -std=gnu99 -Wno-declaration-after-statement
+
+SRC := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span>
+
+<span class="hljs-section">all:</span>
+	<span class="hljs-variable">$(MAKE)</span> -C <span class="hljs-variable">$(KERNEL_SRC)</span> M=<span class="hljs-variable">$(SRC)</span>
+
+<span class="hljs-section">modules_install:</span>
+	<span class="hljs-variable">$(MAKE)</span> -C <span class="hljs-variable">$(KERNEL_SRC)</span> M=<span class="hljs-variable">$(SRC)</span> modules_install
+
+<span class="hljs-section">clean:</span>
+	rm -f *.o *~ core .depend .*.cmd *.ko *.mod.c
+	rm -f Module.markers Module.symvers modules.order
+	rm -rf .tmp_versions Modules.symvers
+</code></pre>
+<p>Ajoutez le fichier <code>meta-eseo/recipes-kernel/simple-io-driver/simple-io-driver_1.0.bb</code>
+avec le contenu suivant&nbsp;:</p>
+<pre><code>SUMMARY = "Linux kernel module for my simple I/O"
+LICENSE = "CLOSED"
+
+inherit module
+
+SRC_URI = "file://Makefile \
+           file://simple-io-driver.c \
+          "
+
+FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+
+S = "${WORKDIR}"
+</code></pre>
+<p>Dans le fichier <code>build/conf/local.conf</code>, modifiez la variable
+<code>CORE_IMAGE_EXTRA_INSTALL</code> de la manière suivante&nbsp;:</p>
+<pre><code>CORE_IMAGE_EXTRA_INSTALL = "peekpoke simple-io-driver"
+</code></pre>
+<p>Pour finir, modifiez le fichier <code>scripts/uEnv.txt</code> en remplaçant
+<code>zynq-zybo.dtb</code> par <code>zybo-minimal.dtb</code>.</p>
+</section><section><h2 id="recompiler-et-redemarrer" tabindex="-1">Recompiler et redémarrer</h2>
+<pre><code class="icon-term language-bash">bitbake core-image-minimal
+</code></pre>
+<p>Mettez la carte hors tension et retirez la carte microSD.</p>
+<p>Copiez les fichier suivants sur la carte microSD&nbsp;:</p>
+<ul>
+<li><code>scripts/uEnv.txt</code></li>
+<li><code>fpga/zybo-minimal/boot.bin</code></li>
+<li><code>build/tmp/deploy/images/zybo-zynq7/uImage</code></li>
+<li><code>build/tmp/deploy/images/zybo-zynq7/zybo-minimal.dtb</code></li>
+<li><code>build/tmp/deploy/images/zybo-zynq7/core-image-minimal-zybo-zynq7.cpio.gz.u-boot</code></li>
+</ul>
+<p>Insérez à nouveau la carte microSD dans le lecteur de la carte Zybo
+et remettez-la sous tension.</p>
+</section><section><h2 id="commander-les-voyants-et-les-boutons" tabindex="-1">Commander les voyants et les boutons</h2>
+<p>Sur la cible, vérifiez que le module <code>simple-io-driver</code> est chargé&nbsp;:</p>
+<pre><code class="icon-term language-bash">lsmod
+</code></pre>
+<p>Cette commande allume les voyants 0 et 2&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">echo</span> 5 &gt; /sys/class/eseo/simple-io-device/leds
+</code></pre>
+<p>Cette commande affiche l’état des boutons&nbsp;:</p>
+<pre><code class="icon-term language-bash">cat /sys/class/eseo/simple-io-device/btns
+</code></pre>
+</section><section><h1 id="executer-une-application-sur-la-carte-zybo" tabindex="-1">Exécuter une application sur la carte ZYBO</h1>
+</section><section><h2 id="creer-une-nouvelle-application-dans-larborescence-de-petalinux" tabindex="-1">Créer une nouvelle application dans l’arborescence de PetaLinux</h2>
+<p>Dans le dossier <code>meta-eseo</code>, créez la structure de dossiers
+des sources d’un nouveau programme&nbsp;:</p>
+<pre><code class="icon-term language-bash">mkdir -p ../meta-eseo/recipes-extended/simple-io-demo/files/src
+</code></pre>
+<p>Créez le fichier <code>meta-eseo/recipes-extended/simple-io-demo/files/src/simple-io-demo.c</code>
+avec le code ci-dessous.</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fcntl.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;time.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/ioctl.h&gt;</span></span>
+
+<span class="hljs-keyword">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">set_leds</span><span class="hljs-params">(<span class="hljs-type">int</span> device, <span class="hljs-type">int</span> state)</span> {
+    ioctl(device, <span class="hljs-number">0</span>, &amp;state);
+}
+
+<span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">get_btns</span><span class="hljs-params">(<span class="hljs-type">int</span> device)</span> {
+    <span class="hljs-type">int</span> res;
+    ioctl(device, <span class="hljs-number">1</span>, &amp;res);
+    <span class="hljs-keyword">return</span> res;
+}
+
+<span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>* argv[])</span> {
+    <span class="hljs-comment">// Ouvrir les fichiers d'accès aux LED et boutons.</span>
+    <span class="hljs-comment">// Configurer la bufferisation du fichier d'accès aux LED</span>
+    <span class="hljs-comment">// pour que la mise à jour se fasse à chaque fin de ligne.</span>
+    <span class="hljs-type">int</span> device = open(<span class="hljs-string">"/dev/simple-io-device"</span>, O_RDWR);
+    <span class="hljs-keyword">if</span> (device &lt; <span class="hljs-number">0</span>) {
+        <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>, <span class="hljs-string">"Could not open device file /dev/simple-io-device. Error: %d\n"</span>, device);
+        <span class="hljs-keyword">return</span> device;
+    }
+
+    <span class="hljs-comment">// Configurer un intervalle de 10 ms</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">timespec</span> <span class="hljs-title">ts</span> =</span> {
+        .tv_sec  = <span class="hljs-number">0</span>,
+        .tv_nsec = <span class="hljs-number">10e6</span>
+    };
+
+    <span class="hljs-comment">// L'utilisateur doit presser les boutons dans l'ordre.</span>
+    <span class="hljs-comment">// Les voyants indiquent quel bouton presser.</span>
+    <span class="hljs-type">int</span> progress = <span class="hljs-number">1</span>;
+    set_leds(device, progress);
+    <span class="hljs-keyword">while</span> (progress &lt; <span class="hljs-number">0x10</span>) {
+        <span class="hljs-keyword">if</span> (get_btns(device) == progress) {
+            progress &lt;&lt;= <span class="hljs-number">1</span>;
+            set_leds(device, progress);
+        }
+        nanosleep(&amp;ts, <span class="hljs-literal">NULL</span>);
+    }
+
+    close(device);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+<p>Ajoutez le fichier <code>meta-eseo/recipes-extended/simple-io-demo/files/CMakeLists.txt</code>&nbsp;:</p>
+<pre><code class="language-cmake"><span class="hljs-keyword">cmake_minimum_required</span>(VERSION <span class="hljs-number">3.8</span>)
+<span class="hljs-keyword">project</span>(simple-io-demo)
+
+<span class="hljs-keyword">add_executable</span>(simple-io-demo src/simple-io-demo.c)
+
+<span class="hljs-keyword">install</span>(TARGETS simple-io-demo DESTINATION bin)
+</code></pre>
+<p>Ajoutez la recette <code>meta-eseo/recipes-extended/simple-io-demo/simple-io-demo_1.0.bb</code>&nbsp;:</p>
+<pre><code>DESCRIPTION = "Simple I/O demo program"
+LICENSE = "CLOSED"
+
+FILESEXTRAPATHS_prepend = "${THISDIR}/files:"
+
+SRC_URI = "\
+    file://CMakeLists.txt \
+    file://src/simple-io-demo.c \
+"
+
+S = "${WORKDIR}"
+
+inherit cmake
+</code></pre>
+<p>Dans le fichier <code>build/conf/local.conf</code>, modifiez la variable
+<code>CORE_IMAGE_EXTRA_INSTALL</code> de la manière suivante&nbsp;:</p>
+<pre><code>CORE_IMAGE_EXTRA_INSTALL = "peekpoke simple-io-driver simple-io-demo"
+</code></pre>
+</section><section><h2 id="recompiler-et-redemarrer-1" tabindex="-1">Recompiler et redémarrer</h2>
+<pre><code class="icon-term language-bash">bitbake core-image-minimal
+</code></pre>
+<p>Mettez la carte hors tension et retirez la carte microSD.</p>
+<p>Remplacez le fichier suivant sur la carte microSD&nbsp;:</p>
+<ul>
+<li><code>build/tmp/deploy/images/zybo-zynq7/core-image-minimal-zybo-zynq7.cpio.gz.u-boot</code></li>
+</ul>
+<p>Insérez à nouveau la carte microSD dans le lecteur de la carte Zybo
+et remettez-la sous tension.</p>
+</section><section><h2 id="executer-lapplication" tabindex="-1">Exécuter l’application</h2>
+<p>Sur la cible, chargez le nouveau module et lancez l’exécutable <code>simple-io-demo</code>
+à partir de la ligne de commande.</p>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="soc-tutorial-os.html">&larr;&nbsp;Configuration du système d'exploitation</a>
+    
+    
+        <a href="soc-projet.html">Projet : développement d'un capteur connecté&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-tutorial-sw.html" class="current">Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

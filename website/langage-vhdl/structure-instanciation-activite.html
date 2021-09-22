@@ -1,0 +1,1264 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Activité : instanciation d'une entité</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="structure-instanciation.html">&larr;&nbsp;Instanciation d'une entité</a>
+    
+    
+        <a href="combinatoire-affectations-concurrentes.html">Affectations concurrentes de signaux&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Activité : instanciation d'une entité</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#lentite-counterdemo">L’entité CounterDemo</a></li>
+            
+                
+                <li><a href="#creer-un-projet-vivado">Créer un projet Vivado</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#apercu-des-fichiers-de-contraintes">Aperçu des fichiers de contraintes</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#synthetiser-le-circuit">Synthétiser le circuit</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#configurer-les-optimisations">Configurer les optimisations</a></li>
+            
+                
+                <li><a href="#synthetiser-et-implementer-le-circuit">Synthétiser et implémenter le circuit</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#configurer-le-fpga">Configurer le FPGA</a></li>
+            
+            
+        </ul>
+            
+    
+    <section><h1 id="lentite-counterdemo" tabindex="-1">L’entité CounterDemo</h1>
+<p>La carte Basys3 de Digilent possède quatre afficheurs 7 segments avec les caractéristiques suivantes&nbsp;:</p>
+<ul>
+<li>Les commandes des segments (<code>s0</code> à <code>s6</code> sur la figure ci-dessous) et des points décimaux (<code>p</code>) sont partagées par les quatre afficheurs.</li>
+<li>Quatre bits (<code>a0</code> à <code>a3</code>) permettent de sélectionner le ou les afficheurs qui doivent être allumés.</li>
+<li>Les commandes des segments, des points, et les bits de sélection sont actifs au niveau bas. C’est-à-dire qu’il faut
+fournir un <code>'0'</code> pour allumer un segment et un <code>'1'</code> pour l’éteindre.</li>
+</ul>
+<p><a href="afficheur-7-segments-basys3.svg"><img src="afficheur-7-segments-basys3.svg" alt="Commandes des afficheurs 7 segments sur la carte Basys3" width="800px"></a></p>
+<p>Dans cette activité, nous reprenons <a href="structure-instanciation.html#exemple">l’exemple CounterDemo</a> détaillé précédemment
+et nous le modifions pour l’adapter à la carte Basys3.
+Le bouton central servira à remettre le compteur à zéro.</p>
+<video controls="" width="480" height="360">
+    <source src="../assets/videos/langage-vhdl/CounterDemo.webm" type="video/webm">
+</video>
+<p>L’entité devient&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> CounterDemo <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">port</span>(
+        clk_i             : <span class="hljs-keyword">in</span>  <span class="hljs-built_in">std_logic</span>;
+        <span class="hljs-comment">-- Le bouton-poussoir central de la carte Basys3.</span>
+        btn_center_i      : <span class="hljs-keyword">in</span>  <span class="hljs-built_in">std_logic</span>;
+        <span class="hljs-comment">-- Les commandes des afficheurs 7 segments de la carte Basys3.</span>
+        disp_segments_n_o : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">6</span>);
+        disp_point_n_o    : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>;
+        disp_select_n_o   : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">3</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>)
+    );
+<span class="hljs-keyword">end</span> CounterDemo;
+</code></pre>
+<p>Les afficheurs sont numérotés de la manière suivante&nbsp;: le plus à gauche porte le numéro 3 et le plus à droite porte
+le numéro 0.
+Nous en tenons compte en définissant la sortie <code>disp_select_n_o</code> avec la plage d’indices <code>3 downto 0</code>.</p>
+<div class="info">
+<p>Par convention, nous ajoutons le suffixe <code>_n</code> aux noms des ports qui transportent des valeurs logiques actives au niveau bas.</p>
+</div>
+<p><a href="CounterDemo-Basys3-architecture.svg"><img src="CounterDemo-Basys3-architecture.svg" alt="Architecture modifiée pour l'entité CounterDemo" class="hfill"></a></p>
+<div class="caption">
+<p><a href="legende.svg" target="_blank"><i class="fas fa-info-circle"></i> Afficher la légende des schémas.</a></p>
+</div>
+<p>Dans l’architecture, nous avons ajouté un signal interne <code>segments</code> qui reçoit la sortie du décodeur 7 segments.
+Le port de sortie <code>disp_segments_n_o</code> reçoit l’inverse bit à bit de <code>segments</code>.
+Les sorties <code>disp_select_n_o</code> et <code>disp_point_n_o</code> reçoivent des valeurs constantes qui ont
+pour effet de sélectionner l’afficheur le plus à droite et de ne pas allumer
+les voyants indicateurs de point décimal.</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">architecture</span> Structural <span class="hljs-keyword">of</span> CounterDemo <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">signal</span> sec_inc   : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> sec_value : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">15</span>;
+    <span class="hljs-keyword">signal</span> segments  : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">6</span>);
+<span class="hljs-keyword">begin</span>
+    div_counter_inst : <span class="hljs-keyword">entity</span> work.CounterModN(Behavioral)
+        <span class="hljs-keyword">generic</span> <span class="hljs-keyword">map</span>(
+            N =&gt; <span class="hljs-number">100e6</span>
+        )
+        <span class="hljs-keyword">port</span> <span class="hljs-keyword">map</span>(
+            clk_i   =&gt; clk_i,
+            reset_i =&gt; btn_center_i,
+            inc_i   =&gt; <span class="hljs-string">'1'</span>,
+            value_o =&gt; <span class="hljs-keyword">open</span>,
+            cycle_o =&gt; sec_inc
+        );
+
+    sec_counter_inst : <span class="hljs-keyword">entity</span> work.CounterModN(Behavioral)
+        <span class="hljs-keyword">generic</span> <span class="hljs-keyword">map</span>(
+            N =&gt; <span class="hljs-number">16</span>
+        )
+        <span class="hljs-keyword">port</span> <span class="hljs-keyword">map</span>(
+            clk_i   =&gt; clk_i,
+            reset_i =&gt; btn_center_i,
+            inc_i   =&gt; sec_inc,
+            value_o =&gt; sec_value,
+            cycle_o =&gt; <span class="hljs-keyword">open</span>
+        );
+
+    decoder_inst : <span class="hljs-keyword">entity</span> work.SegmentDecoder(TruthTable)
+        <span class="hljs-keyword">port</span> <span class="hljs-keyword">map</span>(
+            digit_i    =&gt; sec_value,
+            segments_o =&gt; segments
+        );
+
+    disp_segments_n_o &lt;= <span class="hljs-keyword">not</span> segments;
+    disp_point_n_o    &lt;= <span class="hljs-string">'1'</span>;
+    disp_select_n_o   &lt;= <span class="hljs-string">"1110"</span>;
+<span class="hljs-keyword">end</span> Structural;
+</code></pre>
+</section><section><h1 id="creer-un-projet-vivado" tabindex="-1">Créer un projet Vivado</h1>
+<p>Voici la liste des fichiers que nous utiliserons dans cette activité.
+Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Sous-dossier</th>
+<th style="text-align:left">Fichier</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>Counter</code></td>
+<td style="text-align:left"><code>CounterModN.vhd</code></td>
+<td style="text-align:left">Code source de l’entité <code>CounterModN</code> et de son architecture.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Counter</code></td>
+<td style="text-align:left"><code>CounterDemo.vhd</code></td>
+<td style="text-align:left">Code source de l’entité <code>CounterDemo</code> et de son architecture.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SegmentDisplay</code></td>
+<td style="text-align:left"><code>SegmentDecoder.vhd</code></td>
+<td style="text-align:left">Code source de l’entité <code>SegmentDecoder</code> et de son architecture.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Basys3</code></td>
+<td style="text-align:left"><code>Basys3_Clock.xdc</code></td>
+<td style="text-align:left">Fichier de contraintes pour Vivado, définition de l’horloge.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Basys3</code></td>
+<td style="text-align:left"><code>Basys3_Buttons.xdc</code></td>
+<td style="text-align:left">Fichier de contraintes pour Vivado, définition des boutons-poussoirs.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Basys3</code></td>
+<td style="text-align:left"><code>Basys3_SegmentDisplay.xdc</code></td>
+<td style="text-align:left">Fichier de contraintes pour Vivado, définition des afficheurs.</td>
+</tr>
+</tbody>
+</table>
+<p>Si vous ne l’avez pas encore fait, démarrez Vivado à l’aide des commandes suivantes&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum
+./scripts/vivado
+</code></pre>
+<p class="icon-config">Créez un nouveau projet en renseignant les informations suivantes&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Page</th>
+<th style="text-align:left">Champ ou action</th>
+<th style="text-align:left">Valeur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Project Name</td>
+<td style="text-align:left">Project name</td>
+<td style="text-align:left"><code>CounterDemo</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Project location</td>
+<td style="text-align:left"><code>CoCiNum/vivado</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Create project subdirectory</td>
+<td style="text-align:left">Oui</td>
+</tr>
+<tr>
+<td style="text-align:left">Project Type</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">RTL Project</td>
+</tr>
+<tr>
+<td style="text-align:left">Add Sources</td>
+<td style="text-align:left">Add Files</td>
+<td style="text-align:left">Fichiers <code>.vhd</code> dans le tableau précédent</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Copy sources into project</td>
+<td style="text-align:left">Non</td>
+</tr>
+<tr>
+<td style="text-align:left">Add Constraints</td>
+<td style="text-align:left">Add Files</td>
+<td style="text-align:left">Fichiers <code>.xdc</code> dans le tableau précédent</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Copy constraints files into project</td>
+<td style="text-align:left">Non</td>
+</tr>
+<tr>
+<td style="text-align:left">Default Part</td>
+<td style="text-align:left">Family</td>
+<td style="text-align:left">Artix-7</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Package</td>
+<td style="text-align:left">cpg236</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Speed</td>
+<td style="text-align:left">-1</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Part</td>
+<td style="text-align:left">xc7a35tcpg236-1</td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="apercu-des-fichiers-de-contraintes" tabindex="-1">Aperçu des fichiers de contraintes</h2>
+<p>Pour l’outil Vivado, un fichier de contraintes définit des propriétés des signaux
+VHDL afin de maîtriser certaines caractéristiques du circuit qui sera construit.
+En créant le projet <code>CounterDemo</code>, nous avons ajouté trois fichiers de contraintes que vous pouvez
+trouver dans la rubrique <em>Constraints</em> de l’arborescence des fichiers sources du projet.</p>
+<p>Ici, nous allons nous intéresser à trois types de propriétés&nbsp;:</p>
+<ul>
+<li>La définition des broches du FPGA associées aux ports de notre entité principale.</li>
+<li>Les niveaux de tension électrique à utiliser sur les broches du FPGA.</li>
+<li>Les caractéristiques du signal d’horloge.</li>
+</ul>
+<p>Le fichier <code>Basys3_Buttons.xdc</code> définit les affectations de broches pour les
+boutons-poussoirs de la carte Basys3.
+Par exemple, le port <code>btn_center_i</code> de l’entité est associé avec le bouton central (BTNC) de la carte.
+Sur le circuit imprimé, la sérigraphie indique&nbsp;: «&nbsp;BTNC (U18)&nbsp;».
+Ici, U18 est le numéro de la broche du FPGA à laquelle le bouton est relié.
+Dans le fichier de contraintes, nous avons écrit&nbsp;:</p>
+<pre><code class="language-xdc"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">PACKAGE_PIN</span> U18 [<span class="hljs-keyword">get_ports</span> btn_center_i]
+</code></pre>
+<p>Cette broche sera pilotée avec une tension de référence de 3,3 V&nbsp;:</p>
+<pre><code class="language-xdc"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">IOSTANDARD</span> LVCMOS33 [<span class="hljs-keyword">get_ports</span> btn_center_i]
+</code></pre>
+<p>Pour affecter la même propriété à tous les boutons en une seule ligne, nous
+avons écrit&nbsp;:</p>
+<pre><code class="language-xdc"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">IOSTANDARD</span> LVCMOS33 [<span class="hljs-keyword">get_ports</span> btn_*_i]
+</code></pre>
+<p>Dans le fichier <code>Basys3/Basys3_SegmentDisplay.xdc</code>, nous définissons de la même
+manière les propriétés de chaque bit des ports <code>disp_segments_n_o</code>, <code>disp_point_n_o</code> et <code>disp_select_n_o</code>.
+Les numéros de broches sont indiqués dans la <a href="../assets/datasheets/Basys3_rm.pdf">documentation constructeur de la carte Basys3</a>.</p>
+<p>Dans le fichier <code>Basys3/Basys3_Clock.xdc</code>, pour définir le signal d’horloge,
+nous avons ajouté une directive <code>create_clock</code> indiquant
+la période et le rapport cyclique du signal attendu sur <code>clk_i</code>.
+Ces propriétés permettront à l’outil de synthèse de vérifier que les temps de prépositionnement
+et de maintien des bascules D sont toujours respectés.</p>
+<pre><code class="language-xdc"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">PACKAGE_PIN</span> W5      [<span class="hljs-keyword">get_ports</span> clk_i]
+<span class="hljs-keyword">set_property</span> <span class="hljs-attribute">IOSTANDARD</span> LVCMOS33 [<span class="hljs-keyword">get_ports</span> clk_i]
+<span class="hljs-keyword">create_clock</span> -add -name sys_clk_pin -period <span class="hljs-number">10.00</span> -waveform {<span class="hljs-number">0</span> <span class="hljs-number">5</span>} [<span class="hljs-keyword">get_ports</span> clk_i]
+</code></pre>
+</section><section><h1 id="synthetiser-le-circuit" tabindex="-1">Synthétiser le circuit</h1>
+</section><section><h2 id="configurer-les-optimisations" tabindex="-1">Configurer les optimisations</h2>
+<ol>
+<li class="icon-config">Ouvrez la fenêtre des paramètres de Vivado&nbsp;: <em>Flow Navigator</em> → <em>Project Manager</em> → <em>Settings</em>.</li>
+</ol>
+<p><img src="../assets/images/langage-vhdl/vivado-settings.png" alt="Accès aux réglages de Vivado"></p>
+<ol start="2">
+<li class="icon-config">Dans la catégorie <em>Synthesis</em>, sous le titre <em>Options</em>, le champ <em>Strategy</em> propose une liste des stratégies
+d’optimisation disponibles à l’étape de synthèse logique du circuit.
+Choisissez la stratégie <em>Flow RuntimeOptimized</em>.</li>
+</ol>
+<p><img src="../assets/images/langage-vhdl/vivado-settings-synthesis.png" alt="Accès aux réglages de Vivado, synthèse"></p>
+<ol start="3">
+<li class="icon-config">Dans la catégorie <em>Implementation</em>, sous le titre <em>Options</em>, modifiez le champ <em>Strategy</em> en choisissant
+également la stratégie <em>Flow RuntimeOptimized</em>.</li>
+</ol>
+<p><img src="../assets/images/langage-vhdl/vivado-settings-implementation.png" alt="Accès aux réglages de Vivado, implémentation"></p>
+</section><section><h2 id="synthetiser-et-implementer-le-circuit" tabindex="-1">Synthétiser et implémenter le circuit</h2>
+<p>Exécutez cette commande dans la console Tcl pour réduire la gravité de
+certains messages concernant les affectations de broches&nbsp;:</p>
+<pre><code class="icon-keyboard language-tcl">set_msg_config -id {Common <span class="hljs-number">17</span><span class="hljs-number">-55</span>} -new_severity {WARNING}
+</code></pre>
+<p class="icon-mouse">Générez le fichier binaire à charger dans le FPGA&nbsp;:
+<em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
+<p><img src="../assets/images/langage-vhdl/vivado-generate-bitstream.png" alt="Vivado generate bitstream"></p>
+<p>Vivado va enchaîner toutes les étapes d’analyse des fichiers sources, de synthèse logique, de placement et routage,
+pour terminer par la génération d’un fichier binaire à charger dans le FPGA.</p>
+<p class="icon-mouse">À la fin des opérations, la boîte de dialogue <em>Bitstream Generation Completed</em> s’affiche.
+Choisissez <em>Open Hardware Manager</em>.</p>
+</section><section><h1 id="configurer-le-fpga" tabindex="-1">Configurer le FPGA</h1>
+<p class="icon-eye">Vérifiez que l’interrupteur d’alimentation de votre carte Basys3 est en position <em>OFF</em>.
+Le cavalier situé à côté de l’interrupteur doit être en position <em>USB</em>.</p>
+<p class="icon-hand">Reliez le connecteur micro-USB de la carte à un port USB de votre PC.
+Mettez la carte sous tension.</p>
+<p class="icon-mouse">En haut du panneau <em>Hardware Manager</em>, pressez <em>Open target</em> et choisissez <em>Auto Connect</em>.</p>
+<p><img src="../assets/images/langage-vhdl/vivado-open-target.png" alt="Vivado open target"></p>
+<p class="icon-mouse">Pressez ensuite <em>Program Device</em>.</p>
+<p><img src="../assets/images/langage-vhdl/vivado-program-device.png" alt="Vivado program device"></p>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="structure-instanciation.html">&larr;&nbsp;Instanciation d'une entité</a>
+    
+    
+        <a href="combinatoire-affectations-concurrentes.html">Affectations concurrentes de signaux&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-instanciation-activite.html" class="current">Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,1702 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>FPGA</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="circuits-programmables-simples.html">&larr;&nbsp;Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+    
+    
+        <a href="../langage-vhdl/index.html">Découverte du langage VHDL&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>FPGA</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#architecture-typique-dun-fpga">Architecture typique d’un FPGA</a></li>
+            
+                
+                <li><a href="#contenu-dun-bloc-logique">Contenu d’un bloc logique</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#look-up-tables">Look-Up Tables</a></li>
+            
+                
+                <li><a href="#utilisations-avancees-des-lut">Utilisations avancées des LUT</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#autres-composants-disponibles-dans-les-fpga">Autres composants disponibles dans les FPGA</a></li>
+            
+                
+                <li><a href="#realisation-dun-systeme-numerique-avec-un-fpga">Réalisation d’un système numérique avec un FPGA</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#description-en-vhdl">Description en VHDL</a></li>
+            
+                
+                <li><a href="#synthese">Synthèse</a></li>
+            
+                
+                <li><a href="#placement-routage">Placement-routage</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#technologies-de-configuration">Technologies de configuration</a></li>
+            
+            
+        </ul>
+            
+    
+    <p>Les FPGA sont construits selon une philosophie très différente des circuits programmables simples et des CPLD
+étudiés dans la section précédente.</p>
+<ul>
+<li>Un PAL ou un CPLD contient un <em>petit</em> nombre (quelques dizaines ou centaines) de <em>grosses</em> cellules logiques.
+Une cellule calcule une <em>somme de produits</em> avec plusieurs dizaines d’entrées.</li>
+<li>Un FPGA contient un <em>grand nombre</em> (des milliers à des centaines de milliers) de <em>petites</em> cellules logiques.
+Une cellule réalise une <em>table de vérité</em> avec quelques entrées.</li>
+</ul>
+<section><h1 id="architecture-typique-dun-fpga" tabindex="-1">Architecture typique d’un FPGA</h1>
+<p>Un FPGA est construit comme une matrice de <em>blocs</em> logiques interconnectés.
+Ces blocs portent différents noms selon les constructeurs&nbsp;:</p>
+<ul>
+<li><em>Configurable Logic Block</em> (<em>CLB</em>) chez Xilinx.</li>
+<li><em>Logic Array Block</em> (<em>LAB</em>) chez Intel.</li>
+</ul>
+<p>Chaque bloc contient des <em>cellules logiques</em> qui peuvent être configurées
+séparément pour réaliser des fonctions logiques particulières.</p>
+<p><a href="fpga.svg"><img src="fpga.svg" alt="Architecture typique d'un FPGA" class="hfill"></a></p>
+<p>Sur la figure ci-dessus, nous avons représenté une architecture à trois niveaux telle qu’on peut la rencontrer
+dans les FPGA du constructeur Xilinx.</p>
+<ul>
+<li>Un FPGA est composé de blocs logiques.</li>
+<li>Un bloc logique est découpé en tranches (<em>slices</em>).</li>
+<li>Une tranche contient des cellules logiques.</li>
+</ul>
+<p>Des blocs d’entrée/sortie (<em>IOB</em> pour <em>Input/Output Block</em>) permettent de configurer
+la connexion entre les blocs logiques et les broches du circuit.</p>
+<p>Les blocs logiques et les blocs d’entrée/sortie sont reliés à un réseau de routage
+configurable qui peut être très sophistiqué sur les FPGA récents.</p>
+</section><section><h1 id="contenu-dun-bloc-logique" tabindex="-1">Contenu d’un bloc logique</h1>
+<p>Dans cette section, nous prenons pour exemple la famille de FPGA Artix-7 de Xilinx
+que nous utiliserons dans les activités pratiques.
+Dans les composants de cette famille, chaque bloc logique est composé de deux
+tranches (<em>slices</em>).
+Il existe différentes types de tranches que nous ne décrirons pas toutes en détail.</p>
+<p><a href="xilinx-7series-slicel.svg"><img src="xilinx-7series-slicel.svg" alt="Tranche SLICEL Xilinx série 7" class="vfill"></a></p>
+<p>La figure ci-dessus représente le schéma d’une tranche <em>SLICEL</em>
+(source Xilinx Inc.&nbsp;: <em>UG474 – 7 series FPGAs Configurable Logic Blocks User Guide</em>).
+Elle contient&nbsp;:</p>
+<ol>
+<li>Des générateurs de fonctions combinatoires (<em>LUT</em> pour <em>Look-Up Table</em>) à six entrées et deux sorties (en bleu sur la figure).</li>
+<li>Des éléments de mémorisation configurables en tant que <a href="sequentiel-element-de-memorisation.html#le-verrou-d-d-latch">verrous</a> ou <a href="sequentiel-element-de-memorisation.html#la-bascule-d-d-flip-flop">bascules D</a> (en jaune).</li>
+<li>Des <a href="combinatoire-decodeurs-mux-demux.html#multiplexeurs">multiplexeurs</a> pour aiguiller les sorties des <em>LUT</em> ou des bascules vers les sorties du bloc (en vert).</li>
+<li>De la logique de calcul de retenue pour accélérer les opérations d’addition ou de soustraction (en rose).</li>
+</ol>
+</section><section><h2 id="look-up-tables" tabindex="-1">Look-Up Tables</h2>
+<p>Une <em>LUT</em> réalise une fonction logique combinatoire dont on connaît la table de vérité.
+Elle repose sur le même principe qu’une <a href="circuits-programmables-simples.html#prom-programmable-read-only-memory">PROM (Programmable Read-Only Memory)</a>&nbsp;:
+une <em>LUT</em> est une mémoire, typiquement accessible en lecture seule, qui associe
+une valeur à chaque combinaison de son entrée adresse.</p>
+<p>Dans les FPGA Artix-7 de Xilinx, une <em>LUT</em> est construite autour d’une RAM de 64 bits,
+dont le contenu est initialisé au démarrage.
+Elle peut être utilisée de deux manières différentes&nbsp;:</p>
+<ol>
+<li>Comme une fonction combinatoire à six entrées et une sortie (6 bits d’adresse font 64 combinaisons).
+Voir schéma de gauche ci-dessous, où la sortie <code>O5</code> est inutilisée.</li>
+<li>Comme une fonction combinatoire à cinq entrées et deux sorties (5 bits d’adresse font 32 combinaisons, et deux bits sont accessibles à une même adresse).
+Voir schéma de droite ci-dessous, où l’entrée <code>A6</code> est forcée à 1.</li>
+</ol>
+<p><a href="fpga-lut.svg"><img src="fpga-lut.svg" alt="Une LUT dans un FPGA Xilinx Artix-7" class="hfill"></a></p>
+<h3 id="exemple-comparateur" tabindex="-1">Exemple&nbsp;: comparateur</h3>
+<p>Ci-dessous, nous utilisons une LUT pour vérifier si deux vecteurs <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal">a</span></span></span></span> et <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi></mrow><annotation encoding="application/x-tex">b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathnormal">b</span></span></span></span> de trois bits
+sont égaux. Voici un extrait de la table de vérité et le schéma correspondant&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">a_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+<th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">a_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+<th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">a_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+<th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">b_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+<th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">b_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+<th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">b_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+<th style="text-align:center">→</th>
+<th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi></mrow><annotation encoding="application/x-tex">e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal">e</span></span></span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+<td style="text-align:center">⋮</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">→</td>
+<td style="text-align:center">1</td>
+</tr>
+</tbody>
+</table>
+<p><a href="fpga-lut-egalite.svg"><img src="fpga-lut-egalite.svg" alt="Utilisation d'une LUT pour comparer deux vecteurs de 3 bits" class="vfill"></a></p>
+<h3 id="exemple-additionneur" tabindex="-1">Exemple&nbsp;: additionneur</h3>
+<p>Dans cet autre exemple, nous utilisons les deux sorties d’une <em>LUT</em> pour calculer
+la somme de deux entiers <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal">a</span></span></span></span> et <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi></mrow><annotation encoding="application/x-tex">b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathnormal">b</span></span></span></span> sur deux bits (ce circuit ne produira pas le bit de retenue)&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">a_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+<th style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">a_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+<th style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">b_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+<th style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">b_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+<th style="text-align:left">→</th>
+<th style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">s_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+<th style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">s_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">→</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+</tr>
+</tbody>
+</table>
+<p><a href="fpga-lut-addition.svg"><img src="fpga-lut-addition.svg" alt="Utilisation d'une LUT pour additionner deux vecteurs de 2 bits" width="600px"></a></p>
+</section><section><h2 id="utilisations-avancees-des-lut" tabindex="-1">Utilisations avancées des LUT</h2>
+<h3 id="ram-distribuee" tabindex="-1">RAM distribuée</h3>
+<p>Dans l’utilisation typique d’une <em>LUT</em>, sa RAM de configuration est accessible
+en écriture au moment d’initialiser son contenu, et en lecture seule au cours de
+son fonctionnement.</p>
+<p>Cependant, certaines <em>LUT</em> peuvent également fournir un accès en écriture à tout moment.
+On peut alors utiliser un assemblage de <em>LUT</em>, non plus pour réaliser des fonctions
+combinatoires, mais pour mémoriser des données au cours du fonctionnement du circuit.</p>
+<p>Par exemple, dans un FPGA Artix-7, on peut réaliser une RAM de 1024 octets (8192 bits)
+en utilisant 128 <em>LUT</em>.</p>
+<div class="info">
+<p>On parle alors de RAM <em>distribuée</em>, par opposition à des <em>blocs de RAM</em>
+spécialisés qui sont également disponibles dans de nombreux FPGA (voir plus bas).</p>
+</div>
+<h3 id="registres-a-decalage" tabindex="-1">Registres à décalage</h3>
+<p>En interne, dans une <em>LUT</em> les éléments de mémorisation sont câblés en chaîne
+pour former un <a href="sequentiel-registres-et-compteurs.html#registre-a-decalage">registre à décalage</a>.</p>
+<p>Si votre application utilise de nombreux, ou de longs registres à décalage,
+les bascules D disponibles dans chaque tranche peuvent être insuffisantes.
+Dans un FPGA Artix-7, chaque <em>LUT</em> peut être utilisée comme un registre à décalage
+de 32 bits.</p>
+</section><section><h1 id="autres-composants-disponibles-dans-les-fpga" tabindex="-1">Autres composants disponibles dans les FPGA</h1>
+<p>Comme nous venons de le voir, les blocs logiques sont très polyvalents.
+Ils suffisent à réaliser un grand nombre de fonctions numériques, mais
+ont l’inconvénient d’être peu optimisés pour des usages spécifiques.</p>
+<p>L’utilisation de <em>LUT</em> pour effectuer des opérations mathématiques,
+comme par exemple des multiplications, ou comme RAM distribuée est possible
+mais coûteuse et peu performante&nbsp;:
+dans les deux cas, le circuit occupera un grand nombre de <em>LUT</em> et sera
+beaucoup plus lent qu’un circuit multiplieur ou RAM optimisé.</p>
+<p>Pour cette raison, en plus des blocs logiques, les FPGA peuvent contenir
+des composants dédiés comme&nbsp;:</p>
+<ul>
+<li>Des opérateurs mathématiques optimisés. Dans les FPGA Xilinx série 7,
+les cellules <em>DSP48</em> sont capables d’effectuer des opérations de la forme
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>+</mo><mi>d</mi><mo stretchy="false">)</mo><mo>×</mo><mi>b</mi><mo>±</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">(a + d)\times b \pm c</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">d</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.77777em;vertical-align:-0.08333em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">±</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal">c</span></span></span></span>. Elles interviennent dans l’implémentation
+d’algorithmes de traitement du signal.</li>
+<li>Des blocs de RAM statique, capables de mémoriser plus de données, de façon plus
+compacte et plus rapide, que les <em>LUT</em>.</li>
+<li>Des générateurs d’horloges incluant des <a href="https://fr.wikipedia.org/wiki/Boucle_%C3%A0_phase_asservie">boucles à verrouillage de phase</a>
+pour produire des signaux périodiques par multiplication et division de fréquence à partir d’une horloge de base.</li>
+<li>Des cœurs de processeurs afin de réaliser des systèmes embarqués incluant du logiciel
+et des périphériques personnalisés.</li>
+</ul>
+</section><section><h1 id="realisation-dun-systeme-numerique-avec-un-fpga" tabindex="-1">Réalisation d’un système numérique avec un FPGA</h1>
+<p>Aujourd’hui, les FPGA permettent de réaliser des systèmes complexes pour lesquels
+une réalisation <em>à la main</em> serait trop difficile.
+Le développement d’un tel système s’appuie sur des langages de modélisation et
+des outils automatiques en suivants ces étapes&nbsp;:</p>
+<ol>
+<li>Conception&nbsp;: représenter l’architecture du système comme une interconnexion de blocs fonctionnels&nbsp;;
+modéliser le comportement de ces blocs sous la forme de graphes d’états, de chronogrammes, etc.</li>
+<li>Description&nbsp;: exprimer le comportement des blocs et leurs interconnexions en utilisant un langage de description
+de matériel, comme <a href="../langage-vhdl/index.html">VHDL</a> ou Verilog.</li>
+<li>Synthèse&nbsp;: représenter le circuit comme une interconnexion de <em>LUT</em>, de bascules D, ou de composants spécialisés de votre FPGA.</li>
+<li>Placement et routage&nbsp;: attribuer à chaque composant du circuit un emplacement dans la matrice du FPGA&nbsp;;
+déterminer le chemin des signaux entre les blocs logiques utilisés.</li>
+<li>Génération d’un <em>bitstream</em>&nbsp;: générer un fichier binaire représentant la configuration complète du FPGA.</li>
+</ol>
+<p>Nous illustrons ces étapes en nous appuyant sur l’exemple de la partie commande
+du robot autonome.
+La conception a déjà été réalisée dans <a href="automates-modelisation.html">le chapitre sur les automates</a>.</p>
+</section><section><h2 id="description-en-vhdl" tabindex="-1">Description en VHDL</h2>
+<p>Le <a href="../langage-vhdl/index.html">langage VHDL</a> est abordé plus loin dans ce document
+et un chapitre est consacré à la <a href="../langage-vhdl/sequentiel-automates.html">description des automates</a>.
+Nous n’entrerons pas dans le détail ici.</p>
+<p>Voici le code VHDL décrivant la partie commande du robot autonome, sous la forme
+d’une machine de Mealy associée à un compteur&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> RobotAutonome <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">generic</span>(
+        DUREE_DE_ROTATION : <span class="hljs-built_in">positive</span>
+    );
+    <span class="hljs-keyword">port</span>(
+        clk, reset : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+        ca, cg, cd : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+        mga, mgr, mda, mdr : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>
+    );
+<span class="hljs-keyword">end</span> RobotAutonome;
+
+<span class="hljs-keyword">architecture</span> Automate <span class="hljs-keyword">of</span> RobotAutonome <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">signal</span> fr : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> tr_reg : <span class="hljs-built_in">natural</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> DUREE_DE_ROTATION - <span class="hljs-number">1</span>;
+
+    <span class="hljs-keyword">type</span> State <span class="hljs-keyword">is</span> (RM, SM, RG, RD);
+    <span class="hljs-keyword">signal</span> state_reg : State;
+<span class="hljs-keyword">begin</span>
+    p_state_reg : <span class="hljs-keyword">process</span>(clk, reset)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> reset = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            state_reg &lt;= RM;
+        <span class="hljs-keyword">elsif</span> rising_edge(clk) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">case</span> state_reg <span class="hljs-keyword">is</span>
+                <span class="hljs-keyword">when</span> RM =&gt;
+                    <span class="hljs-keyword">if</span> ca = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                        state_reg &lt;= RD;
+                    <span class="hljs-keyword">elsif</span> cg = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                        state_reg &lt;= RG;
+                    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+                <span class="hljs-keyword">when</span> SM =&gt;
+                    <span class="hljs-keyword">if</span> cg = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                        state_reg &lt;= RG;
+                    <span class="hljs-keyword">elsif</span> ca = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                        state_reg &lt;= RD;
+                    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+                <span class="hljs-keyword">when</span> RG | RD =&gt;
+                    <span class="hljs-keyword">if</span> fr = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                        state_reg &lt;= RM;
+                    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">case</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_state_reg;
+
+    mga &lt;= <span class="hljs-keyword">not</span> ca <span class="hljs-keyword">when</span> state_reg = RM <span class="hljs-keyword">or</span> state_reg = SM <span class="hljs-keyword">else</span>
+           <span class="hljs-keyword">not</span> fr <span class="hljs-keyword">when</span> state_reg = RD                   <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+    mda &lt;= <span class="hljs-keyword">not</span> ca <span class="hljs-keyword">when</span> state_reg = RM <span class="hljs-keyword">or</span> state_reg = SM <span class="hljs-keyword">else</span>
+           <span class="hljs-keyword">not</span> fr <span class="hljs-keyword">when</span> state_reg = RG                   <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+    mgr &lt;= <span class="hljs-keyword">not</span> fr <span class="hljs-keyword">when</span> state_reg = RG                   <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+    mdr &lt;= <span class="hljs-keyword">not</span> fr <span class="hljs-keyword">when</span> state_reg = RD                   <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+
+    p_tr_reg : <span class="hljs-keyword">process</span>(clk)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(clk) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">case</span> state_reg <span class="hljs-keyword">is</span>
+                <span class="hljs-keyword">when</span> RM | SM =&gt;
+                    tr_reg &lt;= <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">when</span> RG | RG =&gt;
+                    <span class="hljs-keyword">if</span> fr = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                        tr_reg &lt;= <span class="hljs-number">0</span>;
+                    <span class="hljs-keyword">else</span>
+                        tr_reg &lt;= tr_reg + <span class="hljs-number">1</span>;
+                    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">case</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_tr_reg;
+
+    fr &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> tr_reg = DUREE_DE_ROTATION - <span class="hljs-number">1</span> <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+<span class="hljs-keyword">end</span> Automate;
+</code></pre>
+</section><section><h2 id="synthese" tabindex="-1">Synthèse</h2>
+<p>À partir du code source ci-dessus, l’outil de synthèse de Xilinx produit
+un premier schéma dans lequel les instructions VHDL ont été traduites
+directement par des composants logiques&nbsp;:
+des portes logiques (<code>RTL_INV</code>, <code>RTL_OR</code>), des multiplexeurs (<code>RTL_MUX</code>),
+un additionneur (<code>RTL_ADD</code>), des registres (<code>RTL_REG</code>), une table
+de correspondance (<code>RTL_ROM</code>).</p>
+<p><a href="RobotAutonome-rtl.svg"><img src="RobotAutonome-rtl.svg" alt="Commande du robot autonome (RTL)" class="hfill"></a></p>
+<p>Le schéma après synthèse est composé de 13 <em>LUT</em>, de 10 bascules D (<code>FDRE</code>)
+et de buffers d’entrée/sortie (<code>IBUF</code>, <code>OBUF</code>)&nbsp;:</p>
+<p><a href="RobotAutonome-synth.svg"><img src="RobotAutonome-synth.svg" alt="Commande du robot autonome (synthèse)" class="hfill"></a></p>
+</section><section><h2 id="placement-routage" tabindex="-1">Placement-routage</h2>
+<p>Le schéma suivant représente la disposition des composants utilisés dans le FPGA
+(en bleu).
+Nous observons que le circuit utilise quatre tranches réparties dans deux blocs.
+À titre d’exemple, nous avons affiché les connexions en entrée/sortie d’une <em>LUT</em>.</p>
+<p><img src="../assets/images/circuits-logiques/RobotAutonome-placed.png" alt="Commande du robot autonome (placement)"></p>
+<p>Par curiosité, nous pouvons visualiser le routage des signaux (en vert sur la figure ci-dessous).
+À droite, nous observons deux régions rectangulaires avec de nombreuses
+connexions qui s’entrecroisent.
+Elles correspondent à des matrices de connexions configurables (<em>switch box</em>)
+qui relient les blocs logiques entre eux.</p>
+<p><img src="../assets/images/circuits-logiques/RobotAutonome-routed.png" alt="Commande du robot autonome (routage)"></p>
+<p>En pratique, nous avons rarement l’occasion de visualiser ces schémas qui sont
+peu lisibles et difficiles à mettre en relation avec le code source VHDL dont
+ils sont issus.</p>
+</section><section><h1 id="technologies-de-configuration" tabindex="-1">Technologies de configuration</h1>
+<p>Les FPGA actuellement disponibles utilisent trois types de technologies pour réaliser les connexions configurables&nbsp;:
+de la RAM statique (SRAM), de la mémoire Flash ou des antifusibles.</p>
+<p>La plupart des constructeurs proposent des FPGA à base de SRAM.
+Leur principal défaut est qu’ils perdent leur configuration lorsqu’ils ne sont pas alimentés.
+Pour contourner cette difficulté, ils sont généralement conçus pour être reliés à une mémoire Flash externe
+dans laquelle ils lisent leur configuration à chaque mise sous tension.</p>
+<p>Les FPGA à base d’antifusibles sont une spécialité du constructeur Microsemi (anciennement Actel).
+Ils sont utilisés en priorité dans les systèmes avioniques et spatiaux soumis à des rayonnements ionisants,
+comme les particules alpha qui peuvent altérer le contenu des mémoires.
+Ils sont également réputés pour être plus rapides et moins consommateurs d’énergie que les FPGA à SRAM.</p>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="circuits-programmables-simples.html">&larr;&nbsp;Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+    
+    
+        <a href="../langage-vhdl/index.html">Découverte du langage VHDL&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="circuits-programmables-fpga.html" class="current">FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

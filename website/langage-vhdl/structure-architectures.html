@@ -1,0 +1,1549 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Architectures</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="structure-entites.html">&larr;&nbsp;Entités</a>
+    
+    
+        <a href="structure-entites-architectures-activite.html">Activité : entités et architectures&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Architectures</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#definition">Définition</a></li>
+            
+                
+                <li><a href="#exemples">Exemples</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#decodeur-7-segments">Décodeur 7 segments</a></li>
+            
+                
+                <li><a href="#compteur-synchrone-generique">Compteur synchrone générique</a></li>
+            
+                
+                <li><a href="#calcul-de-pgcd">Calcul de PGCD</a></li>
+            
+            
+        </ul>
+            
+        </ul>
+            
+    
+    <section><h1 id="definition" tabindex="-1">Définition</h1>
+<p>Après avoir décrit l’interface d’un circuit sous la forme d’une <a href="../essentiel-vhdl/unites-de-conception.html#entite">entité</a>,
+il faut décrire le fonctionnement ou la structure interne de ce circuit.
+En VHDL, cette description s’appelle une <em>architecture</em>.</p>
+<p>Il est possible d’associer plusieurs architectures à une même entité.
+Cela permet de proposer plusieurs descriptions <em>interchangeables</em> d’un même circuit,
+chacune répondant à des préoccupations différentes, par exemple&nbsp;:</p>
+<ul>
+<li>une architecture utilisant des instructions de haut niveau non synthétisables&nbsp;;
+elle sera destinée à valider des algorithmes en simulation&nbsp;;</li>
+<li>une architecture synthétisable, optimisée pour minimiser le nombre de portes logiques, mais lente&nbsp;;</li>
+<li>une architecture synthétisable, optimisée pour minimiser le temps de calcul, mais nécessitant un plus grand nombre de portes logiques.</li>
+</ul>
+<div class="info">
+<p>Cette page illustre la notion d’architecture à travers des exemples.
+Le détail de la syntaxe est expliqué dans la section&nbsp;:
+<a href="../essentiel-vhdl/index.html">L’essentiel de VHDL</a> /
+<a href="../essentiel-vhdl/unites-de-conception.html">Unités de conception</a> /
+<a href="../essentiel-vhdl/unites-de-conception.html#architecture">Architecture</a>.</p>
+</div>
+</section><section><h1 id="exemples" tabindex="-1">Exemples</h1>
+<p>Les exemples qui suivent servent à illustrer la notion d’architecture
+en prenant toujours pour point de départ une définition du circuit que
+nous voulons décrire.
+Cette définition peut se présenter sous la forme d’une table de vérité,
+d’équations, d’algorithmes ou de diagrammes.</p>
+<div class="info">
+<p>Ce n’est pas grave si vous ne comprenez pas tout.
+Cette page a pour but de vous donner un aperçu de ce qu’est une architecture et de ce qu’elle représente.
+Nous présenterons plus en détail les instructions du langage VHDL dans la suite de
+ce document.</p>
+</div>
+</section><section><h2 id="decodeur-7-segments" tabindex="-1">Décodeur 7 segments</h2>
+<p>Cette architecture est associée à l’entité <a href="structure-entites.html#decodeur-7-segments"><code>SegmentDecoder</code></a>
+présentée dans la page <a href="structure-entites.html">Entités</a>.</p>
+<p>Pour écrire cette architecture, nous nous sommes inspirés du tableau suivant, qui indique
+comment afficher les chiffres de 0 à 9 et les lettres de A à F en fonction de la valeur d’entrée.</p>
+<p><a href="afficheur-7-segments.svg"><img src="afficheur-7-segments.svg" alt="Numérotation des segments sur un afficheur 7 segments" width="100px"></a></p>
+<table>
+    <tbody><tr>
+        <th rowspan="2">valeur</th>
+        <th rowspan="2">→</th>
+        <th colspan="8">segments</th>
+    </tr>
+    <tr>
+        <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th>
+        <th></th>
+    </tr>
+    <tr>
+        <td>0</td>
+        <td>→</td>
+        <td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td>
+        <td><a href="afficheur-7-segments-0.svg"><img src="afficheur-7-segments-0.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>→</td>
+        <td>0</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td>
+        <td><a href="afficheur-7-segments-1.svg"><img src="afficheur-7-segments-1.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>→</td>
+        <td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td>
+        <td><a href="afficheur-7-segments-2.svg"><img src="afficheur-7-segments-2.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>→</td>
+        <td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td>
+        <td><a href="afficheur-7-segments-3.svg"><img src="afficheur-7-segments-3.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td>→</td>
+        <td>0</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td>
+        <td><a href="afficheur-7-segments-4.svg"><img src="afficheur-7-segments-4.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>5</td>
+        <td>→</td>
+        <td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td>
+        <td><a href="afficheur-7-segments-5.svg"><img src="afficheur-7-segments-5.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>6</td>
+        <td>→</td>
+        <td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td>
+        <td><a href="afficheur-7-segments-6.svg"><img src="afficheur-7-segments-6.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>7</td>
+        <td>→</td>
+        <td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td>
+        <td><a href="afficheur-7-segments-7.svg"><img src="afficheur-7-segments-7.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>8</td>
+        <td>→</td>
+        <td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td>
+        <td><a href="afficheur-7-segments-8.svg"><img src="afficheur-7-segments-8.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>9</td>
+        <td>→</td>
+        <td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td>
+        <td><a href="afficheur-7-segments-9.svg"><img src="afficheur-7-segments-9.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>10</td>
+        <td>→</td>
+        <td>1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td>
+        <td><a href="afficheur-7-segments-A.svg"><img src="afficheur-7-segments-A.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>11</td>
+        <td>→</td>
+        <td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td>
+        <td><a href="afficheur-7-segments-b.svg"><img src="afficheur-7-segments-b.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>12</td>
+        <td>→</td>
+        <td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td>
+        <td><a href="afficheur-7-segments-C.svg"><img src="afficheur-7-segments-C.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>13</td>
+        <td>→</td>
+        <td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td>
+        <td><a href="afficheur-7-segments-d.svg"><img src="afficheur-7-segments-d.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>14</td>
+        <td>→</td>
+        <td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td>
+        <td><a href="afficheur-7-segments-E.svg"><img src="afficheur-7-segments-E.svg" style="height: 2em"></a></td>
+    </tr>
+    <tr>
+        <td>15</td>
+        <td>→</td>
+        <td>1</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td>
+        <td><a href="afficheur-7-segments-F.svg"><img src="afficheur-7-segments-F.svg" style="height: 2em"></a></td>
+    </tr>
+</tbody></table>
+<p>Voici le code source VHDL correspondant.
+L’entité a été recopiée pour faciliter la compréhension.</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> SegmentDecoder <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">port</span>(
+        digit_i    : <span class="hljs-keyword">in</span>  <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">15</span>;
+        segments_o : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">6</span>)
+    );
+<span class="hljs-keyword">end</span> SegmentDecoder;
+
+<span class="hljs-keyword">architecture</span> TruthTable <span class="hljs-keyword">of</span> SegmentDecoder <span class="hljs-keyword">is</span>
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">with</span> digit_i <span class="hljs-keyword">select</span>
+        segments_o &lt;= <span class="hljs-string">"1111110"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">0</span>,
+                      <span class="hljs-string">"0110000"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">1</span>,
+                      <span class="hljs-string">"1101101"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">2</span>,
+                      <span class="hljs-string">"1111001"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">3</span>,
+                      <span class="hljs-string">"0110011"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">4</span>,
+                      <span class="hljs-string">"1011011"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">5</span>,
+                      <span class="hljs-string">"1011111"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">6</span>,
+                      <span class="hljs-string">"1110000"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">7</span>,
+                      <span class="hljs-string">"1111111"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">8</span>,
+                      <span class="hljs-string">"1111011"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">9</span>,
+                      <span class="hljs-string">"1110111"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">10</span>,
+                      <span class="hljs-string">"0011111"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">11</span>,
+                      <span class="hljs-string">"1001110"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">12</span>,
+                      <span class="hljs-string">"0111101"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">13</span>,
+                      <span class="hljs-string">"1001111"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">14</span>,
+                      <span class="hljs-string">"1000111"</span> <span class="hljs-keyword">when</span> <span class="hljs-number">15</span>;
+<span class="hljs-keyword">end</span> TruthTable;
+</code></pre>
+<p>L’architecture contient une unique <a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-avec-selection">instruction d’affectation de signal avec sélection</a>
+qui met en correspondance les 16 cas possibles du port <code>digit_i</code>
+avec des valeurs binaires destinés aux segments de l’afficheur.
+Le résultat est affecté au port de sortie <code>segments_o</code>.</p>
+</section><section><h2 id="compteur-synchrone-generique" tabindex="-1">Compteur synchrone générique</h2>
+<p>L’architecture ci-dessous est associée à l’entité <a href="structure-entites.html#compteur-synchrone-generique"><code>CounterModN</code></a>
+présentée dans la page <a href="structure-entites.html">Entités</a>.
+Voici un schéma du circuit compteur que nous souhaitons décrire.
+<em>N</em> est une valeur entière paramétrable qui détermine le modulo du compteur.</p>
+<p><a href="CounterModN-architecture.svg"><img src="CounterModN-architecture.svg" alt="Architecture pour CounterModN" width="700px"></a></p>
+<div class="caption">
+<p><a href="legende.svg" target="_blank"><i class="fas fa-info-circle"></i> Afficher la légende des schémas.</a></p>
+</div>
+<p>Nous avons décrit ce circuit en VHDL de la manière suivante&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> CounterModN <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">generic</span>(
+        N : <span class="hljs-built_in">positive</span>
+    );
+    <span class="hljs-keyword">port</span>(
+        clk_i, reset_i, inc_i : <span class="hljs-keyword">in</span>  <span class="hljs-built_in">std_logic</span>;
+        value_o               : <span class="hljs-keyword">out</span> <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> N - <span class="hljs-number">1</span>;
+        cycle_o               : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>
+    );
+<span class="hljs-keyword">end</span> CounterModN;
+
+<span class="hljs-keyword">architecture</span> Behavioral <span class="hljs-keyword">of</span> CounterModN <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">signal</span> value_reg, value_next : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> N - <span class="hljs-number">1</span>;
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-comment">-- value_reg est mémorisé dans un registre avec :</span>
+    <span class="hljs-comment">--  * remise à zéro asynchrone,</span>
+    <span class="hljs-comment">--  * mise à jour sur front montant de clk_i,</span>
+    <span class="hljs-comment">--  * validation par le signal inc_i.</span>
+    p_value_reg : <span class="hljs-keyword">process</span>(clk_i, reset_i)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            value_reg &lt;= <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">elsif</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> inc_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                value_reg &lt;= value_next;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_value_reg;
+
+    <span class="hljs-comment">-- Calcul de la valeur suivante du registre</span>
+    value_next &lt;= <span class="hljs-number">0</span> <span class="hljs-keyword">when</span> value_reg = N - <span class="hljs-number">1</span> <span class="hljs-keyword">else</span> value_reg + <span class="hljs-number">1</span>;
+
+    value_o &lt;= value_reg;
+    cycle_o &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> inc_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">and</span> value_reg = N - <span class="hljs-number">1</span> <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+<span class="hljs-keyword">end</span> Behavioral;
+</code></pre>
+<p>Le registre met à jour le signal <code>value_reg</code> sur les fronts montants de <code>clk_i</code> lorsque l’entrée <code>inc_i</code>
+vaut <code>'1'</code>.
+Il est décrit par le <a href="../essentiel-vhdl/instructions-concurrentes.html#processus">processus</a> <code>p_value_reg</code>.
+L’expression <code>rising_edge(clk_i)</code> permet de détecter un front montant de <code>clk_i</code>.</p>
+<p>L’état suivant du registre est calculé par une <a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-de-signal">instruction d’affectation concurrente</a>
+qui affecte son résulat au signal <code>value_next</code>.
+Si le compteur a déjà atteint sa valeur maximale (<code>N - 1</code>), alors sa prochaine valeur sera 0, sinon on ajoute
+1 à la valeur courante.</p>
+<p>La sortie <code>cycle_o</code> vaut <code>'1'</code> lorsqu’on demande au compteur de s’incrémenter alors qu’il
+a déjà atteint sa valeur maximale.
+Cela signifie que le compteur repassera à 0 au prochain front d’horloge.
+Cette sortie pourra être utilisée pour <a href="structure-instanciation.html#exemple">mettre des compteurs en cascade</a>.</p>
+<div class="info">
+<p>Par convention, nous donnerons le suffixe <code>_reg</code> aux signaux qui représentent
+des sorties de bascules ou de registres (mis à jour sur des fronts d’horloge).</p>
+<p>Le suffixe <code>_next</code> sera utilisé pour un signal qui transporte la valeur
+qu’un registre doit prendre au front d’horloge <em>suivant</em>&nbsp;; un tel signal
+représente l’entrée D d’une bascule ou d’un registre.</p>
+</div>
+</section><section><h2 id="calcul-de-pgcd" tabindex="-1">Calcul de PGCD</h2>
+<p>La recherche du <a href="https://fr.wikipedia.org/wiki/Plus_grand_commun_diviseur_de_nombres_entiers">plus grand commun diviseur (PGCD)</a>
+– ou en anglais <em>Greatest Common Divisor</em> (GCD) –
+entre deux nombres entiers peut s’effectuer par <a href="https://fr.wikipedia.org/wiki/Plus_grand_commun_diviseur_de_nombres_entiers#Soustractions_successives">soustractions successives</a>.
+Ce n’est pas la méthode la plus efficace, mais elle se prête bien à la réalisation d’un circuit.
+En C, nous proposons la fonction suivante (pour <code>a</code> et <code>b</code> strictement positifs)&nbsp;:</p>
+<pre><code class="language-c"><span class="hljs-type">int</span> <span class="hljs-title function_">gcd</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> {
+    <span class="hljs-keyword">while</span> (a != b) {
+        <span class="hljs-keyword">if</span> (a &gt; b) {
+            a = a - b;
+        }
+        <span class="hljs-keyword">else</span> {
+            b = b - a;
+        }
+    }
+    <span class="hljs-keyword">return</span> a;
+}
+</code></pre>
+<p>Voici une démonstration de son fonctionnement&nbsp;:</p>
+<table id="pgcd-c-demo">
+    <tbody><tr>
+        <th><code>a</code></th>
+        <th><code>b</code></th>
+    </tr>
+    <tr>
+        <td><input id="pgcd-c-demo-a" type="number" min="1" step="1" value="50"></td>
+        <td><input id="pgcd-c-demo-b" type="number" min="1" step="1" value="30"></td>
+    </tr>
+</tbody></table>
+<script>
+    ({
+        tbl:   document.getElementById("pgcd-c-demo"),
+        aView: document.getElementById("pgcd-c-demo-a"),
+        bView: document.getElementById("pgcd-c-demo-b"),
+
+        update() {
+            while (this.tbl.childNodes.length > 2) {
+                this.tbl.removeChild(this.tbl.lastChild);
+            }
+
+            let a = parseInt(this.aView.value);
+            let b = parseInt(this.bView.value);
+            while (a !== b) {
+                const tr = this.tbl.appendChild(document.createElement("tr"));
+                if (a > b) {
+                    tr.innerHTML = `<td>${a} - ${b} = ${a-b}</td><td>${b}</td>`;
+                    a -= b;
+                }
+                else {
+                    tr.innerHTML = `<td>${a}</td><td>${b} - ${a} = ${b-a}</td>`;
+                    b -= a;
+                }
+            }
+        },
+
+        init() {
+            this.aView.onchange = this.bView.onchange = () => this.update();
+            this.update();
+        }
+    }).init();
+</script>
+<p>En C, une fonction ne s’exécute que lorsqu’elle est appelée.
+La fonction <code>gcd</code> ci-dessus a un début et une fin bien identifiés.
+En VHDL, une architecture représente un circuit qui fonctionne en permanence.
+Il n’y a pas de début ni de fin.
+C’est à nous de mettre en place des mécanismes de synchronisation pour déclencher
+un nouveau calcul, séquencer les opérations au cours du temps, et indiquer la
+disponibilité du résultat.
+L’entité <code>GCD</code> possédera les ports suivants&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Port</th>
+<th style="text-align:left">Direction</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>clk_i</code></td>
+<td style="text-align:left">entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Commande de mise à jour des éléments de mémorisation</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>load_i</code></td>
+<td style="text-align:left">entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Commande de chargement d’un nouveau couple d’entiers</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a_i</code>, <code>b_i</code></td>
+<td style="text-align:left">entrées</td>
+<td style="text-align:left">Entiers (&gt; 0)</td>
+<td style="text-align:left">Les valeurs dont on souhaite calculer le PGCD</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>g_o</code></td>
+<td style="text-align:left">sortie</td>
+<td style="text-align:left">Entier (&gt; 0)</td>
+<td style="text-align:left">Le résultat</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>done_o</code></td>
+<td style="text-align:left">sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Indicateur de fin du calcul</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> GCD <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">port</span>(
+        clk_i, load_i : <span class="hljs-keyword">in</span>  <span class="hljs-built_in">std_logic</span>;
+        a_i, b_i      : <span class="hljs-keyword">in</span>  <span class="hljs-built_in">positive</span>;
+        g_o           : <span class="hljs-keyword">out</span> <span class="hljs-built_in">positive</span>;
+        done_o        : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>
+    );
+<span class="hljs-keyword">end</span> GCD;
+</code></pre>
+<p>Dans notre fonction C, nous agissons directement sur ses paramètres <code>a</code> et <code>b</code>
+qui changent de valeur à chaque itération de la boucle.
+En VHDL, il n’est pas possible de modifier les valeurs des ports d’entrée.
+Les valeurs intermédiaires de <code>a</code> et <code>b</code> seront affectées à deux signaux internes <code>a_reg</code> et <code>b_reg</code>.
+Elles seront mémorisées dans des registres mis à jour à chaque front montant de <code>clk_i</code>.</p>
+<ul>
+<li>Au démarrage d’un nouveau calcul, lorsque <code>load_i</code> vaut <code>'1'</code>, les entrées <code>a_i</code> et <code>b_i</code> sont copiées dans <code>a_reg</code> et <code>b_reg</code>.</li>
+<li>Au cours du calcul (lorsque <code>load_i = '0'</code>), les registres sont mis à jour à chaque front d’horloge
+en soustrayant la plus petite valeur de la plus grande.</li>
+<li>La sortie <code>done_o</code> vaut <code>'1'</code> lorsque les deux registres sont égaux.
+Le résultat est la valeur du signal <code>a_reg</code>.</li>
+</ul>
+<p>Un schéma du circuit correspondant est proposé ci-dessous.</p>
+<p><a href="GCD-architecture.svg"><img src="GCD-architecture.svg" alt="Architecture pour le calcul de PGCD" class="hfill"></a></p>
+<p>Voici une démonstration de son fonctionnement, avec une horloge de période 2 secondes.</p>
+<table id="pgcd-vhdl-demo">
+    <tbody><tr>
+        <th><code>load_i</code></th> <td><input id="pgcd-vhdl-demo-load" type="checkbox"> <span id="pgcd-vhdl-demo-load-value">–</span></td>
+        <th></th>                    <td></td>
+        <th><code>clk_i</code></th>  <td id="pgcd-vhdl-demo-clk">–</td>
+        <th></th>                    <td></td>
+    </tr>
+    <tr>
+        <th><code>a_i</code></th>    <td><input id="pgcd-vhdl-demo-a" type="number" min="1" step="1" value="50" style="width: 4em;"></td>
+        <th><code>a_next</code></th> <td id="pgcd-vhdl-demo-a-next">–</td>
+        <th><code>a_reg</code></th>  <td id="pgcd-vhdl-demo-a-reg">0</td>
+        <th><code>g_o</code></th>    <td id="pgcd-vhdl-demo-p">–</td>
+    </tr>
+    <tr>
+        <th><code>b_i</code></th>    <td><input id="pgcd-vhdl-demo-b" type="number" min="1" step="1" value="30" style="width: 4em;"></td>
+        <th><code>b_next</code></th> <td id="pgcd-vhdl-demo-b-next">–</td>
+        <th><code>b_reg</code></th>  <td id="pgcd-vhdl-demo-b-reg">0</td>
+        <th><code>done_o</code></th> <td id="pgcd-vhdl-demo-done">–</td>
+    </tr>
+</tbody></table>
+<style>
+    #pgcd-vhdl-demo td {
+        transition-property: background-color;
+        transition-duration: 500ms;
+        transition-timing-function: ease;
+    }
+
+    #pgcd-vhdl-demo .changed {
+        background-color: rgb(255, 100, 50);
+    }
+</style>
+<script>
+    ({
+        aView:         document.getElementById("pgcd-vhdl-demo-a"),
+        bView:         document.getElementById("pgcd-vhdl-demo-b"),
+        aNextView:     document.getElementById("pgcd-vhdl-demo-a-next"),
+        bNextView:     document.getElementById("pgcd-vhdl-demo-b-next"),
+        aRegView:      document.getElementById("pgcd-vhdl-demo-a-reg"),
+        bRegView:      document.getElementById("pgcd-vhdl-demo-b-reg"),
+        pView:         document.getElementById("pgcd-vhdl-demo-p"),
+        loadView:      document.getElementById("pgcd-vhdl-demo-load"),
+        loadValueView: document.getElementById("pgcd-vhdl-demo-load-value"),
+        doneView:      document.getElementById("pgcd-vhdl-demo-done"),
+        clkView:       document.getElementById("pgcd-vhdl-demo-clk"),
+
+        a: 0,
+        b: 0,
+        load: false,
+        clk: false,
+        aNext: 0,
+        bNext: 0,
+        aReg: 0,
+        bReg: 0,
+        done : false,
+
+        updateComb() {
+            const aSaved    = this.aNext;
+            const bSaved    = this.bNext;
+            const doneSaved = this.done;
+
+            this.a = parseInt(this.aView.value);
+            this.b = parseInt(this.bView.value);
+            this.load = this.loadView.checked;
+
+            if (this.load) {
+                this.aNext = this.a;
+                this.bNext = this.b;
+            }
+            else {
+                this.aNext = this.aReg > this.bReg ? this.aReg - this.bReg : this.aReg;
+                this.bNext = this.bReg > this.aReg ? this.bReg - this.aReg : this.bReg;
+            }
+
+            this.done = this.aReg === this.bReg;
+
+            this.loadValueView.innerHTML = this.load ? "'1'" : "'0'";
+            this.aNextView.innerHTML     = this.aNext;
+            this.bNextView.innerHTML     = this.bNext;
+            this.doneView.innerHTML      = this.done ? "'1'" : "'0'";
+
+            this.aRegView.classList.remove("changed");
+            this.bRegView.classList.remove("changed");
+            this.pView.classList.remove("changed");
+
+            if (this.aNext !== aSaved) {
+                this.aNextView.classList.add("changed");
+            }
+
+            if (this.bNext !== bSaved) {
+                this.bNextView.classList.add("changed");
+            }
+
+            if (this.done !== doneSaved) {
+                this.doneView.classList.add("changed");
+            }
+
+            setTimeout(() => {
+                this.aNextView.classList.remove("changed");
+                this.bNextView.classList.remove("changed");
+                this.doneView.classList.remove("changed");
+            }, 500);
+        },
+
+        updateClk() {
+            this.clk = !this.clk;
+            this.clkView.innerHTML  = this.clk ? "'1'" : "'0'";
+
+            if (this.clk) {
+                if (this.aReg !== this.aNext) {
+                    this.aRegView.classList.add("changed");
+                    this.pView.classList.add("changed");
+                }
+
+                if (this.bReg !== this.bNext) {
+                    this.bRegView.classList.add("changed");
+                }
+
+                this.aReg = this.aNext;
+                this.bReg = this.bNext;
+
+                this.aRegView.innerHTML = this.aReg;
+                this.bRegView.innerHTML = this.bReg;
+                this.pView.innerHTML    = this.aReg;
+
+                setTimeout(() => this.updateComb(), 500);
+            }
+        },
+
+        init() {
+            this.aView.onchange = this.bView.onchange = this.loadView.onclick = () => this.updateComb();
+            setInterval(() => this.updateClk(), 1000);
+
+            this.updateComb();
+        }
+    }).init();
+</script>
+<p>Nous avons écrit deux architectures qui réalisent ce fonctionnement.
+L’architecture <code>Detailed</code>, ci-dessous, sépare explicitement les fonctions
+combinatoires et les fonctions logiques séquentielles&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">architecture</span> Detailed <span class="hljs-keyword">of</span> GCD <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">signal</span> a_next, b_next : <span class="hljs-built_in">positive</span>;
+    <span class="hljs-keyword">signal</span> a_reg,  b_reg  : <span class="hljs-built_in">positive</span>;
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-comment">-- Registres a_reg et b_reg</span>
+    <span class="hljs-comment">-- mis à jour sur les fronts montants de clk_i</span>
+    p_ab_reg : <span class="hljs-keyword">process</span>(clk_i)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+            a_reg &lt;= a_next;
+            b_reg &lt;= b_next;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_ab_reg;
+
+    <span class="hljs-comment">-- Calcul de la valeur suivante de a_reg</span>
+    a_next &lt;= a_i           <span class="hljs-keyword">when</span> load_i = <span class="hljs-string">'1'</span>  <span class="hljs-keyword">else</span>
+              a_reg - b_reg <span class="hljs-keyword">when</span> a_reg &gt; b_reg <span class="hljs-keyword">else</span>
+              a_reg;
+
+    <span class="hljs-comment">-- Calcul de la valeur suivante de b_reg</span>
+    b_next &lt;= b_i           <span class="hljs-keyword">when</span> load_i = <span class="hljs-string">'1'</span>  <span class="hljs-keyword">else</span>
+              b_reg - a_reg <span class="hljs-keyword">when</span> b_reg &gt; a_reg <span class="hljs-keyword">else</span>
+              b_reg;
+
+    <span class="hljs-comment">-- Affectation des sorties</span>
+    g_o    &lt;= a_reg;
+    done_o &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> a_reg = b_reg <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+<span class="hljs-keyword">end</span> Detailed;
+</code></pre>
+<p>Comme on le voit, cette description VHDL ne contient pas de boucle.
+Elle décrit le fonctionnement instantané du circuit&nbsp;:
+les instructions concurrentes réagissent aux changements des ports d’entrée et des signaux internes,
+et calculent de nouvelles valeurs pour les signaux de sortie et les signaux internes.</p>
+<p>Pour améliorer la lisibilité, et lorsque vous aurez acquis de l’expérience, vous pourrez
+regrouper dans un même processus la gestion des mémorisations et les fonctions combinatoires situées
+en amont des registres.
+Dans l’architecture <code>Compact</code> ci-dessous, le calcul de la valeur suivante de <code>a_reg</code> et <code>b_reg</code>
+a été intégré dans le processus <code>p_ab_reg</code>&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">architecture</span> Compact <span class="hljs-keyword">of</span> GCD <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">signal</span> a_reg, b_reg : <span class="hljs-built_in">positive</span>;
+<span class="hljs-keyword">begin</span>
+    p_ab_reg : <span class="hljs-keyword">process</span>(clk_i)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> load_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                a_reg &lt;= a_i;
+                b_reg &lt;= b_i;
+            <span class="hljs-keyword">elsif</span> a_reg &gt; b_reg <span class="hljs-keyword">then</span>
+                a_reg &lt;= a_reg - b_reg;
+            <span class="hljs-keyword">elsif</span> b_reg &gt; a_reg <span class="hljs-keyword">then</span>
+                b_reg &lt;= b_reg - a_reg;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_ab_reg;
+
+    g_o    &lt;= a_reg;
+    done_o &lt;= <span class="hljs-string">'1'</span> <span class="hljs-keyword">when</span> a_reg = b_reg <span class="hljs-keyword">else</span> <span class="hljs-string">'0'</span>;
+<span class="hljs-keyword">end</span> Compact;
+</code></pre>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="structure-entites.html">&larr;&nbsp;Entités</a>
+    
+    
+        <a href="structure-entites-architectures-activite.html">Activité : entités et architectures&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-architectures.html" class="current">Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

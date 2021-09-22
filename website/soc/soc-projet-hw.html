@@ -1,0 +1,1270 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Création d'un nouveau composant IP</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="soc-projet.html">&larr;&nbsp;Projet : développement d'un capteur connecté</a>
+    
+    
+        <a href="soc-projet-spi.html">Développement d'un contrôleur de bus SPI&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Création d'un nouveau composant IP</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#ajouter-un-nouveau-bloc-ip-a-la-bibliotheque">Ajouter un nouveau bloc IP à la bibliothèque</a></li>
+            
+                
+                <li><a href="#ajouter-le-nouveau-bloc-ip-dans-larchitecture-materielle">Ajouter le nouveau bloc IP dans l’architecture matérielle</a></li>
+            
+                
+                <li><a href="#mettre-a-jour-le-programme-damorcage">Mettre à jour le programme d’amorçage</a></li>
+            
+                
+                <li><a href="#utiliser-lip-depuis-le-shell">Utiliser l’IP depuis le shell</a></li>
+            
+            
+        </ul>
+            
+    
+    <section><h1 id="ajouter-un-nouveau-bloc-ip-a-la-bibliotheque" tabindex="-1">Ajouter un nouveau bloc IP à la bibliothèque</h1>
+<div class="info">
+<p>Si vous commencez une nouvelle séance, démarrez Vivado en exécutant les commandes
+suivantes dans un terminal&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">source</span> /opt/Xilinx/Vivado/2019.1/settings64.sh
+<span class="hljs-built_in">source</span> /opt/Xilinx/SDK/2019.1/settings64.sh
+<span class="hljs-built_in">cd</span> /Data/etudiant/soc2020
+LANG=en_US.UTF-8 vivado &amp;
+</code></pre>
+<p>Ouvrez ensuite votre projet <code>zybo-minimal</code>.</p>
+</div>
+<p>À l’intérieur du composant Zynq-7000, le processeur communique avec ses
+périphériques à travers un bus respectant la spécification <em>AXI</em> (<em>Advanced eXtensible Interface</em>).
+Dans cette étape, nous allons créer un nouveau composant IP réalisant un
+contrôleur de bus SPI compatible avec le bus AXI.</p>
+<ol>
+<li>Dans le menu <em>Tools</em> de Vivado, choisissez <em>Create and Package IP</em>.</li>
+<li>Sélectionnez <em>Create a new AXI4 peripheral</em>.</li>
+<li>Donnez un nom au périphérique&nbsp;: <code>SPIDevice</code>.</li>
+<li>Avant de terminer, sélectionnez <em>Edit IP</em>.</li>
+</ol>
+<p>Vivado ouvre une nouvelle fenêtre pour modifier le nouveau composant.
+Le panneau <em>Sources</em> contient une arborescence de deux fichiers VHDL.</p>
+<ol start="5">
+<li>Ouvrez le fichier <code>SPIDevice_v1_0_S00_AXI.vhd</code>.</li>
+</ol>
+<p>Le fichier contient des processus qui gèrent les demandes de lecture et d’écriture
+en provenance du processeur.</p>
+<ol start="6">
+<li>Remplacez le contenu du fichier par le code suivant&nbsp;:</li>
+</ol>
+<pre><code class="language-vhdl"><span class="hljs-keyword">library</span> ieee;
+<span class="hljs-keyword">use</span> ieee.std_logic_1164.<span class="hljs-keyword">all</span>;
+<span class="hljs-keyword">use</span> ieee.numeric_std.<span class="hljs-keyword">all</span>;
+
+<span class="hljs-keyword">entity</span> SPIDevice_v1_0_S00_AXI <span class="hljs-keyword">is</span>
+    <span class="hljs-keyword">generic</span> (
+        <span class="hljs-comment">-- Nombre de bits du bus de données</span>
+        C_S_AXI_DATA_WIDTH : <span class="hljs-built_in">integer</span> := <span class="hljs-number">32</span>;
+        <span class="hljs-comment">-- Nombre de bits utilisés sur le bus d'adresses</span>
+        C_S_AXI_ADDR_WIDTH : <span class="hljs-built_in">integer</span> := <span class="hljs-number">4</span>
+    );
+    <span class="hljs-keyword">port</span> (
+        <span class="hljs-comment">-- ---------------------------------------------------------------------</span>
+        <span class="hljs-comment">-- Ajoutez vos ports ici:</span>
+
+        <span class="hljs-comment">-- Fin des ports personnalisés.</span>
+        <span class="hljs-comment">-- ---------------------------------------------------------------------</span>
+
+        <span class="hljs-comment">-- Signal d'horloge global.</span>
+        s_axi_aclk : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+        <span class="hljs-comment">-- Commande de réinitialisation, active au niveau bas.</span>
+        s_axi_aresetn : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+
+        <span class="hljs-comment">-- ---------------------------------------------------------------------</span>
+        <span class="hljs-comment">-- Bus AXI : accès en écriture.</span>
+        <span class="hljs-comment">-- ---------------------------------------------------------------------</span>
+
+        <span class="hljs-comment">-- Adresse du registre à modifier.</span>
+        s_axi_awaddr : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic_vector</span>(C_S_AXI_ADDR_WIDTH - <span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+        <span class="hljs-comment">-- Type de protection en écriture.</span>
+        s_axi_awprot : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">2</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+        <span class="hljs-comment">-- Indique que l'adresse en écriture est valide.</span>
+        s_axi_awvalid : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+        <span class="hljs-comment">-- Indique que ce composant est prêt à accepter une nouvelle adresse en écriture.</span>
+        s_axi_awready : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>;
+        <span class="hljs-comment">-- La donnée à écrire.</span>
+        s_axi_wdata : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic_vector</span>(C_S_AXI_DATA_WIDTH - <span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+        <span class="hljs-comment">-- Sélection des octets à écrire.</span>
+        s_axi_wstrb : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic_vector</span>(C_S_AXI_DATA_WIDTH / <span class="hljs-number">8</span> - <span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+        <span class="hljs-comment">-- Indique que la donnée à écrire est valide.</span>
+        s_axi_wvalid : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+        <span class="hljs-comment">-- Indique que ce composant est prêt à recevoir une nouvelle donnée à écrire.</span>
+        s_axi_wready : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>;
+        <span class="hljs-comment">-- Indicateur d'état de l'opération d'écriture.</span>
+        s_axi_bresp : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+        <span class="hljs-comment">-- Indique que bresp est valide.</span>
+        s_axi_bvalid : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>;
+        <span class="hljs-comment">-- Indique que le maître est prêt à recevoir une nouvelle valeur de bresp.</span>
+        s_axi_bready : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+
+        <span class="hljs-comment">-- ---------------------------------------------------------------------</span>
+        <span class="hljs-comment">-- Bus AXI : accès en lecture.</span>
+        <span class="hljs-comment">-- ---------------------------------------------------------------------</span>
+
+        <span class="hljs-comment">-- Adresse du registre à lire.</span>
+        s_axi_araddr : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic_vector</span>(C_S_AXI_ADDR_WIDTH - <span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+        <span class="hljs-comment">-- Type de protection en lecture.</span>
+        s_axi_arprot : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">2</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+        <span class="hljs-comment">-- Indique que l'adresse en lecture est valide.</span>
+        s_axi_arvalid : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>;
+        <span class="hljs-comment">-- Indique que ce composant est prêt à recevoir une nouvelle adresse en lecture.</span>
+        s_axi_arready : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>;
+        <span class="hljs-comment">-- La donnée lue.</span>
+        s_axi_rdata : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic_vector</span>(C_S_AXI_DATA_WIDTH - <span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+        <span class="hljs-comment">-- Indicateur d'état de l'opération de lecture.</span>
+        s_axi_rresp : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+        <span class="hljs-comment">-- Indique que la donnée lue est valide.</span>
+        s_axi_rvalid : <span class="hljs-keyword">out</span> <span class="hljs-built_in">std_logic</span>;
+        <span class="hljs-comment">-- Indique que le maître est prêt à recevoir une nouvelle valeur sur rdata.</span>
+        s_axi_rready : <span class="hljs-keyword">in</span> <span class="hljs-built_in">std_logic</span>
+    );
+<span class="hljs-keyword">end</span> SPIDevice_v1_0_S00_AXI;
+
+<span class="hljs-keyword">architecture</span> arch_imp <span class="hljs-keyword">of</span> SPIDevice_v1_0_S00_AXI <span class="hljs-keyword">is</span>
+    <span class="hljs-comment">-- Indice du bit de poids faible de l'adresse du registre sur les</span>
+    <span class="hljs-comment">-- bus d'adresses awaddr et araddr.</span>
+    <span class="hljs-comment">-- ADDR_LSB = 2 pour les bus 32 bits</span>
+    <span class="hljs-comment">-- ADDR_LSB = 3 pour les bus 64 bits</span>
+    <span class="hljs-keyword">constant</span> ADDR_LSB : <span class="hljs-built_in">integer</span> := C_S_AXI_DATA_WIDTH / <span class="hljs-number">32</span> + <span class="hljs-number">1</span>;
+
+    <span class="hljs-comment">-- J'utiliserai 2 bits du bus d'adresses pour identifier le registre où écrire.</span>
+    <span class="hljs-keyword">signal</span> awaddr_reg : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">signal</span> awready_next, awready_reg : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> bvalid_reg : <span class="hljs-built_in">std_logic</span>;
+
+    <span class="hljs-comment">-- J'utiliserai 2 bits du bus d'adresses pour identifier le registre à lire.</span>
+    <span class="hljs-keyword">signal</span> araddr_reg : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">signal</span> arready_next, arready_reg : <span class="hljs-built_in">std_logic</span>;
+    <span class="hljs-keyword">signal</span> rvalid_reg : <span class="hljs-built_in">std_logic</span>;
+
+    <span class="hljs-comment">---- Registres de données, à personnaliser.</span>
+    <span class="hljs-keyword">signal</span> data_reg0 :<span class="hljs-built_in">std_logic_vector</span>(C_S_AXI_DATA_WIDTH - <span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">signal</span> data_reg1 :<span class="hljs-built_in">std_logic_vector</span>(C_S_AXI_DATA_WIDTH - <span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">signal</span> data_reg2 :<span class="hljs-built_in">std_logic_vector</span>(C_S_AXI_DATA_WIDTH - <span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">signal</span> data_reg3 :<span class="hljs-built_in">std_logic_vector</span>(C_S_AXI_DATA_WIDTH - <span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">0</span>);
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-comment">-- -------------------------------------------------------------------------</span>
+    <span class="hljs-comment">-- Gestion des écritures</span>
+    <span class="hljs-comment">-- -------------------------------------------------------------------------</span>
+
+    <span class="hljs-comment">-- Si une adresse et une donnée sont disponibles, je serai prêt à accepter</span>
+    <span class="hljs-comment">-- une nouvelle adresse et une nouvelle donnée au cycle d'horloge suivant.</span>
+    <span class="hljs-comment">-- awready et wready seront actifs pendant une période d'horloge.</span>
+	awready_next &lt;= <span class="hljs-keyword">not</span> awready_reg <span class="hljs-keyword">and</span> s_axi_awvalid <span class="hljs-keyword">and</span> s_axi_wvalid;
+
+    p_awready_reg : <span class="hljs-keyword">process</span>(s_axi_aclk)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(s_axi_aclk) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> s_axi_aresetn = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                awready_reg &lt;= <span class="hljs-string">'0'</span>;
+            <span class="hljs-keyword">else</span>
+                awready_reg &lt;= awready_next;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_awready_reg;
+
+    s_axi_awready &lt;= awready_reg;
+    s_axi_wready &lt;= awready_reg;
+
+    <span class="hljs-comment">-- Je mémorise l'adresse avant d'effectuer l'écriture.</span>
+    p_awaddr_reg : <span class="hljs-keyword">process</span>(s_axi_aclk)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(s_axi_aclk) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> s_axi_aresetn = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                awaddr_reg &lt;= (<span class="hljs-keyword">others</span> =&gt; <span class="hljs-string">'0'</span>);
+            <span class="hljs-keyword">elsif</span> awready_next = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                awaddr_reg &lt;= s_axi_awaddr(ADDR_LSB + awaddr_reg<span class="hljs-symbol">'length</span> - <span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> ADDR_LSB);
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_awaddr_reg;
+
+    <span class="hljs-comment">-- Je copie les octets sélectionnés du bus wdata vers le registre</span>
+    <span class="hljs-comment">-- dont l'adresse est indiquée par awaddr_reg.</span>
+    p_data_reg : <span class="hljs-keyword">process</span>(s_axi_aclk)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(s_axi_aclk) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> s_axi_aresetn = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                data_reg0 &lt;= (<span class="hljs-keyword">others</span> =&gt; <span class="hljs-string">'0'</span>);
+                data_reg1 &lt;= (<span class="hljs-keyword">others</span> =&gt; <span class="hljs-string">'0'</span>);
+                data_reg2 &lt;= (<span class="hljs-keyword">others</span> =&gt; <span class="hljs-string">'0'</span>);
+                data_reg3 &lt;= (<span class="hljs-keyword">others</span> =&gt; <span class="hljs-string">'0'</span>);
+            <span class="hljs-keyword">elsif</span> awready_reg = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> C_S_AXI_DATA_WIDTH / <span class="hljs-number">8</span> - <span class="hljs-number">1</span> <span class="hljs-keyword">loop</span>
+                    <span class="hljs-keyword">if</span> s_axi_wstrb(i) = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                        <span class="hljs-keyword">case</span> awaddr_reg <span class="hljs-keyword">is</span>
+                            <span class="hljs-keyword">when</span> <span class="hljs-string">"00"</span> =&gt; data_reg0(i*<span class="hljs-number">8</span>+<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> i*<span class="hljs-number">8</span>) &lt;= s_axi_wdata(i*<span class="hljs-number">8</span>+<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> i*<span class="hljs-number">8</span>);
+                            <span class="hljs-keyword">when</span> <span class="hljs-string">"01"</span> =&gt; data_reg1(i*<span class="hljs-number">8</span>+<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> i*<span class="hljs-number">8</span>) &lt;= s_axi_wdata(i*<span class="hljs-number">8</span>+<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> i*<span class="hljs-number">8</span>);
+                            <span class="hljs-keyword">when</span> <span class="hljs-string">"10"</span> =&gt; data_reg2(i*<span class="hljs-number">8</span>+<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> i*<span class="hljs-number">8</span>) &lt;= s_axi_wdata(i*<span class="hljs-number">8</span>+<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> i*<span class="hljs-number">8</span>);
+                            <span class="hljs-keyword">when</span> <span class="hljs-string">"11"</span> =&gt; data_reg3(i*<span class="hljs-number">8</span>+<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> i*<span class="hljs-number">8</span>) &lt;= s_axi_wdata(i*<span class="hljs-number">8</span>+<span class="hljs-number">7</span> <span class="hljs-keyword">downto</span> i*<span class="hljs-number">8</span>);
+                        <span class="hljs-keyword">end</span> <span class="hljs-keyword">case</span>;
+                    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+                <span class="hljs-keyword">end</span> <span class="hljs-keyword">loop</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_data_reg;
+
+    <span class="hljs-comment">-- Gestion des indicateurs d'état de l'écriture.</span>
+    <span class="hljs-comment">-- Passer bvalid à '1' au moment de l'écriture.</span>
+    <span class="hljs-comment">-- Passer bvalid à '0' lorsque le maître passe bready à '1'.</span>
+    p_bvalid_reg : <span class="hljs-keyword">process</span>(s_axi_aclk)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(s_axi_aclk) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> s_axi_aresetn = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                bvalid_reg &lt;= <span class="hljs-string">'0'</span>;
+            <span class="hljs-keyword">elsif</span> awready_reg = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                bvalid_reg &lt;= <span class="hljs-string">'1'</span>;
+            <span class="hljs-keyword">elsif</span> s_axi_bready = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                bvalid_reg &lt;= <span class="hljs-string">'0'</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_bvalid_reg;
+
+    s_axi_bresp &lt;= <span class="hljs-string">"00"</span>;
+    s_axi_bvalid &lt;= awready_reg;
+
+    <span class="hljs-comment">-- -------------------------------------------------------------------------</span>
+    <span class="hljs-comment">-- Gestion des lectures</span>
+    <span class="hljs-comment">-- -------------------------------------------------------------------------</span>
+
+    <span class="hljs-comment">-- Si une adresse est disponibles, je serai prêt à accepter</span>
+    <span class="hljs-comment">-- une nouvelle adresse au cycle d'horloge suivant.</span>
+    <span class="hljs-comment">-- s_axi_arready sera actif pendant une période d'horloge.</span>
+	arready_next &lt;= <span class="hljs-keyword">not</span> arready_reg <span class="hljs-keyword">and</span> s_axi_arvalid;
+
+    p_arready_reg : <span class="hljs-keyword">process</span>(s_axi_aclk)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(s_axi_aclk) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> s_axi_aresetn = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                arready_reg &lt;= <span class="hljs-string">'0'</span>;
+            <span class="hljs-keyword">else</span>
+                arready_reg &lt;= arready_next;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_arready_reg;
+
+    s_axi_arready &lt;= arready_reg;
+
+    <span class="hljs-comment">-- Je mémorise l'adresse en lecture lorsque arvalid = '1'.</span>
+    p_araddr_reg : <span class="hljs-keyword">process</span>(s_axi_aclk)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(s_axi_aclk) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> s_axi_aresetn = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                araddr_reg &lt;= (<span class="hljs-keyword">others</span> =&gt; <span class="hljs-string">'0'</span>);
+            <span class="hljs-keyword">elsif</span> arready_next = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                araddr_reg &lt;= s_axi_araddr(ADDR_LSB + araddr_reg<span class="hljs-symbol">'length</span> - <span class="hljs-number">1</span> <span class="hljs-keyword">downto</span> ADDR_LSB);
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_araddr_reg;
+
+    <span class="hljs-comment">-- Je copie vers le bus de données le registre dont l'adresse est indiquée par awaddr_reg.</span>
+    p_s_axi_rdata : <span class="hljs-keyword">process</span>(s_axi_aclk)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge (s_axi_aclk) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> arready_reg = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                <span class="hljs-keyword">case</span> araddr_reg <span class="hljs-keyword">is</span>
+                    <span class="hljs-keyword">when</span> <span class="hljs-string">"00"</span>  =&gt; s_axi_rdata &lt;= data_reg0;
+                    <span class="hljs-keyword">when</span> <span class="hljs-string">"01"</span>  =&gt; s_axi_rdata &lt;= data_reg1;
+                    <span class="hljs-keyword">when</span> <span class="hljs-string">"10"</span>  =&gt; s_axi_rdata &lt;= data_reg2;
+                    <span class="hljs-keyword">when</span> <span class="hljs-string">"11"</span>  =&gt; s_axi_rdata &lt;= data_reg3;
+                <span class="hljs-keyword">end</span> <span class="hljs-keyword">case</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_s_axi_rdata;
+
+    <span class="hljs-comment">-- Gestion des indicateurs d'état de la lecture.</span>
+    <span class="hljs-comment">-- Passer rvalid à '1' au moment où s_axi_rdata est mis à jour.</span>
+    <span class="hljs-comment">-- Passer rvalid à '0' lorsque le maître passe rready à '1'.</span>
+    p_rvalid_reg : <span class="hljs-keyword">process</span>(s_axi_aclk)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">if</span> rising_edge(s_axi_aclk) <span class="hljs-keyword">then</span>
+            <span class="hljs-keyword">if</span> s_axi_aresetn = <span class="hljs-string">'0'</span> <span class="hljs-keyword">then</span>
+                rvalid_reg &lt;= <span class="hljs-string">'0'</span>;
+            <span class="hljs-keyword">elsif</span> arready_reg = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                rvalid_reg &lt;= <span class="hljs-string">'1'</span>;
+            <span class="hljs-keyword">elsif</span> s_axi_rready = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+                rvalid_reg &lt;= <span class="hljs-string">'0'</span>;
+            <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_rvalid_reg;
+
+    s_axi_rresp &lt;= <span class="hljs-string">"00"</span>;
+    s_axi_rvalid &lt;= rvalid_reg;
+<span class="hljs-keyword">end</span> arch_imp;
+</code></pre>
+<ol start="7">
+<li>Enregistrez le fichier <code>SPIDevice_v1_0_S00_AXI.vhd</code>.</li>
+<li>Dans le panneau <em>Flow Navigator</em> (à gauche), sous <em>Project Manager</em>,
+exécutez l’action <em>Package IP</em>.</li>
+<li>Choisissez <em>Review and Package</em> et pressez le bouton <em>Package IP</em>.
+Acceptez la fermeture du projet.</li>
+</ol>
+</section><section><h1 id="ajouter-le-nouveau-bloc-ip-dans-larchitecture-materielle" tabindex="-1">Ajouter le nouveau bloc IP dans l’architecture matérielle</h1>
+<p>Complétez le schéma&nbsp;:</p>
+<ol>
+<li>Dans l’onglet <em>Diagram</em>, pressez le bouton «&nbsp;+&nbsp;» (<em>Add IP</em>) de la barre d’outils.</li>
+<li>Sélectionnez le composant <code>SPIDevice_v1.0</code>.</li>
+<li>En haut de l’onglet <em>Diagram</em>, repérez le message <em>Designer Assistance available</em> et pressez <em>Run Connection Automation</em>.</li>
+<li>Dans l’onglet <em>Address Editor</em>, repérez l’adresse affectée au nouveau périphérique.</li>
+</ol>
+<p>Synthétisez le matériel&nbsp;:</p>
+<ol start="5">
+<li>Dans le panneau <em>Flow Navigator</em>, sous <em>Program and Debug</em>, choisissez <em>Generate Bitstream</em>.</li>
+<li>À la fin de la synthèse, pressez le bouton <em>Cancel</em> dans la boîte de dialogue.</li>
+</ol>
+</section><section><h1 id="mettre-a-jour-le-programme-damorcage" tabindex="-1">Mettre à jour le programme d’amorçage</h1>
+<p>Reconstruisez le fichier <code>boot.bin</code> en exécutant la commande suivante
+dans le terminal où vous avez lancé Vivado&nbsp;:</p>
+<pre><code class="icon-term language-bash">bootgen -w -image scripts/zybo-minimal.bif -o fpga/zybo-minimal/boot.bin
+</code></pre>
+<p>Copiez le nouveau fichier <code>fpga/zybo-minimal/boot.bin</code> sur la carte microSD
+et redémarrez la carte Zybo.</p>
+</section><section><h1 id="utiliser-lip-depuis-le-shell" tabindex="-1">Utiliser l’IP depuis le shell</h1>
+<p>Comme dans les étapes précédentes, connectez-vous à la carte Zybo à l’aide d’un terminal série.</p>
+<p>En utilisant les commandes <code>poke</code> et <code>peek</code>, vérifiez que vous pouvez écrire
+et relire dans les sept registres de votre IP.</p>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="soc-projet.html">&larr;&nbsp;Projet : développement d'un capteur connecté</a>
+    
+    
+        <a href="soc-projet-spi.html">Développement d'un contrôleur de bus SPI&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/hdl.html" >Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-vhdl/exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="soc-projet-hw.html" class="current">Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,1341 @@
+
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Qu'est-ce qu'un langage de description de matériel ?</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
+        <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="../assets/katex/katex.min.css">
+        <link rel="stylesheet" href="../styles/page.css">
+    </head>
+    <body>
+        <header>
+            
+    <nav>
+    
+        <a href="index.html">&larr;&nbsp;Découverte du langage VHDL</a>
+    
+    
+        <a href="structure-entites.html">Entités&nbsp;&rarr;</a>
+    
+</nav>
+
+    
+                <h1>Qu'est-ce qu'un langage de description de matériel ?</h1>
+                
+                
+            
+
+        </header>
+        
+    
+        <ul class="toc">
+            
+            
+                
+                <li><a href="#definition">Définition</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#les-langages-de-description-de-materiel-ressemblent-a-des-langages-de-programmation">Les langages de description de matériel ressemblent à des langages de programmation</a></li>
+            
+                
+                <li><a href="#les-langages-de-description-de-materiel-ne-sont-pas-des-langages-de-programmation">Les langages de description de matériel ne sont pas des langages de programmation</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#utilisations-dun-langage-de-description-de-materiel">Utilisations d’un langage de description de matériel</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#simulation">Simulation</a></li>
+            
+                
+                <li><a href="#verification-formelle">Vérification formelle</a></li>
+            
+                
+                <li><a href="#synthese-placement-routage">Synthèse, placement-routage</a></li>
+            
+                
+                    </ul></li>
+                    
+                
+                <li><a href="#vhdl-et-ses-concurrents">VHDL et ses concurrents</a></li>
+            
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#vhdl">VHDL</a></li>
+            
+                
+                <li><a href="#verilog-et-systemverilog">Verilog et SystemVerilog</a></li>
+            
+                
+                <li><a href="#langages-derives-de-langages-de-programmation">Langages dérivés de langages de programmation</a></li>
+            
+            
+        </ul>
+            
+        </ul>
+            
+    
+    <section><h1 id="definition" tabindex="-1">Définition</h1>
+<p>VHDL appartient à la famille des <em>langages de description de matériel</em>,
+en anglais <em>HDL</em> pour <em>Hardware Description Languages</em>.</p>
+<div class="info">
+<p>Ici, le mot <em>matériel</em> désigne spécifiquement les circuits intégrés numériques.</p>
+<p>Il existe également une variante de VHDL appelée VHDL-AMS (Analog and Mixed Signals).
+qui permet de décrire des circuits mixtes analogiques et numériques.</p>
+</div>
+<p>Dans les pages qui précèdent, nous avons utilisé différents types de représentation
+des circuits électroniques&nbsp;:</p>
+<ul>
+<li>des représentations <em>structurelles</em>, dans lesquelles les composants d’un
+circuit – transistors, portes, multiplexeurs, etc. – étaient représentés par
+des symboles interconnectés&nbsp;;</li>
+<li>des représentations <em>comportementales</em>, dans lesquelles on s’intéressait au
+fonctionnement d’un circuit sans détailler les composants qu’il contenait.
+Par exemple, nous avons utilisé des tables de vérité, des expressions mathématiques,
+des chronogrammes, des graphes d’états.</li>
+</ul>
+<p>Ces représentations prenaient la forme de diagrammes, de tableaux, d’équations
+destinées à être lues par des humains.</p>
+<p>Le rôle d’un langage de description de matériel est de permettre la
+modélisation de la <em>structure</em> et du <em>comportement</em> d’un circuit sous une forme
+rigoureuse qui sera exploitable par des outils de développement de circuits
+intégrés.</p>
+</section><section><h2 id="les-langages-de-description-de-materiel-ressemblent-a-des-langages-de-programmation" tabindex="-1">Les langages de description de matériel ressemblent à des langages de programmation</h2>
+<p>Pour représenter le comportement des circuits, les langages de description de
+matériel réutilisent des concepts et des constructions issus des langages de programmation.
+Par exemple, VHDL est inspiré du langage Ada pour tous les éléments permettant d’écrire
+des algorithmes&nbsp;: le système de types de données, les expressions mathématiques,
+les instructions conditionnelles, les boucles, les sous-programmes, etc.</p>
+<p>Cette parenté avec les langages de programmation peut être source de confusion
+pour les débutants, qui peuvent être tentés d’appliquer les même techniques
+que lorsqu’ils développent du logiciel.</p>
+</section><section><h2 id="les-langages-de-description-de-materiel-ne-sont-pas-des-langages-de-programmation" tabindex="-1">Les langages de description de matériel ne sont pas des langages de programmation</h2>
+<p>Dans un système informatique, on distingue&nbsp;:</p>
+<ul>
+<li>le <em>matériel</em>, c’est-à-dire les circuits électroniques qui composent un ordinateur (processeur, mémoire, périphériques),</li>
+<li>le <em>logiciel</em>, c’est-à-dire les instructions et les données des programmes que le processeur doit exécuter.</li>
+</ul>
+<p>Un <em>langage de programmation</em> permet donc à des <strong>informaticiens</strong> d’écrire du logiciel
+qui sera <strong>exécuté</strong> par un processeur.
+Au plus bas niveau, un programme est composé d’<strong>instructions</strong> qui s’exécutent
+<strong>l’une après l’autre</strong> dans l’ordre où elles sont rangées en mémoire.</p>
+<p>Un <em>langage de description de matériel</em> permet à des <strong>électroniciens</strong> de réaliser
+des processeurs, des périphériques ou tout autre circuit numérique.
+Au plus bas niveau, un circuit est constitué de <strong>composants</strong> interconnectés qui
+fonctionnent <strong>en parallèle</strong>.</p>
+<div class="info">
+<p>Pour cette raison, une description de matériel est constituée en premier lieu
+d’<a href="../essentiel-vhdl/instructions-concurrentes.html">instructions concurrentes</a> qui communiquent à travers des <a href="../essentiel-vhdl/declarations.html#declaration-de-signaux">signaux</a>.
+L’écriture d’algorithmes sous forme de séquences d’instructions est un cas
+particulier qui doit être isolé dans des <a href="../essentiel-vhdl/instructions-concurrentes.html#processus">processus</a>.</p>
+</div>
+</section><section><h1 id="utilisations-dun-langage-de-description-de-materiel" tabindex="-1">Utilisations d’un langage de description de matériel</h1>
+<p>Les langages de description de matériel servent de point d’entrée à
+différents outils de conception électronique – en anglais, on utilise le
+terme <em>EDA</em> pour <em>Electronic Design Automation</em>.</p>
+</section><section><h2 id="simulation" tabindex="-1">Simulation</h2>
+<p>Un simulateur est un logiciel utilisé dans la mise au point d’une description de
+matériel.
+Son rôle est de simuler le fonctionnement d’un circuit auquel on présente
+un jeu de signaux d’entrée et d’enregistrer, ou d’afficher les chronogrammes des signaux.</p>
+<p>La simulation est une activité incontournable pour détecter et corriger les
+bugs dans une description de matériel.
+Elle permet de vérifier le bon fonctionnement du circuit en mode <em>boîte blanche</em>
+avant sa réalisation.
+Cela a deux avantages&nbsp;:</p>
+<ul>
+<li>En raison du coût élevé de fabrication d’un nouveau circuit intégré, il ne
+serait pas raisonnable d’envoyer en fabrication un circuit non validé.</li>
+<li>Un circuit intégré offre des moyens limités pour analyser son comportement.
+L’observation à l’oscilloscope des signaux sur les broches d’entrées/sorties,
+ou l’accès aux signaux internes par <a href="https://fr.wikipedia.org/wiki/Joint_Test_Action_Group">JTAG</a>,
+ne sont pas aussi complets que l’affichage direct des chronogrammes dans un simulateur.</li>
+</ul>
+<div class="info">
+<p>VHDL, Verilog et SystemVerilog proposent une variété d’instructions permettant
+de décrire l’environnement du circuit à simuler et de créer des scénarios de test.</p>
+</div>
+<p>Le tableau ci-dessous propose quelques références d’outils de simulation&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Outil</th>
+<th style="text-align:left">Auteur, éditeur</th>
+<th style="text-align:left">Licence</th>
+<th style="text-align:left">Langages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><a href="https://ghdl.readthedocs.io/en/latest/">GHDL</a></td>
+<td style="text-align:left">Tristan Gingold et contributeurs</td>
+<td style="text-align:left">Libre (GPLv2)</td>
+<td style="text-align:left">VHDL</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://www.veripool.org/wiki/verilator">Verilator</a></td>
+<td style="text-align:left"><a href="https://www.veripool.org">Veripool</a></td>
+<td style="text-align:left">Libre (LGPLv3)</td>
+<td style="text-align:left">Verilog, SystemVerilog (synthétisable)</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://iverilog.icarus.com/">Icarus Verilog</a></td>
+<td style="text-align:left">Stephen Williams</td>
+<td style="text-align:left">Libre (GPLv2)</td>
+<td style="text-align:left">Verilog, VHDL (partiellement)</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://www.xilinx.com/products/design-tools/vivado/simulator.html">Vivado Simulator</a></td>
+<td style="text-align:left"><a href="https://www.xilinx.com">Xilinx</a></td>
+<td style="text-align:left">Commerciale</td>
+<td style="text-align:left">VHDL, Verilog, SystemVerilog</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://www.intel.com/content/www/us/en/software/programmable/quartus-prime/overview.html">Quartus</a></td>
+<td style="text-align:left"><a href="https://www.intel.com">Intel</a></td>
+<td style="text-align:left">Commerciale</td>
+<td style="text-align:left">VHDL, Verilog, SystemVerilog</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://www.mentor.com/products/fpga/verification-simulation/modelsim/">Modelsim</a></td>
+<td style="text-align:left"><a href="https://www.mentor.com">Mentor</a></td>
+<td style="text-align:left">Commerciale</td>
+<td style="text-align:left">VHDL, Verilog, SystemVerilog, SystemC</td>
+</tr>
+</tbody>
+</table>
+<p>Parmi les outils libres, on citera également l’outil <a href="http://gtkwave.sourceforge.net/">GTKWave</a>,
+qui peut être utilisé conjointement avec GHDL, Verilator ou Icarus Verilog pour afficher des chronogrammes.</p>
+</section><section><h2 id="verification-formelle" tabindex="-1">Vérification formelle</h2>
+<p>La simulation permet de vérifier le comportement d’une description pour les
+scénarios de fonctionnement que vous avez choisis de simuler.
+Malheureusement, certains bugs peuvent passer inaperçus jusqu’au moment où ils
+sont déclenchés sur le terrain par une situation non prévue dans nos scénarios.</p>
+<p>Un outil de vérification formelle prend en entrée une description d’un circuit
+et un ensemble d’<em>assertions</em>, c’est-à-dire des propositions logiques qui doivent
+être toujours vraies.
+Votre description sera considérée comme correcte si l’outil parvient à établir
+la preuve qu’elle respecte les assertions.
+Si ce n’est pas le cas, l’outil pourra produire un <em>contre-exemple</em>, c’est-à-dire
+un scénario pour lequel au moins une assertion n’est pas vérifiée.</p>
+<p>Le tableau ci-dessous propose quelques références d’outils de vérification formelle
+pour la description de matériel&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Outil</th>
+<th style="text-align:left">Auteur, éditeur</th>
+<th style="text-align:left">Licence</th>
+<th style="text-align:left">Langages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><a href="https://symbiyosys.readthedocs.io/">SymbiYosys</a></td>
+<td style="text-align:left"><a href="https://www.yosyshq.com">YosysHQ</a></td>
+<td style="text-align:left">Libre (ISC)</td>
+<td style="text-align:left">Verilog, VHDL (partiellement)</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://www.mentor.com/products/fv/">Questa</a></td>
+<td style="text-align:left"><a href="https://www.mentor.com">Mentor</a></td>
+<td style="text-align:left">Commerciale</td>
+<td style="text-align:left">VHDL, Verilog, SystemVerilog, SystemC</td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="synthese-placement-routage" tabindex="-1">Synthèse, placement-routage</h2>
+<p>La synthèse logique consiste à transformer la description d’un circuit en une
+interconnexion optimisée de composants logiques.
+Selon la nature du circuit à réaliser, ces composants peuvent être&nbsp;:</p>
+<ul>
+<li>des portes logiques, des bascules D, ou d’autres composants de base appelés <em>standard cells</em>
+qui pourront être gravés sur le silicium à partir de bibliothèques d’empreintes
+pour réaliser un circuit intégré spécifique (<em>ASIC</em> pour <em>Application-Specific Integrated Circuit</em>)</li>
+<li>des LUT, des bascules D, des unités de calcul ou de mémorisation dédiées,
+pour réaliser un circuit en utilisant un <a href="../circuits-logiques/circuits-programmables-fpga.html">FPGA</a>.</li>
+</ul>
+<p>Le placement-routage consiste à organiser les composants sur la surface
+du circuit et à tracer les interconnexions entre ces composants.</p>
+<div class="warning">
+<p>VHDL a été initialement créé pour permettre la documentation et la simulation
+des circuits électroniques.
+Pour cette raison, le langage autorise des descriptions de haut niveau,
+très abstraites, qui peuvent servir de point de départ à une conception
+<em>manuelle</em> du circuit, mais pour lesquelles la synthèse automatique n’est pas
+toujours réalisable.</p>
+<p>En pratique, les outils de synthèse acceptent seulement un sous-ensemble des
+langages de description de matériel.</p>
+<p>Une description est dite <strong>synthétisable</strong> si elle respecte des règles
+d’écriture qui permettent d’associer les éléments de la description avec des
+structures de circuits logiques identifiables (opérations arithmétiques et logiques,
+multiplexeurs, registres, compteurs, machines à états).</p>
+<p>Une description synthétisable est exprimée en termes de <strong>transferts de registres</strong>
+– on parle de description <em>RTL</em> pour <em>Register Transfer Level</em>.
+Elle sera typiquement organisée de manière à identifier des registres qui
+mémorisent des données sur des fronts d’un signal d’horloge, et des fonctions
+combinatoires qui font des calculs entre les fronts d’horloge,
+conformément à ce schéma&nbsp;:</p>
+<p><a href="../circuits-logiques/anatomie-circuit-synchrone.svg"><img src="../circuits-logiques/anatomie-circuit-synchrone.svg" alt="Anatomie d'un circuit synchrone"></a></p>
+</div>
+<p>Le tableau ci-dessous propose quelques références d’outils de synthèse&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Outil</th>
+<th style="text-align:left">Auteur, éditeur</th>
+<th style="text-align:left">Licence</th>
+<th style="text-align:left">Langages</th>
+<th style="text-align:left">Cibles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><a href="https://yosyshq.net/yosys/">Yosys</a></td>
+<td style="text-align:left"><a href="https://www.yosyshq.com">YosysHQ</a></td>
+<td style="text-align:left">Libre (ISC)</td>
+<td style="text-align:left">Verilog, VHDL (partiellement)</td>
+<td style="text-align:left">ASIC, FPGA</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://www.synopsys.com/implementation-and-signoff/rtl-synthesis-test.html">Design Compiler</a></td>
+<td style="text-align:left"><a href="https://www.synopsys.com">Synopsys</a></td>
+<td style="text-align:left">Commerciale</td>
+<td style="text-align:left">VHDL, Verilog, SystemVerilog</td>
+<td style="text-align:left">ASIC</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://www.xilinx.com/products/design-tools/vivado/simulator.html">Vivado</a></td>
+<td style="text-align:left"><a href="https://www.xilinx.com">Xilinx</a></td>
+<td style="text-align:left">Commerciale</td>
+<td style="text-align:left">VHDL, Verilog, SystemVerilog</td>
+<td style="text-align:left">FPGA</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://www.intel.com/content/www/us/en/software/programmable/quartus-prime/overview.html">Quartus</a></td>
+<td style="text-align:left"><a href="https://www.intel.com">Intel</a></td>
+<td style="text-align:left">Commerciale</td>
+<td style="text-align:left">VHDL, Verilog, SystemVerilog</td>
+<td style="text-align:left">FPGA</td>
+</tr>
+</tbody>
+</table>
+</section><section><h1 id="vhdl-et-ses-concurrents" tabindex="-1">VHDL et ses concurrents</h1>
+</section><section><h2 id="vhdl" tabindex="-1">VHDL</h2>
+<p>Les initiales <em>VHDL</em> signifient <em>VHSIC Hardware Description Language</em>,
+où <em>VHSIC</em> désigne le programme de recherche et développement
+<em>Very High Speed Integrated Circuit</em> initié par le gouvernement des USA en 1980.
+Ce programme a permis des avancées dans tous les domaines du
+développement et de la fabrication de circuits intégrés&nbsp;:
+matériaux, procédés de lithographie, boîtiers, tests, outils de conception,
+et langages de description.</p>
+<p>VHDL est inspiré par le langage de programmation Ada,
+également conçu en réponse à un appel à proposition du
+<em>Department of Defense</em> des USA à la fin des années 1970.
+Comme Ada, VHDL repose sur un système de types de données strict qui vise
+à détecter très tôt certaines erreurs dans la manipulation des données,
+mais qui peut parfois sembler trop contraignant.</p>
+<p>Depuis les années 1980, VHDL a fait l’objet de nombreuses améliorations.
+On désigne généralement les versions du langage de la manière suivante&nbsp;:</p>
+<ul>
+<li><em>VHDL-87</em> est la version standardisée par l’<em>IEEE</em> (<em>Institute of Electrical and
+Electronics Engineers</em>) en 1987.</li>
+<li><em>VHDL-93</em> est la révision effectuée par l’<em>IEEE</em> en 1993. C’est souvent la
+version par défaut dans les outils de développement.</li>
+<li><em>VHDL-2008</em> est la dernière révision en date.
+Son intégration dans les outils de développement est rarement complète mais
+elle progresse.</li>
+</ul>
+</section><section><h2 id="verilog-et-systemverilog" tabindex="-1">Verilog et SystemVerilog</h2>
+<p>Le langage Verilog a été créé entre 1983 et 1984 dans une entreprise
+appelée <em>Automated Integrated Design Systems</em>, qui sera renommée
+<em>Gateway Design Automation</em> avant d’être rachetée par <em>Cadence</em>.
+Comme VHDL, il s’agissait à l’origine d’un langage destiné à modéliser et
+simuler des circuits logiques.
+L’utilisation de Verilog pour la synthèse logique est
+apparue ultérieurement.</p>
+<p>Verilog est un langage moins riche, et de plus bas niveau, que VHDL.
+Sa syntaxe plus légère et ses types de données plus permissifs le rendent plus
+facile à aborder, mais peuvent aussi rendre les descriptions moins lisibles
+et les erreurs plus difficiles à détecter.</p>
+<p>Le langage SystemVerilog est une extension de Verilog
+proposée au début des années 2000.
+Comparé à Verilog, SystemVerilog apporte de nombreuses améliorations&nbsp;:</p>
+<ul>
+<li>De nouveaux types de données et la possibilité de définir des types de données personnalisés.</li>
+<li>Les interfaces, pour mieux structurer les ports des modules.</li>
+<li>Les classes, inspirées des langages de programmation à objets.</li>
+<li>Des assertions, qui peuvent être utilisées en vérification formelle.</li>
+</ul>
+</section><section><h2 id="langages-derives-de-langages-de-programmation" tabindex="-1">Langages dérivés de langages de programmation</h2>
+<p>Il s’agit ici de langages de programmation dont l’usage a été <em>détourné</em>
+pour permettre la description de matériel.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Langage</th>
+<th style="text-align:left">Repose sur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><a href="https://www.chisel-lang.org/">Chisel</a></td>
+<td style="text-align:left">Scala</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://m-labs.hk/migen/manual/index.html">Migen</a></td>
+<td style="text-align:left">Python</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://www.myhdl.org/">MyHDL</a></td>
+<td style="text-align:left">Python</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://github.com/cornell-brg/pymtl3">PyMTL</a></td>
+<td style="text-align:left">Python</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://spinalhdl.github.io/SpinalDoc-RTD/">SpinalHDL</a></td>
+<td style="text-align:left">Scala</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://en.wikipedia.org/wiki/SystemC">SystemC</a></td>
+<td style="text-align:left">C++</td>
+</tr>
+</tbody>
+</table>
+<p>Parmi eux SystemC est un standard <em>IEEE</em>, comme VHDL et Verilog.
+Il figure parmi les langages supportés par les outils de développement commerciaux.</p>
+<p>Les descriptions de matériel en Python et Scala doivent d’abord être
+converties en VHDL ou en Verilog avant d’être synthétisées.</p>
+<div class="info">
+<p>Dans la suite de ce document, vous allez vous familiariser avec le langage VHDL.</p>
+<p>Ce langage étant très riche et complexe, nous n’en présentons qu’une partie
+en nous limitant aux éléments nécessaires à un débutant pour écrire
+des descriptions synthétisables.</p>
+</div>
+</section>
+    
+        
+    
+
+    
+    <footer>
+        <nav>
+    
+        <a href="index.html">&larr;&nbsp;Découverte du langage VHDL</a>
+    
+    
+        <a href="structure-entites.html">Entités&nbsp;&rarr;</a>
+    
+</nav>
+
+    </footer>
+
+        <div class="sidebar-show"><i class="fas fa-bars"></i></div>
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-hide"><i class="fas fa-times-circle"></i></div>
+                <form class="search" action="../search.html" method="get">
+                    <input name="q" type="search" placeholder="Rechercher">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="../index.html"><i class="fas fa-home"></i>&nbsp;Accueil</a>
+            </div>
+            
+    
+        <ul class="toc">
+            
+                <li>
+                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/index.html" >Représentation des informations</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../numerique/analogique-vs-numerique.html" >Analogique vs numérique</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-binaire.html" >Numération binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/numeration-hexadecimale.html" >Numération hexadécimale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/arithmetique-binaire.html" >Arithmétique binaire</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../numerique/complement-a-deux.html" >Représentation des nombres négatifs</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/index.html" >Circuits logiques</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire.html" >Circuits logiques combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-fonctions-logiques.html" >Fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-premiers-circuits-logiques.html" >Nos premiers circuits logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-synthese-logique.html" >Synthèse des fonctions logiques</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/combinatoire-decodeurs-mux-demux.html" >Circuits logiques composés</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel.html" >Circuits logiques séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-vs-combinatoire.html" >Combinatoire vs séquentiel</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-element-de-memorisation.html" >Construisons un élément de mémorisation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html" >Registres et compteurs</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-conception-synchrone.html" >Conception de circuits synchrones</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/sequentiel-activite.html" >Activité : circuits logiques séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates.html" >Automates finis</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-modelisation.html" >Modélisation par graphe d'états</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-mathematiques.html" >Définition mathématique des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-synthese.html" >Synthèse des automates finis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/automates-activite.html" >Activité : automates</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables.html" >Circuits logiques programmables</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-notion.html" >Notion de circuit logique programmable</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-simples.html" >Circuits programmables simples (SPLD) et complexes (CPLD)</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../circuits-logiques/circuits-programmables-fpga.html" >FPGA</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Découverte du langage VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="hdl.html" class="current">Qu'est-ce qu'un langage de description de matériel ?</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="structure-entites.html" >Entités</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-architectures.html" >Architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-entites-architectures-activite.html" >Activité : entités et architectures</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-instanciation.html" >Instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="structure-instanciation-activite.html" >Activité : instanciation d'une entité</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="combinatoire-affectations-concurrentes.html" >Affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-affectations-concurrentes-activite.html" >Activité : affectations concurrentes de signaux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-processus.html" >Processus</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="combinatoire-processus-activite.html" >Activité : processus</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="sequentiel-bascules-et-registres.html" >Bascules et registres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html" >Compteurs et diviseurs de fréquence</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-automates.html" >Automates</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="sequentiel-activite.html" >Activité : circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercices.html" >Exercices</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="exercice-bargraph.html" >Exercice : bargraph</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-blinker.html" >Exercice : faire clignoter une LED</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-dimmer.html" >Exercice : variateur d'intensité lumineuse</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-timepressed.html" >Exercice : mesure de temps d'appui</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-light-sequencer.html" >Exercice : séquenceur lumineux</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-chaser.html" >Exercice : attrape-moi</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-metronome.html" >Exercice : métronome</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="exercice-pingpong.html" >Exercice : ping-pong</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/index.html" >L'essentiel de VHDL</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../essentiel-vhdl/unites-de-conception.html" >Unités de conception</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-concurrentes.html" >Instructions concurrentes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/instructions-sequentielles.html" >Instructions séquentielles</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/types.html" >Types prédéfinis</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/declarations.html" >Déclarations</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/expressions.html" >Expressions</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../essentiel-vhdl/simulation.html" >VHDL pour la simulation</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/index.html" >VHDL avancé : traitement de signaux audio sur FPGA</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../vhdl-audio/application.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/i2s.html" >Sortie audio I<sup>2</sup>S</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/producteur-consommateur.html" >Connecter producteurs et consommateurs : le protocole ready/valid</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/virgule-fixe.html" >Arithmétique en virgule fixe</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocoder-pkg.html" >Le paquetage Vocoder_pkg</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/oscillateur.html" >Oscillateur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/filtre.html" >Filtre</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/modulateur-melangeur.html" >Modulateur et mélangeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/vocodeur.html" >Vocodeur</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../vhdl-audio/microphone.html" >Entrée audio</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/index.html" >Découverte du langage Verilog</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../langage-verilog/structure.html" >Décrire et interconnecter des composants</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/declarations.html" >Déclarations et types de données</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/combinatoire.html" >Décrire des circuits combinatoires</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../langage-verilog/sequentiel.html" >Décrire des circuits séquentiels</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/index.html" >Pratique du Verilog : développement d'un jeu vidéo</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../verilog-squash/specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/preparation.html" >Préparation de l'environnement de travail</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/structure-generale.html" >Structure générale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/afficher.html" >Gestion de l'affichage</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/animer.html" >Animer la balle et la raquette</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../verilog-squash/deroulement.html" >Gérer le déroulement du jeu</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/index.html" >Annexes</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="../annexes/virgule.html" >Virgule : un cœur RISC-V minimal</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-xilinx-vivado.html" >Installer Xilinx Vivado</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="../annexes/installation-ghdl-cocotb.html" >Travailler avec des logiciels libres</a>
+                    
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+        </div>
+        <script type="text/javascript">
+            document.querySelector(".sidebar-show").addEventListener("click", () => {
+                const sidebar    = document.querySelector(".sidebar");
+                const sidebarTop = sidebar.querySelector(".sidebar-top");
+                const sidebarToc = sidebar.querySelector(".toc");
+                const current    = sidebar.querySelector(".current");
+                sidebar.classList.add("sidebar-visible");
+                sidebarToc.style.paddingTop = getComputedStyle(sidebarTop).height;
+                if (current) {
+                    current.scrollIntoView({block: "center"});
+                }
+            });
+
+            document.querySelector(".sidebar-hide").addEventListener("click", () => {
+                document.querySelector(".sidebar").classList.remove("sidebar-visible");
+            });
+        </script>
+    </body>
+</html>
