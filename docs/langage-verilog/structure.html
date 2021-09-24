@@ -247,6 +247,10 @@ en tant que composant dans un circuit plus grand, je peux écrire&nbsp;:</p>
 <span class="hljs-keyword">wire</span>       eq;
 
 Comparator my_comparator (a, b, lt, gt, eq);
+
+...
+
+<span class="hljs-keyword">endmodule</span>
 </code></pre>
 <p>Ici, les ports de l’instance <code>my_comparator</code> seront reliés à des <em>signaux</em>
 <code>a</code>, <code>b</code>, <code>lt</code>, <code>gt</code>, <code>eq</code> qui doivent être indiqués dans le bon ordre
@@ -260,18 +264,11 @@ consiste à spécifier les associations de ports par noms&nbsp;:</p>
     <span class="hljs-variable">.gt_o</span>(gt),
     <span class="hljs-variable">.eq_o</span>(eq)
 );
-
-...
-
-<span class="hljs-keyword">endmodule</span>
 </code></pre>
 <p>Si l’on souhaite donner une valeur particulière au paramètre <code>WIDTH</code> du module
 <code>Comparator</code>, on peut l’indiquer de la manière suivante&nbsp;:</p>
-<pre><code class="language-verilog">...
-
-<span class="hljs-keyword">wire</span> [<span class="hljs-number">11</span>:<span class="hljs-number">0</span>] a;
+<pre><code class="language-verilog"><span class="hljs-keyword">wire</span> [<span class="hljs-number">11</span>:<span class="hljs-number">0</span>] a;
 <span class="hljs-keyword">wire</span> [<span class="hljs-number">11</span>:<span class="hljs-number">0</span>] b;
-
 ...
 
 Comparator my_comparator #(
@@ -284,10 +281,6 @@ Comparator my_comparator #(
     <span class="hljs-variable">.gt_o</span>(gt),
     <span class="hljs-variable">.eq_o</span>(eq)
 );
-
-...
-
-<span class="hljs-keyword">endmodule</span>
 </code></pre>
 </section>
     

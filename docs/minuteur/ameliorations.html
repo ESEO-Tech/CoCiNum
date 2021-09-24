@@ -111,17 +111,15 @@ Ils respecteront les définitions suivantes&nbsp;:</p>
 </tr>
 </tbody>
 </table>
-<ol>
-<li>Dans un nouveau fichier <code>Minuteur_pkg.vhd</code>, créez le <a href="../essentiel-vhdl/unites-de-conception.html#paquetage">paquetage</a> <code>Minuteur_pkg</code>
-contenant la déclaration des deux <a href="../essentiel-vhdl/declarations.html#type-tableau">types tableaux</a>.</li>
-<li>Dans un nouveau fichier <code>Decodeur7SegmentsMultiple.vhd</code>,
+<p class="icon-file">Dans un nouveau fichier <code>Minuteur_pkg.vhd</code>, créez le <a href="../essentiel-vhdl/unites-de-conception.html#paquetage">paquetage</a> <code>Minuteur_pkg</code>
+contenant la déclaration des deux <a href="../essentiel-vhdl/declarations.html#type-tableau">types tableaux</a>.</p>
+<p class="icon-file">Dans un nouveau fichier <code>Decodeur7SegmentsMultiple.vhd</code>,
 <a href="../essentiel-vhdl/unites-de-conception.html#import-de-paquetage">importez le paquetage</a> <code>Minuteur_pkg</code> et
-décrivez l’entité <code>Decodeur7SegmentsMultiple</code> et son architecture <code>Structurelle</code>.</li>
-<li>Dans le fichier <code>Minuteur.vhd</code>, <a href="../essentiel-vhdl/unites-de-conception.html#import-de-paquetage">importez le paquetage</a> <code>Minuteur_pkg</code> et
+décrivez l’entité <code>Decodeur7SegmentsMultiple</code> et son architecture <code>Structurelle</code>.</p>
+<p class="icon-file">Dans le fichier <code>Minuteur.vhd</code>, <a href="../essentiel-vhdl/unites-de-conception.html#import-de-paquetage">importez le paquetage</a> <code>Minuteur_pkg</code> et
 modifiez l’architecture en remplaçant l’instanciation
 des quatre décodeurs par une instanciation de l’entité <code>Decodeur7SegmentsMultiple</code>.
-Il est recommandé de faire un schéma où vous ferez apparaître clairement les signaux internes utilisés.</li>
-</ol>
+Il est recommandé de faire un schéma où vous ferez apparaître clairement les signaux internes utilisés.</p>
 </section>
     
         

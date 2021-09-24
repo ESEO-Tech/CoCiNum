@@ -792,7 +792,7 @@ ci-dessous.</p>
 <p><a href="../langage-vhdl/legende.svg" target="_blank"><i class="fas fa-info-circle"></i> Afficher la légende des schémas.</a></p>
 </div>
 </section><section><h1 id="completer-larchitecture" tabindex="-1">Compléter l’architecture</h1>
-<p>Dans le fichier <code>Computer.vhd</code>, ajoutez les instructions d’instanciation
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, ajoutez les instructions d’instanciation
 correspondant au schéma ci-dessus.
 Le contenu de la mémoire <code>mem_inst</code> est défini par la constante <code>MEM_CONTENT</code>
 dans le paquetage <code>Computer_pkg</code>.
@@ -862,8 +862,8 @@ de la manière suivante&nbsp;:</p>
 </div>
 </section><section><h1 id="simuler-le-fonctionnement-du-systeme" tabindex="-1">Simuler le fonctionnement du système</h1>
 <p>Démarrez le simulateur et exécutez les commandes ci-dessous.</p>
-<pre><code class="icon-keyboard language-xsim"><span class="hljs-keyword">restart</span>
-<span class="hljs-keyword">add_force</span> <span class="hljs-attribute">-repeat_every</span> <span class="hljs-number">10</span><span class="hljs-number">ns</span> clk_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">5</span><span class="hljs-number">ns</span>
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">restart</span>
+<span class="hljs-keyword">add_force</span> <span class="hljs-built_in">-repeat_every</span> <span class="hljs-number">10</span><span class="hljs-number">ns</span> clk_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">5</span><span class="hljs-number">ns</span>
 <span class="hljs-keyword">add_force</span> btn_center_i <span class="hljs-number">1</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">40</span><span class="hljs-number">ns</span>
 <span class="hljs-keyword">run</span> <span class="hljs-number">400</span><span class="hljs-number">us</span>
 </code></pre>
@@ -894,7 +894,7 @@ Choisissez la stratégie <em>Flow RuntimeOptimized</em>.</li>
 </section><section><h2 id="synthetiser-et-implementer-le-circuit" tabindex="-1">Synthétiser et implémenter le circuit</h2>
 <p>Exécutez cette commande dans la console Tcl pour réduire la gravité de
 certains messages concernant les affectations de broches&nbsp;:</p>
-<pre><code class="icon-keyboard language-tcl">set_msg_config -id {Common <span class="hljs-number">17</span><span class="hljs-number">-55</span>} -new_severity {WARNING}
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_msg_config</span> <span class="hljs-built_in">-id</span> {Common <span class="hljs-number">17</span><span class="hljs-built_in">-</span><span class="hljs-number">55</span>} <span class="hljs-built_in">-new_severity</span> {WARNING}
 </code></pre>
 <p class="icon-mouse">Générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
@@ -959,7 +959,7 @@ gedit Echo.c &amp;
 </code></pre>
 <p>Ce programme réalisera un <em>écho</em> en affichant chacun des caractères que vous
 frappez au clavier, jusqu’à ce que l’utilisateur presse la touche <em>Entrée</em>&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span>
 
 <span class="hljs-comment">// Définition des adresses des périphériques.</span>
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_ADDR 0x81000000</span>
@@ -1131,7 +1131,7 @@ riscv64-unknown-elf-objcopy -O ihex Echo.elf Echo.hex
 </table>
 <p>En cas de problème à l’exécution du compilateur C, vous pouvez créer vous-même
 le fichier <code>Echo.hex</code> avec le contenu suivant&nbsp;:</p>
-<pre><code>:100000006F0040016F00C0004800000000000000C9
+<pre><code class="icon-file">:100000006F0040016F00C0004800000000000000C9
 :1000100073002030970100009381C11A170101007D
 :10002000130141FE9302001C1303001C63F86200DD
 :1000300023A0020093824200E3EC62FEEF00C011B5
@@ -1173,14 +1173,14 @@ Echo&gt;
 </code></pre>
 <p>Tapez quelques caractères au clavier. Ils doivent s’afficher à
 la suite de la ligne <em>Echo &gt;</em>&nbsp;:</p>
-<pre><code>\\// Starting user program...
+<pre><code class="icon-keyboard">\\// Starting user program...
 Echo&gt; Je viens de taper ceci
 </code></pre>
 <p>Pressez la touche <em>Entrée</em>. Le programme doit se terminer en affichant
 le message <code>Bye!</code>.
 Ensuite, il rend la main au programme de chargement qui attend l’envoi
 d’un nouveau programme&nbsp;:</p>
-<pre><code>\\// Starting user program...
+<pre><code class="icon-keyboard">\\// Starting user program...
 Echo&gt; Je viens de taper ceci
 Bye!
 \\// This is the Virgule program loader. Please send an hex file to execute...

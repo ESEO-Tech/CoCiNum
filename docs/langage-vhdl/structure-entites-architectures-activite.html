@@ -223,21 +223,21 @@ En bas de la fenêtre, l’onglet <em>Tcl Console</em> comprend deux champs:</p>
 <p>Entrez les commandes suivantes, en pressant la touche <em>Entrée</em> pour exécuter
 chaque commande.</p>
 <p>Redémarrer la simulation&nbsp;:</p>
-<pre><code class="icon-keyboard language-xsim"><span class="hljs-keyword">restart</span>
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">restart</span>
 </code></pre>
 <p>Affecter des valeurs constantes aux entrées <code>a</code> et <code>b</code>.
 L’option <code>-radix dec</code> indique que les valeurs sont en décimal&nbsp;:</p>
-<pre><code class="icon-keyboard language-xsim"><span class="hljs-keyword">add_force</span> <span class="hljs-attribute">-radix</span> dec a_i <span class="hljs-number">228</span>
-<span class="hljs-keyword">add_force</span> <span class="hljs-attribute">-radix</span> dec b_i <span class="hljs-number">132</span>
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">add_force</span> <span class="hljs-built_in">-radix</span> dec a_i <span class="hljs-number">228</span>
+<span class="hljs-keyword">add_force</span> <span class="hljs-built_in">-radix</span> dec b_i <span class="hljs-number">132</span>
 </code></pre>
 <p>Créer un signal d’horloge de période 10 ns&nbsp;:</p>
-<pre><code class="icon-keyboard language-xsim"><span class="hljs-keyword">add_force</span> <span class="hljs-attribute">-repeat_every</span> <span class="hljs-number">10</span><span class="hljs-number">ns</span> clk_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">5</span><span class="hljs-number">ns</span>
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">add_force</span> <span class="hljs-built_in">-repeat_every</span> <span class="hljs-number">10</span><span class="hljs-number">ns</span> clk_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">5</span><span class="hljs-number">ns</span>
 </code></pre>
 <p>Mettre l’entrée <code>load_i</code> à <code>'1'</code> entre les dates 30 ns et 40 ns&nbsp;:</p>
-<pre><code class="icon-keyboard language-xsim"><span class="hljs-keyword">add_force</span> load_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">30</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">40</span><span class="hljs-number">ns</span>
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">add_force</span> load_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">30</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">40</span><span class="hljs-number">ns</span>
 </code></pre>
 <p>Exécuter la simulation pendant 100 ns&nbsp;:</p>
-<pre><code class="icon-keyboard language-xsim"><span class="hljs-keyword">run</span> <span class="hljs-number">100</span><span class="hljs-number">ns</span>
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">run</span> <span class="hljs-number">100</span><span class="hljs-number">ns</span>
 </code></pre>
 <p class="icon-check">Observez l’évolution des signaux <code>a_reg</code> et <code>b_reg</code> au cours du temps.
 Au moment ou <code>done_o</code> passe à <code>'1'</code>, vérifiez que la sortie <code>g_o</code> est bien égale
@@ -259,17 +259,17 @@ placement/routage plus longues.
 Au démarrage d’un nouveau projet, et lorsque le circuit à réaliser est relativement
 simple, il est plus confortable de désactiver les optimisations dans un premier temps.</p>
 <ol>
-<li class="icon-mouse">Ouvrez la fenêtre des paramètres de Vivado&nbsp;: <em>Flow Navigator</em> → <em>Project Manager</em> → <em>Settings</em>.</li>
+<li class="icon-config">Ouvrez la fenêtre des paramètres de Vivado&nbsp;: <em>Flow Navigator</em> → <em>Project Manager</em> → <em>Settings</em>.</li>
 </ol>
 <p><img src="../assets/images/langage-vhdl/vivado-settings.png" alt="Accès aux réglages de Vivado"></p>
 <ol start="2">
-<li class="icon-mouse">Dans la catégorie <em>Synthesis</em>, sous le titre <em>Options</em>, le champ <em>Strategy</em> propose une liste des stratégies
+<li class="icon-config">Dans la catégorie <em>Synthesis</em>, sous le titre <em>Options</em>, le champ <em>Strategy</em> propose une liste des stratégies
 d’optimisation disponibles à l’étape de synthèse logique du circuit.
 Choisissez la stratégie <em>Flow RuntimeOptimized</em>.</li>
 </ol>
 <p><img src="../assets/images/langage-vhdl/vivado-settings-synthesis.png" alt="Accès aux réglages de Vivado, synthèse"></p>
 <ol start="3">
-<li class="icon-mouse">Dans la catégorie <em>Implementation</em>, sous le titre <em>Options</em>, modifiez le champ <em>Strategy</em> en choisissant
+<li class="icon-config">Dans la catégorie <em>Implementation</em>, sous le titre <em>Options</em>, modifiez le champ <em>Strategy</em> en choisissant
 également la stratégie <em>Flow RuntimeOptimized</em>.</li>
 </ol>
 <p><img src="../assets/images/langage-vhdl/vivado-settings-implementation.png" alt="Accès aux réglages de Vivado, implémentation"></p>

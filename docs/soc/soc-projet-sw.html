@@ -131,19 +131,19 @@ contiendra la recette pour bitbake, et un sous-dossier <code>files</code> avec l
 </section><section><h1 id="reconstruire-limage-du-logiciel-embarque" tabindex="-1">Reconstruire l’image du logiciel embarqué</h1>
 <p>Dans le fichier <code>build/conf/local.conf</code>, modifiez la variable
 <code>CORE_IMAGE_EXTRA_INSTALL</code> de la manière suivante&nbsp;:</p>
-<pre><code>CORE_IMAGE_EXTRA_INSTALL = "peekpoke simple-io-driver simple-spi-driver"
+<pre><code class="icon-file">CORE_IMAGE_EXTRA_INSTALL = "peekpoke simple-io-driver simple-spi-driver"
 </code></pre>
 <p>Reconstruire l’image Linux&nbsp;:</p>
 <pre><code class="icon-term language-bash">bitbake core-image-minimal
 </code></pre>
-<p>Mettez la carte hors tension et retirez la carte microSD.</p>
+<p class="icon-hand">Mettez la carte hors tension et retirez la carte microSD.</p>
 <p>Copiez les fichier suivants sur la carte microSD&nbsp;:</p>
 <ul>
 <li><code>build/tmp/deploy/images/zybo-zynq7/uImage</code></li>
 <li><code>build/tmp/deploy/images/zybo-zynq7/zybo-minimal.dtb</code></li>
 <li><code>build/tmp/deploy/images/zybo-zynq7/core-image-minimal-zybo-zynq7.cpio.gz.u-boot</code></li>
 </ul>
-<p>Insérez à nouveau la carte microSD dans le lecteur de la carte Zybo
+<p class="icon-hand">Insérez à nouveau la carte microSD dans le lecteur de la carte Zybo
 et remettez-la sous tension.</p>
 </section><section><h1 id="utiliser-lip-depuis-le-shell" tabindex="-1">Utiliser l’IP depuis le shell</h1>
 <p>Sur la cible, vérifiez que le module <code>simple-spi-driver</code> est chargé&nbsp;:</p>

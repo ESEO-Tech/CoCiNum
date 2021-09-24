@@ -185,15 +185,6 @@ ul.toc ul {
     padding-left: 0;
 }
 
-div.download > ul,
-ul.download {
-    margin-left: 2rem;
-}
-
-.download li::before {
-    content: none;
-}
-
 div.tree ul ul,
 ul.tree ul {
     list-style: none;
@@ -368,6 +359,11 @@ td {
  * icon-hand:      direct manipulation of hardware
  * icon-check:     check a fact, confirm a hypothesis, validate a task
  * icon-eye:       observe
+ * icon-redo:      execute instructions explained before
+ * icon-download:  download files
+ * icon-target:    challenge
+ * icon-folder:    open a file
+ * icon-diagram:   edit a diagram
  * icon-microchip: unknown use
  * ------------------------------------------------------------------------- */
 
@@ -411,6 +407,7 @@ code[class*="icon-"]::before {
 
 .info::before           { content: "\f05a"; } /* Font Awesome 5: info-circle */
 .warning::before        { content: "\f071"; } /* Font Awesome 5: exclamation-triangle */
+.icon-download::before  { content: "\f019"; } /* Font Awesome 5: download */
 .icon-question::before  { content: "\f059"; } /* Font Awesome 5: question-circle */
 .icon-term::before      { content: "\f120"; } /* Font Awesome 5: terminal */
 .icon-config::before    { content: "\f013"; } /* Font Awesome 5: cog */
@@ -420,6 +417,10 @@ code[class*="icon-"]::before {
 .icon-mouse::before     { content: "\f245"; } /* Font Awesome 5: mouse */
 .icon-eye::before       { content: "\f06e"; } /* Font Awesome 5: eye */
 .icon-hand::before      { content: "\f256"; } /* Font Awesome 5: hand-paper */
+.icon-redo::before      { content: "\f01e"; } /* Font Awesome 5: redo */
+.icon-target::before    { content: "\f140"; } /* Font Awesome 5: bullseye */
+.icon-folder::before    { content: "\f07c"; } /* Font Awesome 5: folder-open */
+.icon-diagram::before   { content: "\f542"; } /* Font Awesome 5: project-diagram */
 .icon-microchip::before { content: "\f2db"; } /* Font Awesome 5: microchip */
 
 .info h1,

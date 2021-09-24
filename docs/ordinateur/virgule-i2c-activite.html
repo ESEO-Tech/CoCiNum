@@ -290,7 +290,7 @@ Ajoutez au projet Vivado le fichier de contraintes
 </section><section><h2 id="completer-le-paquetage-computerpkg" tabindex="-1">Compléter le paquetage Computer_pkg</h2>
 <p>Dans le fichier <code>Computer_pkg.vhd</code>, ajoutez les définitions suivantes pour
 définir la plage d’adresses associée au contrôleur I<sup>2</sup>C&nbsp;:</p>
-<pre><code class="language-vhdl"><span class="hljs-keyword">constant</span> I2C_ADDRESS : <span class="hljs-built_in">unsigned</span> := x<span class="hljs-string">"86000000"</span>;
+<pre><code class="icon-file language-vhdl"><span class="hljs-keyword">constant</span> I2C_ADDRESS : <span class="hljs-built_in">unsigned</span> := x<span class="hljs-string">"86000000"</span>;
 <span class="hljs-keyword">constant</span> I2C_SIZE    : <span class="hljs-built_in">positive</span> := <span class="hljs-number">8</span>;
 
 <span class="hljs-keyword">constant</span> INTC_EVENTS_I2C : <span class="hljs-built_in">natural</span> := <span class="hljs-number">5</span>;
@@ -299,7 +299,7 @@ définir la plage d’adresses associée au contrôleur I<sup>2</sup>C&nbsp;:</p
 <span class="hljs-keyword">type</span> device_t <span class="hljs-keyword">is</span> (..., I2C);
 </code></pre>
 </section><section><h2 id="completer-lentite" tabindex="-1">Compléter l’entité</h2>
-<p>Dans le fichier <code>Computer.vhd</code>, complétez l’entité <code>Computer</code> en déclarant
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, complétez l’entité <code>Computer</code> en déclarant
 les ports du connecteur d’extension que vous avez choisi.
 Le tableau ci-dessous donne la liste des ports disponibles et leur rôle.
 Ils sont tous de type <code>std_logic</code>.</p>
@@ -340,12 +340,12 @@ Nous allons profiter du fait que les entrées-sorties du FPGA Artix-7 possèdent
 des résistances internes dont l’utilisation est configurable.</p>
 <p>Si vous avez choisi le connecteur JA, par exemple, ouvrez le fichier
 <code>CoCiNum/src/vhdl/Basys3/Basys3_PmodA.xdc</code> et ajoutez les lignes suivantes&nbsp;:</p>
-<pre><code class="language-xdc"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">PULLUP</span> true [<span class="hljs-keyword">get_ports</span> pmod_a3]
+<pre><code class="icon-file language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">PULLUP</span> true [<span class="hljs-keyword">get_ports</span> pmod_a3]
 <span class="hljs-keyword">set_property</span> <span class="hljs-attribute">PULLUP</span> true [<span class="hljs-keyword">get_ports</span> pmod_a4]
 </code></pre>
 <p>Vous pouvez procéder de la même manière si vous avez choisi un autre connecteur.</p>
 </section><section><h2 id="completer-larchitecture" tabindex="-1">Compléter l’architecture</h2>
-<p>Dans le fichier <code>Computer.vhd</code>, complétez l’architecture pour intégrer le
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, complétez l’architecture pour intégrer le
 contrôleur I<sup>2</sup>C en utilisant les constantes que vous avez ajoutées
 au paquetage <code>Computer_pkg</code>.</p>
 <p>Inspirez-vous de l’exemple du timer que vous avez intégré dans l’activité

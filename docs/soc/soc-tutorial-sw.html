@@ -102,7 +102,7 @@ où nous allons modifier la <em>recette</em> de construction du noyau&nbsp;:</p>
 <pre><code class="icon-term language-bash">mkdir -p ../meta-eseo/recipes-kernel/linux/files
 </code></pre>
 <p>Créez le fichier <code>meta-eseo/recipes-kernel/linux/files/zybo-minimal.dts</code> avec le contenu suivant&nbsp;:</p>
-<pre><code class="language-dts"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"zynq-zybo.dts"</span></span>
+<pre><code class="icon-file language-dts"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"zynq-zybo.dts"</span></span>
 
 <span class="hljs-title class_">/</span> <span class="hljs-punctuation">{</span>
 <span class="hljs-symbol">    amba_pl:</span> <span class="hljs-title class_">amba_pl</span> <span class="hljs-punctuation">{</span>
@@ -131,7 +131,7 @@ Ici, nous déclarons deux plages&nbsp;:</p>
 <p>Vérifiez que ces adresses correspondent à celles affichées dans Vivado.
 Modifiez-les si nécessaires.</p>
 <p>Créez ensuite le fichier <code>meta-eseo/recipes-kernel/linux/linux-xlnx_%.bbappend</code> avec le contenu suivant&nbsp;:</p>
-<pre><code>FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+<pre><code class="icon-file">FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI += "file://zybo-minimal.dts;subdir=git/arch/${ARCH}/boot/dts"
 
@@ -155,7 +155,7 @@ Il crée deux entrées <em>sysfs</em> qui permettront d’accéder directement a
 des LED et des boutons.
 Il définit deux commandes <em>ioctl</em> pour gérer les entrées/sorties depuis une
 application.</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/fs.h&gt;</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/fs.h&gt;</span></span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/io.h&gt;</span></span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/slab.h&gt;</span></span>
@@ -445,7 +445,7 @@ module_exit(simple_io_driver_exit);
 <p>Ajoutez le fichier <code>meta-eseo/recipes-kernel/simple-io-driver/files/Makefile</code>
 avec le contenu suivant (attention à bien utiliser des tabulations pour indenter,
 pas des espaces)&nbsp;:</p>
-<pre><code class="language-makefile">obj-m := simple-io-driver.o
+<pre><code class="icon-file language-makefile">obj-m := simple-io-driver.o
 ccflags-y := -std=gnu99 -Wno-declaration-after-statement
 
 SRC := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span>
@@ -463,7 +463,7 @@ SRC := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pw
 </code></pre>
 <p>Ajoutez le fichier <code>meta-eseo/recipes-kernel/simple-io-driver/simple-io-driver_1.0.bb</code>
 avec le contenu suivant&nbsp;:</p>
-<pre><code>SUMMARY = "Linux kernel module for my simple I/O"
+<pre><code class="icon-file">SUMMARY = "Linux kernel module for my simple I/O"
 LICENSE = "CLOSED"
 
 inherit module
@@ -478,14 +478,14 @@ S = "${WORKDIR}"
 </code></pre>
 <p>Dans le fichier <code>build/conf/local.conf</code>, modifiez la variable
 <code>CORE_IMAGE_EXTRA_INSTALL</code> de la manière suivante&nbsp;:</p>
-<pre><code>CORE_IMAGE_EXTRA_INSTALL = "peekpoke simple-io-driver"
+<pre><code class="icon-file">CORE_IMAGE_EXTRA_INSTALL = "peekpoke simple-io-driver"
 </code></pre>
 <p>Pour finir, modifiez le fichier <code>scripts/uEnv.txt</code> en remplaçant
 <code>zynq-zybo.dtb</code> par <code>zybo-minimal.dtb</code>.</p>
 </section><section><h2 id="recompiler-et-redemarrer" tabindex="-1">Recompiler et redémarrer</h2>
 <pre><code class="icon-term language-bash">bitbake core-image-minimal
 </code></pre>
-<p>Mettez la carte hors tension et retirez la carte microSD.</p>
+<p class="icon-hand">Mettez la carte hors tension et retirez la carte microSD.</p>
 <p>Copiez les fichier suivants sur la carte microSD&nbsp;:</p>
 <ul>
 <li><code>scripts/uEnv.txt</code></li>
@@ -514,7 +514,7 @@ des sources d’un nouveau programme&nbsp;:</p>
 </code></pre>
 <p>Créez le fichier <code>meta-eseo/recipes-extended/simple-io-demo/files/src/simple-io-demo.c</code>
 avec le code ci-dessous.</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fcntl.h&gt;</span></span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;time.h&gt;</span></span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/ioctl.h&gt;</span></span>
@@ -563,7 +563,7 @@ avec le code ci-dessous.</p>
 }
 </code></pre>
 <p>Ajoutez le fichier <code>meta-eseo/recipes-extended/simple-io-demo/files/CMakeLists.txt</code>&nbsp;:</p>
-<pre><code class="language-cmake"><span class="hljs-keyword">cmake_minimum_required</span>(VERSION <span class="hljs-number">3.8</span>)
+<pre><code class="icon-file language-cmake"><span class="hljs-keyword">cmake_minimum_required</span>(VERSION <span class="hljs-number">3.8</span>)
 <span class="hljs-keyword">project</span>(simple-io-demo)
 
 <span class="hljs-keyword">add_executable</span>(simple-io-demo src/simple-io-demo.c)
@@ -571,7 +571,7 @@ avec le code ci-dessous.</p>
 <span class="hljs-keyword">install</span>(TARGETS simple-io-demo DESTINATION bin)
 </code></pre>
 <p>Ajoutez la recette <code>meta-eseo/recipes-extended/simple-io-demo/simple-io-demo_1.0.bb</code>&nbsp;:</p>
-<pre><code>DESCRIPTION = "Simple I/O demo program"
+<pre><code class="icon-file">DESCRIPTION = "Simple I/O demo program"
 LICENSE = "CLOSED"
 
 FILESEXTRAPATHS_prepend = "${THISDIR}/files:"
@@ -585,14 +585,14 @@ S = "${WORKDIR}"
 
 inherit cmake
 </code></pre>
-<p>Dans le fichier <code>build/conf/local.conf</code>, modifiez la variable
+<p class="icon-file">Dans le fichier <code>build/conf/local.conf</code>, modifiez la variable
 <code>CORE_IMAGE_EXTRA_INSTALL</code> de la manière suivante&nbsp;:</p>
-<pre><code>CORE_IMAGE_EXTRA_INSTALL = "peekpoke simple-io-driver simple-io-demo"
+<pre><code class="icon-file">CORE_IMAGE_EXTRA_INSTALL = "peekpoke simple-io-driver simple-io-demo"
 </code></pre>
 </section><section><h2 id="recompiler-et-redemarrer-1" tabindex="-1">Recompiler et redémarrer</h2>
 <pre><code class="icon-term language-bash">bitbake core-image-minimal
 </code></pre>
-<p>Mettez la carte hors tension et retirez la carte microSD.</p>
+<p class="icon-hand">Mettez la carte hors tension et retirez la carte microSD.</p>
 <p>Remplacez le fichier suivant sur la carte microSD&nbsp;:</p>
 <ul>
 <li><code>build/tmp/deploy/images/zybo-zynq7/core-image-minimal-zybo-zynq7.cpio.gz.u-boot</code></li>
@@ -600,7 +600,7 @@ inherit cmake
 <p>Insérez à nouveau la carte microSD dans le lecteur de la carte Zybo
 et remettez-la sous tension.</p>
 </section><section><h2 id="executer-lapplication" tabindex="-1">Exécuter l’application</h2>
-<p>Sur la cible, chargez le nouveau module et lancez l’exécutable <code>simple-io-demo</code>
+<p class="icon-term">Sur la cible, chargez le nouveau module et lancez l’exécutable <code>simple-io-demo</code>
 à partir de la ligne de commande.</p>
 </section>
     

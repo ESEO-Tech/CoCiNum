@@ -60,16 +60,17 @@ Il existe d’autres types de signaux qui ne seront pas présentés ici.</p>
 <span class="hljs-keyword">reg</span>  [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] d;
 </code></pre>
 <ul>
-<li><code>wire</code> désigne un signal affecté par une instruction <code>assign</code> ou connecté
+<li><code>wire</code> déclare un signal affecté par une instruction <code>assign</code> ou connecté
 à la sortie d’une instance de module,</li>
-<li><code>reg</code> désigne un signal affecté dans une instruction <code>always</code> ou <code>initial</code>.</li>
+<li><code>reg</code> déclare un signal affecté dans un <a href="combinatoire.html#processus">processus</a>
+(instruction <code>always</code>) ou dans une instruction <code>initial</code>.</li>
 </ul>
 <div class="warning">
 <p>Dans la terminologie du langage Verilog, les signaux déclarés avec le mot-clé
 <code>wire</code> sont appelés des <em>nets</em> et ceux déclarés avec <code>reg</code> sont appelés des <em>variables</em>.
 Ce vocabulaire peut prêter à confusion&nbsp;:</p>
 <ul>
-<li>Si une instruction <code>always</code> décrit un circuit combinatoire, les signaux qu’il gère
+<li>Si un processus décrit un circuit combinatoire, les signaux qu’il gère
 doivent être déclarés de type <code>reg</code>, bien qu’ils ne correspondent pas à des <em>registres</em>.</li>
 <li>L’utilisation des <a href="../essentiel-vhdl/instructions-sequentielles.html#affectation-dun-signal-ou-dune-variable">variables</a> en VHDL
 suit des règles différentes des <em>variables</em> en Verilog.</li>
@@ -190,27 +191,11 @@ On utilisera la syntaxe&nbsp;: <code>'sd</code>, <code>'sh</code>, <code>'sb</co
 <td style="text-align:left">L’entier -75 codé sur 32 bits (111…10110101)</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>8'd75</code></td>
+<td style="text-align:left"><code>8'd75</code>, <code>8'h4B</code>, <code>8'b01001011</code></td>
 <td style="text-align:left">L’entier 75 codé sur 8 bits (01001011)</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>-8'd75</code></td>
-<td style="text-align:left">L’entier -75 codé sur 8 bits (10110101)</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>8'h4B</code></td>
-<td style="text-align:left">L’entier 75 codé sur 8 bits (01001011)</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>8'shB5</code></td>
-<td style="text-align:left">L’entier -75 codé sur 8 bits (10110101)</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>8'b01001011</code></td>
-<td style="text-align:left">L’entier 75 codé sur 8 bits (01001011)</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>8'sb10110101</code></td>
+<td style="text-align:left"><code>-8'd75</code>, <code>8'shB5</code>, <code>8'sb10110101</code></td>
 <td style="text-align:left">L’entier -75 codé sur 8 bits (10110101)</td>
 </tr>
 </tbody>

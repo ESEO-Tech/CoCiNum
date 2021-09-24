@@ -133,7 +133,7 @@ S’ils sont conformes au comportement attendu, vous pouvez passer à la suite.
 Dans le cas contraire, corrigez la description du compteur et relancez
 la simulation jusqu’à ce que vous obteniez des chronogrammes corrects.</p>
 </section><section><h2 id="instancier-quatre-detecteurs-dappuis" tabindex="-1">Instancier quatre détecteurs d’appuis</h2>
-<p>Dans le fichier <code>Minuteur.vhd</code>, complétez l’architecture en créant une <a href="../essentiel-vhdl/declarations.html#declaration-de-composant">instance</a> de l’entité
+<p class="icon-file">Dans le fichier <code>Minuteur.vhd</code>, complétez l’architecture en créant une <a href="../essentiel-vhdl/declarations.html#declaration-de-composant">instance</a> de l’entité
 <code>DetecteurAppui</code> pour chacun des boutons, comme représenté sur la figure ci-dessous.
 Le signal <code>etat_reg</code> et le processus <code>p_etat_reg</code> seront ajoutés ultérieurement.</p>
 <p><a href="minuteur-etape3-fsm-schema.svg"><img src="minuteur-etape3-fsm-schema.svg" alt="Instanciation des détecteurs d'appuis"></a></p>
@@ -173,7 +173,7 @@ les autres compteurs seront commandés d’une manière similaire.</p>
 <p><a href="minuteur-etape3-sorties-schema.svg"><img src="minuteur-etape3-sorties-schema.svg" alt="Sorties du minuteur"></a></p>
 <p><a href="../langage-vhdl/legende.svg" target="_blank">Afficher la légende des schémas.</a></p>
 </section><section><h2 id="completer-la-description-du-minuteur" tabindex="-1">Compléter la description du minuteur</h2>
-<p>Dans le fichier <code>Minuteur.vhd</code>, complétez l’architecture de la manière suivante&nbsp;:</p>
+<p class="icon-file">Dans le fichier <code>Minuteur.vhd</code>, complétez l’architecture de la manière suivante&nbsp;:</p>
 <ol>
 <li>Déclarez un <a href="../essentiel-vhdl/declarations.html#type-enumere">type énuméré</a> <code>Etat</code> représentant les états possibles du système (voir le graphe d’états).</li>
 <li>Déclarez le <a href="../essentiel-vhdl/declarations.html#declaration-de-signaux">signal</a> <code>etat_reg</code> de type <code>Etat</code>.</li>

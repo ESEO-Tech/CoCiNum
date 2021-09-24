@@ -294,7 +294,7 @@ de type entier qui sera utilisé plus tard dans la version avec anti-rebonds.</p
 <p>Le détecteur d’événements utilisera un signal interne <code>src_reg</code>, vecteur de deux
 bits, qui correspondra à deux copies retardées de l’entrée <code>src_i</code>&nbsp;:</p>
 <p><a href="EventDetector-detail.svg"><img src="EventDetector-detail.svg" alt="Détecteur d'événements simple (détail)" width="650px"></a></p>
-<p>Dans le fichier <code>EventDetector_Simple.vhd</code>, complétez l’architecture
+<p class="icon-file">Dans le fichier <code>EventDetector_Simple.vhd</code>, complétez l’architecture
 <code>Simple</code> de manière à réaliser le comportement représenté sur le
 chronogramme ci-dessus.
 Comme il n’y a pas d’entrée de réinitialisation, la valeur initiale de <code>src_reg</code>
@@ -302,21 +302,21 @@ sera précisée dans la déclaration.</p>
 </section><section><h2 id="simulation" tabindex="-1">Simulation</h2>
 <p>Dans la console Tcl, indiquez à Vivado que l’entité principale pour la simulation
 est <code>EventDetector</code> avec l’architecture <code>Simple</code>&nbsp;:</p>
-<pre><code class="icon-keyboard language-xsim">set_property top EventDetector [get_filesets sim_1]
-set_property top_arch Simple [get_filesets sim_1]
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">top</span> EventDetector [<span class="hljs-keyword">get_filesets</span> sim_1]
+<span class="hljs-keyword">set_property</span> <span class="hljs-attribute">top_arch</span> Simple [<span class="hljs-keyword">get_filesets</span> sim_1]
 </code></pre>
 <p>Démarrez le simulateur et exécutez les commandes ci-dessous.</p>
-<pre><code class="icon-keyboard language-xsim"><span class="hljs-keyword">restart</span>
-<span class="hljs-keyword">add_force</span> <span class="hljs-attribute">-repeat_every</span> <span class="hljs-number">10</span><span class="hljs-number">ns</span> clk_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">5</span><span class="hljs-number">ns</span>
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">restart</span>
+<span class="hljs-keyword">add_force</span> <span class="hljs-built_in">-repeat_every</span> <span class="hljs-number">10</span><span class="hljs-number">ns</span> clk_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">5</span><span class="hljs-number">ns</span>
 <span class="hljs-keyword">add_force</span> src_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">40</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">100</span><span class="hljs-number">ns</span>
 <span class="hljs-keyword">run</span> <span class="hljs-number">200</span><span class="hljs-number">ns</span>
 </code></pre>
-<p>Vérifiez que les chronogrammes sont conformes aux attentes.</p>
+<p class="icon-check">Vérifiez que les chronogrammes sont conformes aux attentes.</p>
 </section><section><h2 id="synthese-et-test-sur-le-materiel" tabindex="-1">Synthèse et test sur le matériel</h2>
-<p>En reprenant les <a href="combinatoire-affectations-concurrentes-activite.html#synthetiser-le-circuit">indications données dans les activités précédentes</a>,
+<p class="icon-redo">En reprenant les <a href="combinatoire-affectations-concurrentes-activite.html#synthetiser-le-circuit">indications données dans les activités précédentes</a>,
 synthétisez le circuit <code>EventDetectorDemo</code> et testez son fonctionnement sur
-la carte Basys3.
-Utilisez le bouton central pour incrémenter le compteur.</p>
+la carte Basys3.</p>
+<p class="icon-hand">Utilisez le bouton central pour incrémenter le compteur.</p>
 <p>Occasionnellement, vous observerez qu’un appui sur le bouton provoque
 plusieurs incrémentations du compteur.
 En effet, lorsque vous pressez le bouton, celui-ci peut rebondir plusieurs
@@ -324,7 +324,7 @@ fois avant de se stabiliser.
 Du point de vue du détecteur d’appuis, ces rebonds sont considérés comme des
 appuis distincts.</p>
 </section><section><h1 id="filtre-anti-rebonds" tabindex="-1">Filtre anti-rebonds</h1>
-<p>Ouvrez à présent le fichier <code>EventDetector_Debouncer.vhd</code>.
+<p class="icon-file">Ouvrez à présent le fichier <code>EventDetector_Debouncer.vhd</code>.
 L’architecture <code>Debouncer</code> implémente la même entité <code>EventDetector</code> que
 l’architecture <code>Simple</code>.
 Elle utilisera le paramètre générique <code>DURATION</code> qui définira le nombre de
@@ -366,30 +366,30 @@ Vous ne devrez pas réutiliser l’entité <code>CompteurModuloN</code>.</p>
 <p>Les signaux <code>on_evt_o</code>, <code>off_evt_o</code> et <code>status_o</code> seront affectés de manière combinatoire
 en fonction de l’état courant.
 Ils seront à <code>'1'</code> dans les états où ils sont mentionnés et à <code>'0'</code> dans les autres états.</p>
-<p>Complétez l’architecture <code>Debouncer</code> de manière à réaliser le comportement
+<p class="icon-file">Complétez l’architecture <code>Debouncer</code> de manière à réaliser le comportement
 représenté sur le graphe d’états ci-dessus.</p>
 </section><section><h2 id="simulation-1" tabindex="-1">Simulation</h2>
 <p>Dans la console Tcl, indiquez à Vivado que l’entité principale pour la simulation
 est <code>EventDetector</code> avec l’architecture <code>Debouncer</code> et avec un paramètre <code>DURATION</code> égal à 5&nbsp;:</p>
-<pre><code class="icon-keyboard language-xsim">set_property top EventDetector [get_filesets sim_1]
-set_property top_arch Debouncer [get_filesets sim_1]
-set_property generic DURATION=<span class="hljs-number">5</span> [get_filesets sim_1]
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">top</span> EventDetector [<span class="hljs-keyword">get_filesets</span> sim_1]
+<span class="hljs-keyword">set_property</span> <span class="hljs-attribute">top_arch</span> Debouncer [<span class="hljs-keyword">get_filesets</span> sim_1]
+<span class="hljs-keyword">set_property</span> <span class="hljs-attribute">generic</span> DURATION=<span class="hljs-number">5</span> [<span class="hljs-keyword">get_filesets</span> sim_1]
 </code></pre>
 <p>Démarrez le simulateur et exécutez les commandes ci-dessous.</p>
-<pre><code class="icon-keyboard language-xsim"><span class="hljs-keyword">restart</span>
-<span class="hljs-keyword">add_force</span> <span class="hljs-attribute">-repeat_every</span> <span class="hljs-number">10</span><span class="hljs-number">ns</span> clk_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">5</span><span class="hljs-number">ns</span>
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">restart</span>
+<span class="hljs-keyword">add_force</span> <span class="hljs-built_in">-repeat_every</span> <span class="hljs-number">10</span><span class="hljs-number">ns</span> clk_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">5</span><span class="hljs-number">ns</span>
 <span class="hljs-keyword">add_force</span> src_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">40</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">60</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">70</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">110</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">120</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">250</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">270</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">280</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">320</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">330</span><span class="hljs-number">ns</span>
 <span class="hljs-keyword">run</span> <span class="hljs-number">400</span><span class="hljs-number">ns</span>
 </code></pre>
 <p>Vérifiez que les chronogrammes sont conformes aux attentes.</p>
 </section><section><h2 id="synthese-et-test-sur-le-materiel-1" tabindex="-1">Synthèse et test sur le matériel</h2>
-<p>Dans le fichier <code>EventDetectorDemo.vhd</code>, modifiez l’instance
+<p class="icon-file">Dans le fichier <code>EventDetectorDemo.vhd</code>, modifiez l’instance
 <code>detector_inst</code> pour qu’elle utilise l’architecture <code>Debouncer</code>.
 Dans une clause <a href="../essentiel-vhdl/instructions-concurrentes.html#instanciation-dune-entite"><code>generic map</code></a>,
 associez le paramètre <code>DURATION</code> à une valeur
 entière égale au nombre de périodes d’horloge pour une durée de 20 millisecondes.
 On rappelle que la fréquence de <code>clk_i</code> est 100 MHz.</p>
-<p>En reprenant les <a href="combinatoire-affectations-concurrentes-activite.html#synthetiser-le-circuit">indications données dans les activités précédentes</a>,
+<p class="icon-redo">En reprenant les <a href="combinatoire-affectations-concurrentes-activite.html#synthetiser-le-circuit">indications données dans les activités précédentes</a>,
 synthétisez le circuit <code>EventDetectorDemo</code> et testez son fonctionnement sur
 la carte Basys3.</p>
 </section><section><h2 id="ameliorations" tabindex="-1">Améliorations</h2>
@@ -405,8 +405,8 @@ en un unique compteur <code>timer_reg</code>&nbsp;:</p>
 <li>Dans les états <code>ON_STABLE</code>, <code>OFF_EVENT</code> et <code>OFF_UNSTABLE</code>,
 <code>timer_reg</code>  se comportera comme <code>off_timer_reg</code>.</li>
 </ul>
-<p>Modifiez le fichier <code>EventDetector_Debouncer.vhd</code>.
-Vérifier en simulation que le comportement de l’architecture est toujours conforme
+<p class="icon-file">Modifiez le fichier <code>EventDetector_Debouncer.vhd</code>.</p>
+<p class="icon-check">Vérifier en simulation que le comportement de l’architecture est toujours conforme
 à la version à deux compteurs.
 Synthétisez le circuit et testez son fonctionnement sur la carte Basys3.</p>
 </section>

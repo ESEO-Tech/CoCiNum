@@ -59,15 +59,15 @@ cp StopWatch.vhd StopWatch_WithProcess.vhd
 <pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum
 ./scripts/vivado
 </code></pre>
-<p>Ouvrez votre projet <code>StopWatch</code>.</p>
+<p class="icon-folder">Ouvrez votre projet <code>StopWatch</code>.</p>
 <section><h1 id="modification-de-larchitecture" tabindex="-1">Modification de l’architecture</h1>
-<p>Dans le projet Vivado, ajoutez le fichier <code>StopWatch_WithProcess.vhd</code>
-(Menu <em>File</em> → <em>Add Sources</em> → <em>Add or create design sources</em> → <em>Add Files</em>).
-Désactivez le fichier <code>StopWatch.vhd</code> en exécutant la commande suivante
+<p class="icon-folder">Dans le projet Vivado, ajoutez le fichier <code>StopWatch_WithProcess.vhd</code>
+(Menu <em>File</em> → <em>Add Sources</em> → <em>Add or create design sources</em> → <em>Add Files</em>).</p>
+<p>Désactivez le fichier <code>StopWatch.vhd</code> en exécutant la commande suivante
 dans la console Tcl&nbsp;:</p>
-<pre><code class="icon-keyboard language-tcl">set_property is_enabled false [get_files StopWatch.vhd]
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">is_enabled</span> false [get_files StopWatch.vhd]
 </code></pre>
-<p>Dans le fichier <code>StopWatch_WithProcess.vhd</code>, votre travail consiste à remplacer
+<p class="icon-file">Dans le fichier <code>StopWatch_WithProcess.vhd</code>, votre travail consiste à remplacer
 certaines instructions d’affectation concurrentes par des processus.
 Le tableau ci-dessous donne des indications sur les instructions à utiliser.
 Vous devez créer un processus différent pour chacun des signaux.</p>
@@ -97,16 +97,16 @@ Vous devez créer un processus différent pour chacun des signaux.</p>
 <p><a href="legende.svg" target="_blank"><i class="fas fa-info-circle"></i> Afficher la légende des schémas.</a></p>
 </div>
 </section><section><h1 id="simulation-et-synthese" tabindex="-1">Simulation et synthèse</h1>
-<p>Reprenez les consignes de <a href="combinatoire-affectations-concurrentes-activite.html#simuler-le-fonctionnement-du-circuit">l’activité précédente</a>
+<p class="icon-redo">Reprenez les consignes de <a href="combinatoire-affectations-concurrentes-activite.html#simuler-le-fonctionnement-du-circuit">l’activité précédente</a>
 pour effectuer la simulation et la synthèse du circuit.</p>
-<p>Vérifiez que la nouvelle description produit exactement le même comportement que
+<p class="icon-check">Vérifiez que la nouvelle description produit exactement le même comportement que
 la version avec instructions d’affectations concurrentes.</p>
 </section><section><h1 id="gestion-des-led" tabindex="-1">Gestion des LED</h1>
 <p>Remplacez l’instruction d’affectation du signal <code>leds_o</code> de manière à
 n’affecter que les bits 9 et 10&nbsp;:</p>
-<pre><code class="language-vhdl">leds_o(<span class="hljs-number">10</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">9</span>) &lt;= <span class="hljs-string">"00"</span>;
+<pre><code class="icon-file language-vhdl">leds_o(<span class="hljs-number">10</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">9</span>) &lt;= <span class="hljs-string">"00"</span>;
 </code></pre>
-<p>Dans deux nouveaux processus, proposez une solution pour gérez l’allumage des
+<p class="icon-file">Dans deux nouveaux processus, proposez une solution pour gérez l’allumage des
 autres LED de manière à afficher la valeur des signaux <code>digit_1sec</code>
 et <code>digit_10sec</code> sous forme de <em>bargraphs</em>.</p>
 <table>
@@ -203,7 +203,7 @@ et <code>digit_10sec</code> sous forme de <em>bargraphs</em>.</p>
 </tr>
 </tbody>
 </table>
-<p>Après avoir modifié le fichier <code>StopWatch_WithProcess.vhd</code>, relancez la simulation,
+<p class="icon-check">Après avoir modifié le fichier <code>StopWatch_WithProcess.vhd</code>, relancez la simulation,
 puis la synthèse du circuit.
 Vérifiez son fonctionnement sur la carte Basys3.</p>
 </section>

@@ -203,17 +203,18 @@ avoir les mêmes réglages de polarité et de phase.</p>
 <p>Le chronogramme ci-dessous détaille le fonctionnement interne du contrôleur SPI.
 Il met en évidence les registres à utiliser pour compter le temps et le nombre de bits.</p>
 <p><a href="SPI-chronogramme-detaille.svg"><img src="SPI-chronogramme-detaille.svg" alt="Chronogramme détaillé du contrôleur SPI"></a></p>
+<p class="icon-mouse">Dans Vivado&nbsp;:</p>
 <ol>
-<li>Dans Vivado, ouvrez le schéma de votre architecture matérielle.</li>
+<li>Ouvrez le schéma de votre architecture matérielle.</li>
 <li>Cliquez avec le bouton droit sur le composant <code>SPIDevice</code> et sélectionnez <em>Edit in IP Packager</em>.</li>
 </ol>
-<p>Dans le fichier <code>SPIDevice_v1_0_S00_AXI.vhd</code>&nbsp;:</p>
+<p class="icon-file">Dans le fichier <code>SPIDevice_v1_0_S00_AXI.vhd</code>&nbsp;:</p>
 <ol start="3">
 <li>Dans l’entité, ajoutez les ports du bus SPI.</li>
 <li>Dans l’architecture, ajoutez le code de gestion du bus SPI de manière à respecter le chronogramme.</li>
 <li>Corrigez les erreurs de syntaxe éventuelles et enregistrez le fichier.</li>
 </ol>
-<p>Dans le fichier <code>SPIDevice_v1_0.vhd</code>&nbsp;:</p>
+<p class="icon-file">Dans le fichier <code>SPIDevice_v1_0.vhd</code>&nbsp;:</p>
 <ol start="6">
 <li>Dans l’entité, ajoutez les ports du bus SPI.</li>
 <li>Dans l’architecture, ajoutez les ports du bus SPI à la déclaration du composant <code>SPIDevice_v1_0_S00_AXI</code>.</li>
@@ -230,7 +231,7 @@ Choisissez <em>Add Sources</em>.</li>
 <li>Dans la fenêtre <em>Define Module</em>, pressez <em>OK</em> sans rien changer, puis pressez <em>Yes</em> dans la boîte de dialogue de confirmation.</li>
 </ol>
 <p>Éditez le fichier <code>SPITestbench_v1_0.vhd</code> et remplacez son contenu par&nbsp;:</p>
-<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> SPITestbench_v1_0 <span class="hljs-keyword">is</span>
+<pre><code class="icon-file language-vhdl"><span class="hljs-keyword">entity</span> SPITestbench_v1_0 <span class="hljs-keyword">is</span>
 <span class="hljs-keyword">end</span> SPITestbench_v1_0;
 
 <span class="hljs-keyword">library</span> ieee;
@@ -409,7 +410,7 @@ Choisissez <em>Add Sources</em>.</li>
 pour continuer la simulation pendant 500 nanosecondes.
 Répétez l’opération jusqu’à ce qu’un message <em>Success</em> s’affiche,
 ou jusqu’à ce qu’une erreur se produise.</p>
-<pre><code class="icon-keyboard language-tcl">run <span class="hljs-number">500</span>ns
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">run</span> <span class="hljs-number">500</span><span class="hljs-number">ns</span>
 </code></pre>
 </section><section><h1 id="completer-larchitecture-du-systeme" tabindex="-1">Compléter l’architecture du système</h1>
 </section><section><h2 id="mettre-a-jour-lip" tabindex="-1">Mettre à jour l’IP</h2>

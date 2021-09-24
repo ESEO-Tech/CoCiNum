@@ -183,7 +183,7 @@ Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl<
 </tbody>
 </table>
 </section><section><h1 id="completer-la-description" tabindex="-1">Compléter la description</h1>
-<p>Dans le fichier <code>SimpleLightSequencer.vhd</code>, ajoutez une entité <code>SimpleLightSequencer</code>
+<p class="icon-file">Dans le fichier <code>SimpleLightSequencer.vhd</code>, ajoutez une entité <code>SimpleLightSequencer</code>
 et une architecture <code>Behavioral</code> pour cette entité.</p>
 <p>L’entité <code>SimpleLightSequencer</code> possédera les ports suivants&nbsp;:</p>
 <table>
@@ -246,7 +246,7 @@ Choisissez la stratégie <em>Flow RuntimeOptimized</em>.</li>
 </section><section><h2 id="synthetiser-et-implementer-le-circuit" tabindex="-1">Synthétiser et implémenter le circuit</h2>
 <p>Exécutez cette commande dans la console Tcl pour réduire la gravité de
 certains messages concernant les affectations de broches&nbsp;:</p>
-<pre><code class="icon-keyboard language-tcl">set_msg_config -id {Common <span class="hljs-number">17</span><span class="hljs-number">-55</span>} -new_severity {WARNING}
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_msg_config</span> <span class="hljs-built_in">-id</span> {Common <span class="hljs-number">17</span><span class="hljs-built_in">-</span><span class="hljs-number">55</span>} <span class="hljs-built_in">-new_severity</span> {WARNING}
 </code></pre>
 <p class="icon-mouse">Générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>

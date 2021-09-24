@@ -227,7 +227,7 @@ mkdir -p ghdl-demo/tests
 <ul>
 <li>L’entité VHDL à tester&nbsp;: <code>ghdl-demo/src/InToOut.vhd</code></li>
 </ul>
-<pre><code class="language-vhdl"><span class="hljs-keyword">library</span> ieee;
+<pre><code class="icon-file language-vhdl"><span class="hljs-keyword">library</span> ieee;
 <span class="hljs-keyword">use</span> ieee.std_logic_1164.<span class="hljs-keyword">all</span>;
 
 <span class="hljs-keyword">entity</span> InToOut <span class="hljs-keyword">is</span>
@@ -245,7 +245,7 @@ mkdir -p ghdl-demo/tests
 <ul>
 <li>Le banc de test cocotb, en Python&nbsp;: <code>ghdl-demo/tests/test_intoout.py</code></li>
 </ul>
-<pre><code class="language-python"><span class="hljs-keyword">import</span> cocotb
+<pre><code class="icon-file language-python"><span class="hljs-keyword">import</span> cocotb
 <span class="hljs-keyword">from</span> cocotb.triggers <span class="hljs-keyword">import</span> Timer
 
 <span class="hljs-keyword">import</span> tkinter <span class="hljs-keyword">as</span> tk
@@ -310,7 +310,7 @@ refresh_time = timedelta(milliseconds=<span class="hljs-number">40</span>)
 <ul>
 <li>Le fichier de configuration et de lancement du banc de test&nbsp;: <code>ghdl-demo/tests/Makefile</code></li>
 </ul>
-<pre><code class="language-make">SRCDIR = <span class="hljs-variable">$(PWD)</span>/../src
+<pre><code class="icon-file language-make">SRCDIR = <span class="hljs-variable">$(PWD)</span>/../src
 VHDL_SOURCES = <span class="hljs-variable">$(SRCDIR)</span>/InToOut.vhd
 TOPLEVEL = intoout
 MODULE = test_intoout

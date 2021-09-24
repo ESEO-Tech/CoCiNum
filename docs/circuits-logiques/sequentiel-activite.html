@@ -101,33 +101,29 @@ installer au préalable</a>.
 Si vous travaillez sous Linux, nous recommandons d’installer l’environnement
 d’exécution Java (JRE) en utilisant le gestionnaire de paquets de votre distribution&nbsp;:
 sous Ubuntu, installez simplement le paquet <code>default-jre</code>.</p>
-<p>Logisim-evolution ne s’installe pas comme une application ordinaire.
+<p class="icon-download">Logisim-evolution ne s’installe pas comme une application ordinaire.
 Il se présente comme un fichier <em>jar</em> que vous pouvez enregistrer
 à l’emplacement de votre choix.</p>
-<div class="download">
 <ul>
-<li><a href="https://github.com/reds-heig/logisim-evolution/releases/download/v3.3.3/logisim-evolution-3.3.3-all.jar"><i class="fas fa-download"></i> Télécharger Logisim-evolution 3.3.3</a></li>
+<li><a href="https://github.com/reds-heig/logisim-evolution/releases/download/v3.3.3/logisim-evolution-3.3.3-all.jar">Télécharger Logisim-evolution 3.3.3</a></li>
 </ul>
-</div>
 <div class="warning">
 <p>Logisim-evolution nécessite Java 9 ou une version ultérieure.</p>
 <p>Si vous avez besoin de conserver une version plus ancienne de Java,
 téléchargez plutôt le logiciel <a href="../assets/logisim-generic-2.7.1.jar">Logisim 2.7</a>.</p>
 </div>
-<p>Dans cette activité, vous allez compléter un circuit de base que nous fournissons.
+<p class="icon-download">Dans cette activité, vous allez compléter un circuit de base que nous fournissons.
 Cliquez avec le bouton droit sur un des liens ci-dessous et choisissez
 «&nbsp;Enregistrer le lien sous…&nbsp;», ou «&nbsp;Enregistrer la cible du lien sous…&nbsp;»,
 selon le navigateur web que vous utilisez.</p>
-<div class="download">
 <ul>
-<li><a href="../assets/sources/MoleBuster.circ"><i class="fas fa-download"></i> Télécharger le schéma du circuit de base pour Logisim-evolution</a></li>
-<li><a href="../assets/sources/MoleBuster-logisim2.circ"><i class="fas fa-download"></i> Télécharger le schéma du circuit de base pour Logisim 2.7</a></li>
+<li><a href="../assets/sources/MoleBuster.circ">Télécharger le schéma du circuit de base pour Logisim-evolution</a></li>
+<li><a href="../assets/sources/MoleBuster-logisim2.circ">Télécharger le schéma du circuit de base pour Logisim 2.7</a></li>
 </ul>
-</div>
-<p>Sous Windows, vous pouvez exécuter Logisim-evolution en double-cliquant sur
-son icône dans un navigateur de fichiers.
-Vous pouvez également l’exécuter en ligne de commande&nbsp;:
-utilisez la commande <code>cd</code> pour vous déplacer dans le
+<p class="icon-folder">Sous Windows, vous pouvez exécuter Logisim-evolution en double-cliquant sur
+son icône dans un navigateur de fichiers.</p>
+<p>Vous pouvez également l’exécuter en ligne de commande.
+Utilisez la commande <code>cd</code> pour vous déplacer dans le
 dossier contenant Logisim-evolution, puis&nbsp;:</p>
 <pre><code class="icon-term language-bash">java -jar logisim-evolution-3.3.3-all.jar
 </code></pre>
@@ -135,7 +131,7 @@ dossier contenant Logisim-evolution, puis&nbsp;:</p>
 <pre><code class="icon-term language-bash">java -jar logisim-generic-2.7.1.jar
 </code></pre>
 </section><section><h1 id="travail-a-effectuer" tabindex="-1">Travail à effectuer</h1>
-<p>Ouvrez le fichier <code>MoleBuster.circ</code> avec Logisim-evolution.</p>
+<p class="icon-folder">Ouvrez le fichier <code>MoleBuster.circ</code> avec Logisim-evolution.</p>
 </section><section><h2 id="etape-0-circuit-de-base" tabindex="-1">Étape 0&nbsp;: circuit de base</h2>
 <p>Le circuit se compose des éléments suivants&nbsp;:</p>
 <ul>
@@ -148,7 +144,7 @@ et le numéro de ce bouton (<code>btn_index</code>).
 Si plusieurs boutons sont pressés en même temps, le codeur ne retient
 que le numéro le plus grand.</li>
 </ul>
-<p>Dans le menu <em>Simulation</em>, vérifiez que l’option <em>Simulation enclenchée</em>
+<p class="icon-mouse">Dans le menu <em>Simulation</em>, vérifiez que l’option <em>Simulation enclenchée</em>
 est activée.
 Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-hand-pointer"></i>&nbsp;».</p>
 <ol>
@@ -159,8 +155,8 @@ Observez l’effet sur l’allumage des LED <code>L0</code> à <code>L7</code>.<
 Observez l’effet sur les sorties <code>btn_pressed</code> et <code>btn_index</code>.</li>
 </ol>
 </section><section><h2 id="etape-1-allumer-les-voyants-a-tour-de-role" tabindex="-1">Étape 1&nbsp;: allumer les voyants à tour de rôle</h2>
-<p>Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-mouse-pointer"></i>&nbsp;» pour revenir en mode édition.</p>
-<p>Supprimez le port <code>led_index</code> et remplacez-le par un compteur modulo 8.
+<p class="icon-mouse">Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-mouse-pointer"></i>&nbsp;» pour revenir en mode édition.</p>
+<p class="icon-diagram">Supprimez le port <code>led_index</code> et remplacez-le par un compteur modulo 8.
 Le principe de construction d’un tel compteur est expliqué dans la section
 <a href="sequentiel-registres-et-compteurs.html">Registres et compteurs</a>.</p>
 <p>Pour un compteur dont le modulo est une puissance de deux,
@@ -208,15 +204,16 @@ Le registre mettra sa valeur à jour à chaque front montant de son entrée
 horloge.</p>
 </div>
 <h3 id="simulation" tabindex="-1">Simulation</h3>
-<p>Dans le menu <em>Simulation</em>&nbsp;:</p>
+<p class="icon-mouse">Dans le menu <em>Simulation</em>&nbsp;:</p>
 <ol>
 <li>Réglez la <em>Fréquence des tics</em> à <em>2&nbsp;Hz</em>.
 Notre horloge ayant 2 tics par période, elle aura donc une fréquence de 1&nbsp;Hz.</li>
 <li>Cochez l’option <em>Tics activés</em>.</li>
 </ol>
-<p>Si l’entrée <code>enable</code> du décodeur est à 1, les voyants doivent s’allumer
+<p class="icon-check">Observez le fonctionnement du circuit.
+Lorsque l’entrée <code>enable</code> du décodeur est à 1, les voyants doivent s’allumer
 pendant une seconde à tour de rôle.</p>
-<p>Dans le menu <em>Simulation</em>, décochez l’option <em>Tics activés</em>
+<p class="icon-mouse">Dans le menu <em>Simulation</em>, décochez l’option <em>Tics activés</em>
 avant de passer à l’étape suivante.</p>
 </section><section><h2 id="etape-2-division-de-frequence" tabindex="-1">Étape 2&nbsp;: division de fréquence</h2>
 <p>Nous souhaitons laisser un peu de temps entre l’extinction d’une LED et
@@ -227,8 +224,8 @@ une plus grande précision.</p>
 soit allumée pendant 8 périodes d’horloge (soit une seconde), puis éteinte
 pendant 2 périodes d’horloge (un quart de seconde).
 Il faut donc compter 10 périodes d’horloge par LED.</p>
-<p>Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-mouse-pointer"></i>&nbsp;» pour revenir en mode édition.</p>
-<p>Construisez un compteur modulo 10 en utilisant les composants suivants&nbsp;:</p>
+<p class="icon-mouse">Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-mouse-pointer"></i>&nbsp;» pour revenir en mode édition.</p>
+<p class="icon-diagram">Construisez un compteur modulo 10 en utilisant les composants suivants&nbsp;:</p>
 <table>
 <thead>
 <tr>
@@ -265,28 +262,28 @@ Il faut donc compter 10 périodes d’horloge par LED.</p>
 </tr>
 </tbody>
 </table>
-<p>Réglez la largeur de données de ces composants pour qu’ils puissent traiter
+<p class="icon-config">Réglez la largeur de données de ces composants pour qu’ils puissent traiter
 des valeurs comprises entre 0 et 9.</p>
 <div class="info">
 <p>Utilisez le composant horloge déjà présent sur le schéma pour synchroniser
 le registre <code>timer</code>.</p>
 </div>
-<p>Votre circuit doit maintenant contenir deux compteurs, un compteur modulo 8 et
+<p class="icon-diagram">Votre circuit doit maintenant contenir deux compteurs, un compteur modulo 8 et
 un compteur modulo 10, avec la même horloge.
 Mettez en cascade ces deux compteurs&nbsp;: reliez l’entrée <code>WE</code> du registre <code>led_index</code>
 pour qu’il se mette à jour à chaque fois que <code>timer</code> vaut 9.</p>
-<p>Pour terminez, supprimez le port <code>enable</code> et remplacez-le par un comparateur
+<p class="icon-diagram">Pour terminez, supprimez le port <code>enable</code> et remplacez-le par un comparateur
 paramétré de la même manière que celui du compteur modulo 10.
 Faites en sorte que le décodeur soit activé quand <code>timer</code> est compris entre 0 et 7.</p>
 <h3 id="simulation-1" tabindex="-1">Simulation</h3>
-<p>Dans le menu <em>Simulation</em>&nbsp;:</p>
+<p class="icon-mouse">Dans le menu <em>Simulation</em>&nbsp;:</p>
 <ol>
 <li>Réglez la <em>Fréquence des tics</em> à <em>16&nbsp;Hz</em>.
 Notre horloge ayant 2 tics par période, elle aura donc une fréquence de 8&nbsp;Hz.</li>
 <li>Cochez l’option <em>Tics activés</em>.</li>
 </ol>
-<p>Observez le comportement de l’allumage des LED.</p>
-<p>Dans le menu <em>Simulation</em>, décochez l’option <em>Tics activés</em>
+<p class="icon-check">Observez le comportement de l’allumage des LED.</p>
+<p class="icon-mouse">Dans le menu <em>Simulation</em>, décochez l’option <em>Tics activés</em>
 avant de passer à l’étape suivante.</p>
 </section><section><h2 id="etape-3-detecter-les-succes-et-les-coups-manques" tabindex="-1">Étape 3&nbsp;: détecter les succès et les coups manqués</h2>
 <p>Une taupe est touchée lorsque les trois conditions suivantes sont vérifiées
@@ -302,8 +299,8 @@ suivantes est vérifiée&nbsp;:</p>
 <li>Aucune LED n’est allumée.</li>
 <li>Le numéro de la LED est différent de celui du bouton.</li>
 </ul>
-<p>Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-mouse-pointer"></i>&nbsp;» pour revenir en mode édition.</p>
-<p>Complétez le circuit en ajoutant deux LED. L’une s’allumera en cas de succès
+<p class="icon-mouse">Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-mouse-pointer"></i>&nbsp;» pour revenir en mode édition.</p>
+<p class="icon-diagram">Complétez le circuit en ajoutant deux LED. L’une s’allumera en cas de succès
 (<em>hit</em>), l’autre en cas d’échec (<em>miss</em>).
 Vous pourrez utiliser les composants suivants&nbsp;:</p>
 <table>
@@ -352,24 +349,24 @@ Vous pourrez utiliser les composants suivants&nbsp;:</p>
 </tr>
 </tbody>
 </table>
-<p>Essayez d’utiliser le plus petit nombre de portes possible.</p>
+<p class="icon-target">Essayez d’utiliser le plus petit nombre de portes possible.</p>
 <h3 id="simulation-2" tabindex="-1">Simulation</h3>
-<p>Dans le menu <em>Simulation</em>&nbsp;:</p>
+<p class="icon-mouse">Dans le menu <em>Simulation</em>&nbsp;:</p>
 <ol>
 <li>Réglez la <em>Fréquence des tics</em> à <em>16&nbsp;Hz</em>.</li>
 <li>Cochez l’option <em>Tics activés</em>.</li>
 </ol>
-<p>Pendant que les LED s’allument et s’éteignent à tour de rôle, pressez
-les boutons de manière à provoquer des succès et des échecs.
-Vérifiez que les LED <code>hit</code> et <code>miss</code> s’allument de la manière attendue.</p>
+<p class="icon-mouse">Pendant que les LED s’allument et s’éteignent à tour de rôle, pressez
+les boutons de manière à provoquer des succès et des échecs.</p>
+<p class="icon-check">Vérifiez que les LED <code>hit</code> et <code>miss</code> s’allument de la manière attendue.</p>
 <div class="info">
 <p>Vous pouvez diminuer la fréquence des tics pour mieux observer
 différentes situations.</p>
 </div>
-<p>Dans le menu <em>Simulation</em>, décochez l’option <em>Tics activés</em>
+<p class="icon-mouse">Dans le menu <em>Simulation</em>, décochez l’option <em>Tics activés</em>
 avant de passer à l’étape suivante.</p>
 </section><section><h2 id="etape-4-compter-les-succes-et-les-coups-manques" tabindex="-1">Étape 4&nbsp;: compter les succès et les coups manqués</h2>
-<p>Pour compter les scores, vous ajouterez au circuit deux compteurs modulo 16&nbsp;:
+<p class="icon-diagram">Pour compter les scores, vous ajouterez au circuit deux compteurs modulo 16&nbsp;:
 un pour compter les succès, l’autre pour compter les coups manqués.
 Ces compteurs se mettront à jour au passage à 1 des signaux <code>hit</code> et <code>miss</code>.</p>
 <div class="warning">
@@ -383,12 +380,12 @@ deux versions, <code>x1</code> et <code>x2</code>, de ce signal décalées dans 
 <p>Sur ce chronogramme, lorsque <code>x1</code>=1 et <code>x2</code>=0, cela signifie que <code>x</code>
 vient de passer à 1. Cette situation est matérialisée par le passage à 1
 du signal <code>e</code> pendant une période d’horloge.</p>
-<p>Proposez un schéma permettant de produire le signal <code>e</code> ci-dessus à partir
-d’un signal <code>x</code>.
-Dans Logisim-evolution, reproduisez ce schéma pour <code>x=hit</code> et pour <code>x=miss</code>
+<p class="icon-question">Proposez un schéma permettant de produire le signal <code>e</code> ci-dessus à partir
+d’un signal <code>x</code>.</p>
+<p class="icon-diagram">Dans Logisim-evolution, reproduisez ce schéma pour <code>x=hit</code> et pour <code>x=miss</code>
 de manière à piloter les entrées <code>WE</code> de deux compteurs modulo 16.</p>
-<p>Utilisez des afficheurs 7 segments pour afficher les valeurs de ces compteurs.</p>
-<p>Vous pourrez utiliser les composants suivants&nbsp;:</p>
+<p class="icon-diagram">Utilisez des afficheurs 7 segments pour afficher les valeurs de ces compteurs.</p>
+<p>À cette étape, les composants utilisables sont&nbsp;:</p>
 <table>
 <thead>
 <tr>
@@ -435,22 +432,22 @@ de manière à piloter les entrées <code>WE</code> de deux compteurs modulo 16.
 les bascules et registres que vous venez d’ajouter.</p>
 </div>
 <h3 id="simulation-3" tabindex="-1">Simulation</h3>
-<p>Dans le menu <em>Simulation</em>&nbsp;:</p>
+<p class="icon-mouse">Dans le menu <em>Simulation</em>&nbsp;:</p>
 <ol>
 <li>Réglez la <em>Fréquence des tics</em> à <em>16&nbsp;Hz</em>.</li>
 <li>Cochez l’option <em>Tics activés</em>.</li>
 </ol>
-<p>Pendant que les LED s’allument et s’éteignent à tour de rôle, pressez
-les boutons de manière à provoquer des succès et des échecs.
-Vérifiez que les afficheurs se mettent à jour de la manière attendue.</p>
-<p>Dans le menu <em>Simulation</em>, décochez l’option <em>Tics activés</em>
+<p class="icon-mouse">Pendant que les LED s’allument et s’éteignent à tour de rôle, pressez
+les boutons de manière à provoquer des succès et des échecs.</p>
+<p class="icon-check">Vérifiez que les afficheurs se mettent à jour de la manière attendue.</p>
+<p class="icon-mouse">Dans le menu <em>Simulation</em>, décochez l’option <em>Tics activés</em>
 avant de passer à l’étape suivante.</p>
 </section><section><h2 id="etape-5-allumer-les-voyants-dans-un-ordre-pseudo-aleatoire" tabindex="-1">Étape 5&nbsp;: allumer les voyants dans un ordre pseudo-aléatoire</h2>
 <p>Pour rendre le jeu moins prévisible, nous allons remplacer le compteur
 <code>led_index</code> par un générateur de nombres pseudo-aléatoires
 sur le principe du <a href="https://fr.wikipedia.org/wiki/Registre_%C3%A0_d%C3%A9calage_%C3%A0_r%C3%A9troaction_lin%C3%A9aire">registre à décalage à rétroaction linéaire</a>
 (ou LFSR pour <em>Linear Feedback Shift Register</em>).</p>
-<p>Supprimez l’additionneur en amont du registre <code>led_index</code>.
+<p class="icon-diagram">Supprimez l’additionneur en amont du registre <code>led_index</code>.
 Sans modifier le câblage de l’entrée <code>WE</code> et de la sortie du registre
 <code>led_index</code>, ajoutez le générateur de nombres pseudo-aléatoires représenté sur
 le schéma ci-dessous&nbsp;:</p>
@@ -487,18 +484,18 @@ le schéma ci-dessous&nbsp;:</p>
 les bascules que vous venez d’ajouter.</p>
 </div>
 <h3 id="simulation-4" tabindex="-1">Simulation</h3>
-<p>Dans le menu <em>Simulation</em>&nbsp;:</p>
+<p class="icon-mouse">Dans le menu <em>Simulation</em>&nbsp;:</p>
 <ol>
 <li>Réglez la <em>Fréquence des tics</em> à <em>16&nbsp;Hz</em>.</li>
 <li>Cochez l’option <em>Tics activés</em>.</li>
 </ol>
-<p>Observez l’ordre d’allumage des LED.
-Faites fonctionner le jeu et tentez d’obtenir 16 <em>hits</em> consécutifs.</p>
+<p class="icon-eye">Observez l’ordre d’allumage des LED.</p>
+<p class="icon-target">Faites fonctionner le jeu et tentez d’obtenir 16 <em>hits</em> consécutifs.</p>
 </section><section><h2 id="etape-6-ameliorations" tabindex="-1">Étape 6&nbsp;: améliorations</h2>
-<p>Actuellement, le jeu ne compte que les coups réussis et les coups manqués.
+<p class="icon-question">Actuellement, le jeu ne compte que les coups réussis et les coups manqués.
 Proposez une solution pour connaître le nombre de fois où un joueur n’a pressé
-aucun bouton pendant qu’une LED était allumée</p>
-<p>Pour terminer, il serait préférable de n’avoir qu’un affichage avec un score
+aucun bouton pendant qu’une LED était allumée.</p>
+<p class="icon-question">Pour terminer, proposez un circuit affichant un score
 global tenant compte du nombre de succès, du nombre de coups manqués et du
 nombre de fois où le joueur n’a pas pressé de bouton.</p>
 </section>

@@ -95,9 +95,9 @@ comportement est détaillé dans ce tableau&nbsp;:</p>
 </tr>
 </tbody>
 </table>
-<p>D’après ces indications, représentez le fonctionnement du jeu sous la forme
+<p class="icon-question">D’après ces indications, représentez le fonctionnement du jeu sous la forme
 d’un graphe d’états.</p>
-<p>Dans un premier temps, déclarez les signaux <code>lives_reg</code> (nombre de vies restantes)
+<p class="icon-file">Dans un premier temps, déclarez les signaux <code>lives_reg</code> (nombre de vies restantes)
 et <code>score_reg</code> (score courant) et affectez-leur des constantes.
 Complétez le module <code>SquashCore</code> avec une description de la machine à états.
 Faites en sorte que l’animation de la balle et de la raquette soit désormais
@@ -110,11 +110,11 @@ conditionnée par l’état courant.</p>
 </ul>
 </div>
 </section><section><h1 id="gestion-du-nombre-de-vies-et-du-score" tabindex="-1">Gestion du nombre de vies et du score</h1>
-<p>Ajoutez deux compteurs chargés de mettre à jour <code>lives_reg</code> et <code>score_reg</code>
+<p class="icon-file">Ajoutez deux compteurs chargés de mettre à jour <code>lives_reg</code> et <code>score_reg</code>
 en fonction de l’état et des détection de collision.</p>
-<p>Affectez également les sorties <code>game_over_o</code> et <code>success_o</code> de <code>SquashCore</code>
+<p class="icon-file">Affectez également les sorties <code>game_over_o</code> et <code>success_o</code> de <code>SquashCore</code>
 pour qu’ils soient à 1, respectivement dans les états <code>GAME_OVER</code> et <code>SUCCESS</code>.</p>
-<p>Synthétisez le circuit et observez son fonctionnement sur la carte Basys3.</p>
+<p class="icon-check">Synthétisez le circuit et observez son fonctionnement sur la carte Basys3.</p>
 <div class="info">
 <p>Pour réaliser cette étape, vous devrez appliquer les notions suivantes&nbsp;:</p>
 <ul>

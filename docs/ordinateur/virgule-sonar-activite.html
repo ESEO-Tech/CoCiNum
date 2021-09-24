@@ -157,7 +157,7 @@ Ajoutez au projet Vivado le fichier de contraintes
 <p>Dans le fichier <code>Computer_pkg.vhd</code>, ajoutez les définitions suivantes pour
 définir la plage d’adresses et la vitesse de communication associées au deuxième
 récepteur série&nbsp;:</p>
-<pre><code class="language-vhdl"><span class="hljs-keyword">constant</span> RECV_ADDRESS     : <span class="hljs-built_in">unsigned</span> := x<span class="hljs-string">"87000000"</span>;
+<pre><code class="icon-file language-vhdl"><span class="hljs-keyword">constant</span> RECV_ADDRESS     : <span class="hljs-built_in">unsigned</span> := x<span class="hljs-string">"87000000"</span>;
 <span class="hljs-keyword">constant</span> RECV_BIT_RATE_HZ : <span class="hljs-built_in">positive</span> := <span class="hljs-number">9600</span>;
 
 <span class="hljs-keyword">constant</span> INTC_EVENTS_RECV : <span class="hljs-built_in">natural</span> := <span class="hljs-number">6</span>;
@@ -166,7 +166,7 @@ récepteur série&nbsp;:</p>
 <span class="hljs-keyword">type</span> device_t <span class="hljs-keyword">is</span> (..., RECV);
 </code></pre>
 </section><section><h2 id="completer-lentite" tabindex="-1">Compléter l’entité</h2>
-<p>Dans le fichier <code>Computer.vhd</code>, complétez l’entité <code>Computer</code> en déclarant
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, complétez l’entité <code>Computer</code> en déclarant
 le port du connecteur d’extension que vous avez choisi.
 Le tableau ci-dessous donne la liste des ports disponibles et leur rôle.
 Ils sont tous de type <code>std_logic</code>.</p>
@@ -220,13 +220,13 @@ Ils sont tous de type <code>std_logic</code>.</p>
 <p>Déclarez bien les quatre ports, même ceux qui ne sont pas utilisés.</p>
 </div>
 </section><section><h2 id="completer-larchitecture" tabindex="-1">Compléter l’architecture</h2>
-<p>Dans le fichier <code>Computer.vhd</code>, complétez l’architecture pour intégrer une seconde
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, complétez l’architecture pour intégrer une seconde
 instance de <code>SerialReceiver</code> en utilisant les constantes que vous avez ajoutées
 au paquetage <code>Computer_pkg</code>.</p>
 <p>Inspirez-vous de l’instance de <code>SerialReceiver</code> qui existe déjà dans votre
 architecture.
 En particulier, modifiez l’instance <code>sync_inst</code> de la manière suivante&nbsp;:</p>
-<pre><code class="language-vhdl">sync_inst : <span class="hljs-keyword">entity</span> work.InputSynchronizer
+<pre><code class="icon-file language-vhdl">sync_inst : <span class="hljs-keyword">entity</span> work.InputSynchronizer
     <span class="hljs-keyword">generic</span> <span class="hljs-keyword">map</span>(
         <span class="hljs-literal">WIDTH</span> =&gt; <span class="hljs-number">3</span>
     )
@@ -240,7 +240,7 @@ En particulier, modifiez l’instance <code>sync_inst</code> de la manière suiv
         data_o(<span class="hljs-number">2</span>) =&gt; sync_recv_rx <span class="hljs-comment">-- Pensez à déclarer ce signal</span>
     );
 </code></pre>
-<p>Une fois ce travail terminé, générez le fichier binaire à charger dans le FPGA&nbsp;:
+<p class="icon-mouse">Une fois ce travail terminé, générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
 </section>
     

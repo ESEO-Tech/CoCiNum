@@ -81,13 +81,13 @@ Le sous-dossier <code>/srv/www/cgi-bin</code> contiendra des scripts que le serv
 <li>Modifiez le fichier <code>components/apps/zybo-acl-app/Makefile</code> afin que la cible
 <code>install</code> soit&nbsp;:</li>
 </ol>
-<pre><code class="language-makefile"><span class="hljs-section">install:</span>
+<pre><code class="icon-file language-makefile"><span class="hljs-section">install:</span>
     <span class="hljs-variable">$(TARGETINST)</span> -d -p 755 data/zybo-acl-app /srv/www/cgi-bin/zybo-acl-app
 </code></pre>
 <ol start="3">
 <li>Modifiez le fichier <code>components/apps/zybo-acl-app/data/zybo-acl-app</code>&nbsp;:</li>
 </ol>
-<pre><code class="language-bash"><span class="hljs-meta">#!/bin/bash</span>
+<pre><code class="icon-file language-bash"><span class="hljs-meta">#!/bin/bash</span>
 <span class="hljs-built_in">echo</span> <span class="hljs-string">'Content-type: text/html'</span>
 <span class="hljs-built_in">echo</span>
 <span class="hljs-built_in">echo</span> <span class="hljs-string">'&lt;h1&gt;Hello&lt;/h1&gt;'</span>
@@ -104,7 +104,7 @@ petalinux-boot --jtag --prebuilt 3
 </section><section><h1 id="interroger-le-capteur-a-travers-le-web" tabindex="-1">Interroger le capteur à travers le web</h1>
 <p>En vous inspirant du squelette ci-desous, modifiez le script <code>zybo-acl-app</code>
 afin d’afficher l’état de l’accéléromètre dans une page web.</p>
-<pre><code class="language-bash"><span class="hljs-meta">#!/bin/bash</span>
+<pre><code class="icon-file language-bash"><span class="hljs-meta">#!/bin/bash</span>
 
 <span class="hljs-comment"># Vérifier si le pilote du contrôleur SPI a déjà été chargé.</span>
 <span class="hljs-keyword">if</span> [ ! -e /sys/class/eseo/zybo-spi-device ]; <span class="hljs-keyword">then</span>

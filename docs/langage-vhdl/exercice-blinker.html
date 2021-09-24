@@ -109,7 +109,7 @@ gedit Blinker.vhd &amp;
 </tr>
 </tbody>
 </table>
-<p>Sachant que la fréquence du signal d’horloge <code>clk_i</code> est indiquée par le
+<p class="icon-file">Sachant que la fréquence du signal d’horloge <code>clk_i</code> est indiquée par le
 paramètre générique <code>CLK_FREQUENCY_HZ</code> de l’entité <code>Blinker</code>,
 réalisez un <a href="sequentiel-compteurs-et-diviseurs-de-frequence.html#diviseurs-de-frequence">diviseur de fréquence</a>,
 pour faire clignoter la LED 0 toutes les secondes.</p>
@@ -119,7 +119,7 @@ La commande <code>cd</code> peut être omise si vous êtes déjà dans le dossie
 <pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Exercices/Blinker
 ghdl -a Blinker.vhd
 </code></pre>
-<p>Modifiez votre fichier source jusqu’à ce qu’il n’y ait plus de message d’erreur.</p>
+<p class="icon-check">Modifiez votre fichier source jusqu’à ce qu’il n’y ait plus de message d’erreur.</p>
 </section><section><h1 id="simuler-le-fonctionnement-du-circuit" tabindex="-1">Simuler le fonctionnement du circuit</h1>
 <p>Démarrez la simulation en utilisant les commandes suivantes&nbsp;:</p>
 <pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Exercices/Blinker/tests
@@ -130,11 +130,12 @@ Dans des conditions normales, une LED allumée a la couleur verte.
 Si la LED s’allume en rouge, cela signifie généralement que le signal <code>leds_o(0)</code>
 vaut <code>'U'</code> (signal non initialisé), ou <code>'X'</code> (valeur indéterminée).
 Voir à ce sujet <a href="../essentiel-vhdl/types.html#types-binaires-standard">la section sur le type <code>std_logic</code></a>.</p>
+<p class="icon-check">Vérifiez que vous obtenez le comportement attendu.</p>
 <p>Pour afficher les chronogrammes, utilisez la commande suivante&nbsp;:</p>
 <!-- TODO Vérifier si le fichier se trouve bien dans sim_build -->
 <pre><code class="icon-term language-bash">gtkwave sim_build/Blinker.ghw
 </code></pre>
-<p>Par défaut, la fenêtre GTKWave n’affiche aucun chronogramme.
+<p class="icon-mouse">Par défaut, la fenêtre GTKWave n’affiche aucun chronogramme.
 Déroulez l’arborescence à partir de l’élément <em>top</em> dans le panneau <em>SST</em> en haut à gauche
 et sélectionnez les signaux à afficher dans la liste <em>Signals</em> en bas à gauche.</p>
 <p>Utilisez les boutons de la barre d’outils pour dézoomer:
@@ -247,7 +248,7 @@ Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl<
 </table>
 <p>Pour donner une valeur au paramètre générique <code>CLK_FREQUENCY_HZ</code> de l’entité
 <code>Blinker</code>, exécutez cette commande dans le panneau <em>Tcl Console</em> de Vivado&nbsp;:</p>
-<pre><code class="icon-keyboard language-tcl">set_property generic CLK_FREQUENCY_HZ=<span class="hljs-number">100000000</span> [current_fileset]
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">generic</span> CLK_FREQUENCY_HZ=<span class="hljs-number">100000000</span> [<span class="hljs-keyword">current_fileset</span>]
 </code></pre>
 </section><section><h1 id="synthetiser-le-circuit" tabindex="-1">Synthétiser le circuit</h1>
 </section><section><h2 id="configurer-les-optimisations" tabindex="-1">Configurer les optimisations</h2>
@@ -269,7 +270,7 @@ Choisissez la stratégie <em>Flow RuntimeOptimized</em>.</li>
 </section><section><h2 id="synthetiser-et-implementer-le-circuit" tabindex="-1">Synthétiser et implémenter le circuit</h2>
 <p>Exécutez cette commande dans la console Tcl pour réduire la gravité de
 certains messages concernant les affectations de broches&nbsp;:</p>
-<pre><code class="icon-keyboard language-tcl">set_msg_config -id {Common <span class="hljs-number">17</span><span class="hljs-number">-55</span>} -new_severity {WARNING}
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_msg_config</span> <span class="hljs-built_in">-id</span> {Common <span class="hljs-number">17</span><span class="hljs-built_in">-</span><span class="hljs-number">55</span>} <span class="hljs-built_in">-new_severity</span> {WARNING}
 </code></pre>
 <p class="icon-mouse">Générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>

@@ -87,7 +87,7 @@ Le bouton central servira à remettre le compteur à zéro.</p>
     <source src="../assets/videos/langage-vhdl/CounterDemo.webm" type="video/webm">
 </video>
 <p>L’entité devient&nbsp;:</p>
-<pre><code class="language-vhdl"><span class="hljs-keyword">entity</span> CounterDemo <span class="hljs-keyword">is</span>
+<pre><code class="icon-file language-vhdl"><span class="hljs-keyword">entity</span> CounterDemo <span class="hljs-keyword">is</span>
     <span class="hljs-keyword">port</span>(
         clk_i             : <span class="hljs-keyword">in</span>  <span class="hljs-built_in">std_logic</span>;
         <span class="hljs-comment">-- Le bouton-poussoir central de la carte Basys3.</span>
@@ -114,7 +114,7 @@ Le port de sortie <code>disp_segments_n_o</code> reçoit l’inverse bit à bit 
 Les sorties <code>disp_select_n_o</code> et <code>disp_point_n_o</code> reçoivent des valeurs constantes qui ont
 pour effet de sélectionner l’afficheur le plus à droite et de ne pas allumer
 les voyants indicateurs de point décimal.</p>
-<pre><code class="language-vhdl"><span class="hljs-keyword">architecture</span> Structural <span class="hljs-keyword">of</span> CounterDemo <span class="hljs-keyword">is</span>
+<pre><code class="icon-file language-vhdl"><span class="hljs-keyword">architecture</span> Structural <span class="hljs-keyword">of</span> CounterDemo <span class="hljs-keyword">is</span>
     <span class="hljs-keyword">signal</span> sec_inc   : <span class="hljs-built_in">std_logic</span>;
     <span class="hljs-keyword">signal</span> sec_value : <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> <span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">15</span>;
     <span class="hljs-keyword">signal</span> segments  : <span class="hljs-built_in">std_logic_vector</span>(<span class="hljs-number">0</span> <span class="hljs-keyword">to</span> <span class="hljs-number">6</span>);
@@ -285,32 +285,33 @@ trouver dans la rubrique <em>Constraints</em> de l’arborescence des fichiers s
 <li>Les niveaux de tension électrique à utiliser sur les broches du FPGA.</li>
 <li>Les caractéristiques du signal d’horloge.</li>
 </ul>
-<p>Le fichier <code>Basys3_Buttons.xdc</code> définit les affectations de broches pour les
+<p class="icon-file">Le fichier <code>Basys3_Buttons.xdc</code> définit les affectations de broches pour les
 boutons-poussoirs de la carte Basys3.
 Par exemple, le port <code>btn_center_i</code> de l’entité est associé avec le bouton central (BTNC) de la carte.
 Sur le circuit imprimé, la sérigraphie indique&nbsp;: «&nbsp;BTNC (U18)&nbsp;».
 Ici, U18 est le numéro de la broche du FPGA à laquelle le bouton est relié.
 Dans le fichier de contraintes, nous avons écrit&nbsp;:</p>
-<pre><code class="language-xdc"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">PACKAGE_PIN</span> U18 [<span class="hljs-keyword">get_ports</span> btn_center_i]
+<pre><code class="language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">PACKAGE_PIN</span> U18 [<span class="hljs-keyword">get_ports</span> btn_center_i]
 </code></pre>
 <p>Cette broche sera pilotée avec une tension de référence de 3,3 V&nbsp;:</p>
-<pre><code class="language-xdc"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">IOSTANDARD</span> LVCMOS33 [<span class="hljs-keyword">get_ports</span> btn_center_i]
+<pre><code class="language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">IOSTANDARD</span> LVCMOS33 [<span class="hljs-keyword">get_ports</span> btn_center_i]
 </code></pre>
 <p>Pour affecter la même propriété à tous les boutons en une seule ligne, nous
 avons écrit&nbsp;:</p>
-<pre><code class="language-xdc"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">IOSTANDARD</span> LVCMOS33 [<span class="hljs-keyword">get_ports</span> btn_*_i]
+<pre><code class="language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">IOSTANDARD</span> LVCMOS33 [<span class="hljs-keyword">get_ports</span> btn_*_i]
 </code></pre>
-<p>Dans le fichier <code>Basys3/Basys3_SegmentDisplay.xdc</code>, nous définissons de la même
+<p class="icon-file">Dans le fichier <code>Basys3/Basys3_SegmentDisplay.xdc</code>, nous définissons de la même
 manière les propriétés de chaque bit des ports <code>disp_segments_n_o</code>, <code>disp_point_n_o</code> et <code>disp_select_n_o</code>.
-Les numéros de broches sont indiqués dans la <a href="../assets/datasheets/Basys3_rm.pdf">documentation constructeur de la carte Basys3</a>.</p>
-<p>Dans le fichier <code>Basys3/Basys3_Clock.xdc</code>, pour définir le signal d’horloge,
+Les numéros de broches sont indiqués dans la
+<a href="../assets/datasheets/Basys3_rm.pdf">documentation constructeur de la carte Basys3</a>.</p>
+<p class="icon-file">Dans le fichier <code>Basys3/Basys3_Clock.xdc</code>, pour définir le signal d’horloge,
 nous avons ajouté une directive <code>create_clock</code> indiquant
 la période et le rapport cyclique du signal attendu sur <code>clk_i</code>.
 Ces propriétés permettront à l’outil de synthèse de vérifier que les temps de prépositionnement
 et de maintien des bascules D sont toujours respectés.</p>
-<pre><code class="language-xdc"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">PACKAGE_PIN</span> W5      [<span class="hljs-keyword">get_ports</span> clk_i]
+<pre><code class="language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">PACKAGE_PIN</span> W5      [<span class="hljs-keyword">get_ports</span> clk_i]
 <span class="hljs-keyword">set_property</span> <span class="hljs-attribute">IOSTANDARD</span> LVCMOS33 [<span class="hljs-keyword">get_ports</span> clk_i]
-<span class="hljs-keyword">create_clock</span> -add -name sys_clk_pin -period <span class="hljs-number">10.00</span> -waveform {<span class="hljs-number">0</span> <span class="hljs-number">5</span>} [<span class="hljs-keyword">get_ports</span> clk_i]
+<span class="hljs-keyword">create_clock</span> <span class="hljs-built_in">-add</span> <span class="hljs-built_in">-name</span> sys_clk_pin <span class="hljs-built_in">-period</span> <span class="hljs-number">10.00</span> <span class="hljs-built_in">-waveform</span> {<span class="hljs-number">0</span> <span class="hljs-number">5</span>} [<span class="hljs-keyword">get_ports</span> clk_i]
 </code></pre>
 </section><section><h1 id="synthetiser-le-circuit" tabindex="-1">Synthétiser le circuit</h1>
 </section><section><h2 id="configurer-les-optimisations" tabindex="-1">Configurer les optimisations</h2>
@@ -332,7 +333,7 @@ Choisissez la stratégie <em>Flow RuntimeOptimized</em>.</li>
 </section><section><h2 id="synthetiser-et-implementer-le-circuit" tabindex="-1">Synthétiser et implémenter le circuit</h2>
 <p>Exécutez cette commande dans la console Tcl pour réduire la gravité de
 certains messages concernant les affectations de broches&nbsp;:</p>
-<pre><code class="icon-keyboard language-tcl">set_msg_config -id {Common <span class="hljs-number">17</span><span class="hljs-number">-55</span>} -new_severity {WARNING}
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_msg_config</span> <span class="hljs-built_in">-id</span> {Common <span class="hljs-number">17</span><span class="hljs-built_in">-</span><span class="hljs-number">55</span>} <span class="hljs-built_in">-new_severity</span> {WARNING}
 </code></pre>
 <p class="icon-mouse">Générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>

@@ -108,7 +108,7 @@ mkdir MyApp
 <p>Pour un système équipé d’une interface de communication série et d’un timer
 utilisant les adresses indiquées dans les étapes précédentes,
 le fichier <code>Platform.h</code> aura le contenu suivant&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> PLATFORM_H_</span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> PLATFORM_H_</span>
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> PLATFORM_H_</span>
 
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;InterruptController/InterruptController.h&gt;</span></span>
@@ -135,25 +135,25 @@ le fichier <code>Platform.h</code> aura le contenu suivant&nbsp;:</p>
 <p>Les constantes définies dans <code>Platform.h</code> doivent être cohérentes avec
 celles définies dans <code>Computer_pkg.vhd</code>.</p>
 <p>Les adresses des périphériques doivent être les mêmes&nbsp;:</p>
-<pre><code class="language-vhdl"><span class="hljs-comment">-- Computer_pkg.vhd</span>
+<pre><code class="icon-file language-vhdl"><span class="hljs-comment">-- Computer_pkg.vhd</span>
 <span class="hljs-keyword">constant</span> TIMER_ADDRESS : <span class="hljs-built_in">unsigned</span> := x<span class="hljs-string">"83000000"</span>;
 </code></pre>
-<pre><code class="language-c"><span class="hljs-comment">// Platform.h</span>
+<pre><code class="icon-file language-c"><span class="hljs-comment">// Platform.h</span>
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> TIMER_ADDRESS 0x83000000</span>
 </code></pre>
-<p>Le masque d’un événement doit être égale à 2<sup>Numéro de l’événement</sup>&nbsp;:</p>
-<pre><code class="language-vhdl"><span class="hljs-comment">-- Computer_pkg.vhd</span>
+<p>Le masque d’un événement doit être égal à 2<sup>Numéro de l’événement</sup>&nbsp;:</p>
+<pre><code class="icon-file language-vhdl"><span class="hljs-comment">-- Computer_pkg.vhd</span>
 <span class="hljs-comment">-- Numéro de l'événement du timer.</span>
 <span class="hljs-keyword">constant</span> INTC_EVENTS_TIMER : <span class="hljs-built_in">natural</span> := <span class="hljs-number">2</span>;
 </code></pre>
-<pre><code class="language-c"><span class="hljs-comment">// Platform.h</span>
+<pre><code class="icon-file language-c"><span class="hljs-comment">// Platform.h</span>
 <span class="hljs-comment">// Masque de l'événement du timer : 2^2 = 4</span>
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_TIMER 0x0004</span>
 </code></pre>
 </div>
 <h3 id="ajout-dun-peripherique-spi" tabindex="-1">Ajout d’un périphérique SPI</h3>
 <p>Pour tous les périphériques SPI, on ajoutera&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;SPI/SPI.h&gt;</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;SPI/SPI.h&gt;</span></span>
 
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> SPI_TIMER_ADDRESS  0x84000000</span>
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> SPI_MASTER_ADDRESS 0x85000000</span>
@@ -165,18 +165,18 @@ celles définies dans <code>Computer_pkg.vhd</code>.</p>
 <span class="hljs-keyword">extern</span> SPIMaster *<span class="hljs-keyword">const</span> spi_master;
 </code></pre>
 <p>Si votre application utilise un module joystick sur bus SPI, vous pouvez ajouter&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;SPI/Joystick.h&gt;</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;SPI/Joystick.h&gt;</span></span>
 
 <span class="hljs-keyword">extern</span> SPIDevice *<span class="hljs-keyword">const</span> jstk;
 </code></pre>
 <p>Si votre application utilise un module accéléromètre sur bus SPI, vous pouvez ajouter&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;SPI/Accelerometer.h&gt;</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;SPI/Accelerometer.h&gt;</span></span>
 
 <span class="hljs-keyword">extern</span> SPIDevice *<span class="hljs-keyword">const</span> acl;
 </code></pre>
 <h3 id="ajout-dun-peripherique-i2c" tabindex="-1">Ajout d’un périphérique I<sup>2</sup>C</h3>
 <p>Pour un périphérique I<sup>2</sup>C, on ajoutera&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;I2C/I2C.h&gt;</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;I2C/I2C.h&gt;</span></span>
 
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> I2C_ADDRESS 0x86000000</span>
 
@@ -185,27 +185,27 @@ celles définies dans <code>Computer_pkg.vhd</code>.</p>
 <span class="hljs-keyword">extern</span> I2CMaster *<span class="hljs-keyword">const</span> i2c;
 </code></pre>
 <p>Si votre application utilise un module capteur de température I<sup>2</sup>C, vous pouvez ajouter&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;I2C/Thermometer.h&gt;</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;I2C/Thermometer.h&gt;</span></span>
 
 <span class="hljs-keyword">extern</span> I2CDevice *<span class="hljs-keyword">const</span> tmp;
 </code></pre>
 <h3 id="ajout-dun-peripherique-uart" tabindex="-1">Ajout d’un périphérique UART</h3>
 <p>Pour un périphérique récepteur série, on ajoutera&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> RECV_ADDRESS 0x87000000</span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> RECV_ADDRESS 0x87000000</span>
 
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_RECV 0x040</span>
 
 <span class="hljs-keyword">extern</span> UART *<span class="hljs-keyword">const</span> recv;
 </code></pre>
 <p>Si votre application utilise un module sonar, vous pouvez ajouter&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;UART/Sonar.h&gt;</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;UART/Sonar.h&gt;</span></span>
 
 <span class="hljs-keyword">extern</span> Sonar *<span class="hljs-keyword">const</span> sonar;
 </code></pre>
 </section><section><h2 id="le-fichier-platformc" tabindex="-1">Le fichier Platform.c</h2>
 <p>Ce fichier contient des <em>instances</em> des structures qui représentent les
 périphériques du système.</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
 
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> REG(T, ADDR, N) (T*)(ADDR + 4 * N)</span>
 
@@ -241,7 +241,7 @@ UART *<span class="hljs-keyword">const</span> uart = &amp;uart_priv;
 Timer *<span class="hljs-keyword">const</span> timer = &amp;timer_priv;
 </code></pre>
 <h3 id="definition-des-peripheriques-spi" tabindex="-1">Définition des périphériques SPI</h3>
-<pre><code class="language-c"><span class="hljs-comment">// Le timer utilisé pour les communications SPI.</span>
+<pre><code class="icon-file language-c"><span class="hljs-comment">// Le timer utilisé pour les communications SPI.</span>
 <span class="hljs-keyword">static</span> Timer spi_timer_priv = {
     <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du timer</span>
     .intc     = intc,
@@ -272,7 +272,7 @@ Timer *<span class="hljs-keyword">const</span> spi_timer = &amp;spi_timer_priv;
 SPIMaster *<span class="hljs-keyword">const</span> spi_master = &amp;spi_master_priv;
 </code></pre>
 <p>Si votre application utilise un module joystick sur bus SPI, vous pouvez ajouter&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-keyword">static</span> SPIDevice jstk_priv = {
+<pre><code class="icon-file language-c"><span class="hljs-keyword">static</span> SPIDevice jstk_priv = {
     <span class="hljs-comment">// Le contrôleur SPI utilisé pour communiquer avec le joystick.</span>
     .spi            = spi_master,
     <span class="hljs-comment">// Le timer utilisé pour mesurer les temps d'attente.</span>
@@ -290,7 +290,7 @@ SPIMaster *<span class="hljs-keyword">const</span> spi_master = &amp;spi_master_
 SPIDevice *<span class="hljs-keyword">const</span> jstk = &amp;jstk_priv;
 </code></pre>
 <p>Si votre application utilise un module accéléromètre sur bus SPI, vous pouvez ajouter&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-keyword">static</span> SPIDevice acl_priv = {
+<pre><code class="icon-file language-c"><span class="hljs-keyword">static</span> SPIDevice acl_priv = {
     <span class="hljs-comment">// Le contrôleur SPI utilisé pour communiquer avec l'accéléromètre.</span>
     .spi            = spi_master,
     <span class="hljs-comment">// Le timer utilisé pour mesurer les temps d'attente.</span>
@@ -308,7 +308,7 @@ SPIDevice *<span class="hljs-keyword">const</span> jstk = &amp;jstk_priv;
 SPIDevice *<span class="hljs-keyword">const</span> acl = &amp;acl_priv;
 </code></pre>
 <h3 id="definition-des-peripheriques-i2c" tabindex="-1">Définition des périphériques I<sup>2</sup>C</h3>
-<pre><code class="language-c"><span class="hljs-keyword">static</span> I2CMaster i2c_priv = {
+<pre><code class="icon-file language-c"><span class="hljs-keyword">static</span> I2CMaster i2c_priv = {
     <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du contrôleur I2C.</span>
     .intc     = intc,
     <span class="hljs-comment">// Le masque des événements de fin de trame.</span>
@@ -322,7 +322,7 @@ SPIDevice *<span class="hljs-keyword">const</span> acl = &amp;acl_priv;
 I2CMaster *<span class="hljs-keyword">const</span> i2c = &amp;i2c_priv;
 </code></pre>
 <p>Si votre application utilise un module capteur de température sur bus I<sup>2</sup>C, vous pouvez ajouter&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-keyword">static</span> I2CDevice tmp_priv = {
+<pre><code class="icon-file language-c"><span class="hljs-keyword">static</span> I2CDevice tmp_priv = {
     <span class="hljs-comment">// Le contrôleur I2C utilisé pour communiquer avec le capteur de température.</span>
     .i2c           = i2c,
     <span class="hljs-comment">// L'adresse du capteur de température sur le bus I2C.</span>
@@ -333,7 +333,7 @@ I2CDevice *<span class="hljs-keyword">const</span> tmp = &amp;tmp_priv;
 </code></pre>
 <h3 id="definition-des-peripheriques-uart-supplementaires" tabindex="-1">Définition des périphériques UART supplémentaires</h3>
 <p>Pour un récepteur série, ajoutez&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-keyword">static</span> UART recv_priv = {
+<pre><code class="icon-file language-c"><span class="hljs-keyword">static</span> UART recv_priv = {
     <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements de l'UART</span>
     .intc        = intc,
     <span class="hljs-comment">// Le masque des événements en réception.</span>
@@ -347,7 +347,7 @@ I2CDevice *<span class="hljs-keyword">const</span> tmp = &amp;tmp_priv;
 UART *<span class="hljs-keyword">const</span> recv = &amp;recv_priv;
 </code></pre>
 <p>Si votre application utilise un module sonar, vous pouvez ajouter&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-keyword">static</span> Sonar sonar_priv = {
+<pre><code class="icon-file language-c"><span class="hljs-keyword">static</span> Sonar sonar_priv = {
     .uart = recv
 };
 
@@ -357,7 +357,7 @@ Sonar *<span class="hljs-keyword">const</span> sonar = &amp;sonar_priv;
 <p>Ce fichier décrit la séquence de compilation de l’application.
 Il s’appuie sur le fichier <code>Virgule.make</code> présent dans le dossier
 <code>CoCiNum/scripts</code>.</p>
-<pre><code class="language-makefile"><span class="hljs-comment"># La taille de la RAM, en octets.</span>
+<pre><code class="icon-file language-makefile"><span class="hljs-comment"># La taille de la RAM, en octets.</span>
 MEM_SIZE = 65536
 
 <span class="hljs-comment"># La liste des fichiers sources à ajouter à l'application, en plus de MyApp.c</span>
@@ -389,7 +389,7 @@ C_FLAGS_USER = -Os
 <p>Le fichier <code>MyApp.c</code> contiendra au moins la fonction <code>main</code>
 et la fonction de traitement d’interruptions <code>irq_handler</code>.</p>
 <h3 id="squelette-dapplication-utilisant-un-joystick-sur-bus-spi" tabindex="-1">Squelette d’application utilisant un joystick sur bus SPI</h3>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
 
 <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
 
@@ -450,7 +450,7 @@ __attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
 }
 </code></pre>
 <h3 id="squelette-dapplication-utilisant-un-accelerometre-sur-bus-spi" tabindex="-1">Squelette d’application utilisant un accéléromètre sur bus SPI</h3>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
 
 <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
 
@@ -505,7 +505,7 @@ __attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
 }
 </code></pre>
 <h3 id="squelette-dapplication-utilisant-un-capteur-de-temperature-sur-bus-i2c" tabindex="-1">Squelette d’application utilisant un capteur de température sur bus I<sup>2</sup>C</h3>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
 
 <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
 
@@ -553,7 +553,7 @@ __attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
 }
 </code></pre>
 <h3 id="squelette-dapplication-utilisant-un-sonar" tabindex="-1">Squelette d’application utilisant un sonar</h3>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
 
 <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
 
@@ -607,7 +607,7 @@ __attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
 Par exemple, vous n’aurez pas accès aux fonctions <code>printf</code> ou <code>malloc</code>.</p>
 <p>Pour affichez des messages dans un terminal série, vous pouvez utiliser
 les fonctios <code>UART_putc</code> et <code>UART_puts</code> de la manière suivante&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-comment">// Envoyer le caractère 'X' sur la liaison série désignée par la variable uart.</span>
+<pre><code class="icon-file language-c"><span class="hljs-comment">// Envoyer le caractère 'X' sur la liaison série désignée par la variable uart.</span>
 UART_putc(uart, <span class="hljs-string">'X'</span>);
 
 <span class="hljs-comment">// Envoyer la chaîne "Hello", suivie d'un saut de ligne, sur la liaison série.</span>
@@ -617,14 +617,14 @@ UART_puts(uart, <span class="hljs-string">"Hello\n"</span>);
 de caractères.
 Des fonctions de conversion sont déclarées dans le fichier <code>Utilities/int_to_string.h</code>
 que vous devez d’abord inclure&nbsp;:</p>
-<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Utilities/int_to_string.h&gt;</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Utilities/int_to_string.h&gt;</span></span>
 </code></pre>
 <p>La fonction <code>uint32_to_string</code> prend un entier <strong>non signé</strong> sur 32 bits,
 calcule sa représentation décimale et la range dans une chaîne de caractères.
 La fonction <code>int32_to_string</code> fonctionne de la même manière avec des entiers
 négatifs ou positifs.
 Les valeurs négatives sont alors précédées par le signe «&nbsp;<code>-</code>&nbsp;».</p>
-<pre><code class="language-c"><span class="hljs-comment">// Déclarer un tableau de caractères capable de recevoir</span>
+<pre><code class="icon-file language-c"><span class="hljs-comment">// Déclarer un tableau de caractères capable de recevoir</span>
 <span class="hljs-comment">// la représentation décimale d'un nombre de 32 bits.</span>
 <span class="hljs-type">char</span> s[INT_TO_STRING_LEN];
 

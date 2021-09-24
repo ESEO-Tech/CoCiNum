@@ -51,7 +51,8 @@ la raquette sans nous préoccuper du déroulement de la partie.</p>
 <code>PADDLE_CYCLES_PER_PIXEL</code> qui règle la vitesse de déplacement de la raquette.
 La valeur de cette constante correspond à la durée, en périodes d’horloges,
 que met la raquette pour parcourir un pixel.</p>
-<p>Le déplacement de la raquette sera donc géré par deux processus&nbsp;:</p>
+<p class="icon-file">Dans le fichier <code>SquashCore.v</code>, ajoutez deux processus pour gérer le déplacement
+de la raquette&nbsp;:</p>
 <ul>
 <li>Un compteur modulo <code>PADDLE_CYCLES_PER_PIXEL</code> produira un signal <code>paddle_timer_reg</code>.</li>
 <li>À la fin de chaque cycle de comptage de <code>paddle_timer_reg</code>, un compteur-décompteur
@@ -69,17 +70,18 @@ On veillera à ce que la raquette ne sorte pas de l’écran.</li>
 <p>Pensez à supprimer l’affectation de <code>paddle_y_o</code> que vous avez utilisée
 pour tester l’affichage.</p>
 </div>
-<p>Synthétisez le circuit et observez son fonctionnement sur la carte Basys3.</p>
+<p class="icon-check">Synthétisez le circuit et observez son fonctionnement sur la carte Basys3.</p>
 </section><section><h1 id="deplacement-de-la-balle" tabindex="-1">Déplacement de la balle</h1>
 <p>Le fichier <code>SquashCommon.v</code> définit une <a href="../langage-verilog/declarations.html#constantes">constante</a>
 <code>BALL_CYCLES_PER_PIXEL</code> qui règle la vitesse de déplacement de la balle.
 La valeur de cette constante correspond à la durée, en périodes d’horloges,
 que met la balle pour parcourir un pixel.</p>
-<p>En utilisant la même technique que pour la raquette, l’état de la balle
+<p class="icon-file">En utilisant la même technique que pour la raquette, l’état de la balle
 sera mis à jour tous les <code>BALL_CYCLES_PER_PIXEL</code> cycles d’horloge
 à l’aide d’un compteur <code>ball_timer_reg</code>.</p>
-<p>On propose de créer deux signaux <code>ball_x_dir_reg</code> et <code>ball_y_dir_reg</code>
-indiquant le sens de déplacement de la balle en respectant la convention suivante&nbsp;:</p>
+<p class="icon-file">Créez deux signaux <code>ball_x_dir_reg</code> et <code>ball_y_dir_reg</code>
+indiquant le sens de déplacement de la balle en respectant la convention
+suivante&nbsp;:</p>
 <table>
 <thead>
 <tr>
@@ -101,7 +103,7 @@ indiquant le sens de déplacement de la balle en respectant la convention suivan
 </tr>
 </tbody>
 </table>
-<p>Pour décider des changements de direction, définissez les quatre signaux
+<p class="icon-file">Pour décider des changements de direction, définissez les quatre signaux
 logiques suivants&nbsp;:</p>
 <table>
 <thead>
@@ -145,8 +147,8 @@ on met à 1 le signal <code>hit_screen_x</code>.</p>
 (<code>ball_x_o</code> = <code>VGA_SCREEN_WIDTH - BALL_WIDTH</code>)
 et repart vers la gauche (<code>ball_x_dir_reg</code> = 1).</p>
 </div>
-<p>Après avoir complété la gestion des sorties <code>ball_x_o</code> et <code>ball_y_o</code>,
-synthétisez le circuit et observez son fonctionnement sur la carte Basys3.</p>
+<p class="icon-file">Complétez la gestion des sorties <code>ball_x_o</code> et <code>ball_y_o</code>.</p>
+<p class="icon-check">Synthétisez le circuit et observez son fonctionnement sur la carte Basys3.</p>
 <div class="info">
 <p>Pour réaliser cette étape, vous devrez appliquer les notions suivantes&nbsp;:</p>
 <ul>
@@ -155,7 +157,7 @@ synthétisez le circuit et observez son fonctionnement sur la carte Basys3.</p>
 <li><a href="../langage-verilog/combinatoire.html">Décrire des circuits combinatoires</a>.</li>
 </ul>
 </div>
-<div class="warning">
+<div class="icon-file warning">
 <p>Pensez à supprimer les affectations de <code>ball_x_o</code> et <code>ball_y_o</code> que vous avez
 utilisées pour tester l’affichage.</p>
 </div>

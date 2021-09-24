@@ -316,7 +316,7 @@ Dans le filtre, ils sont destinés à être utilisés comme ceci&nbsp;:</p>
 <!-- TODO réécrire le banc de test pour faire varier la fréquence -->
 <p>Le fichier <code>BiquadFilterTestbench.vhd</code> contient un <em>banc de test</em> pour
 l’entité <code>BiquadFilter</code>.</p>
-<p>Ce banc de test relie la sortie d’un oscillateur avec l’entrée d’un filtre passe-bande.
+<p class="icon-file">Ce banc de test relie la sortie d’un oscillateur avec l’entrée d’un filtre passe-bande.
 Vous pouvez régler les caractéristiques de ces deux instances en modifiant des
 constantes dans le fichier <code>BiquadFilterTestbench_pkg.vhd</code>&nbsp;:</p>
 <ul>
@@ -329,7 +329,7 @@ du filtre.
 L’amplitude de la sortie sera maximale si la fréquence de l’oscillateur
 se situe au centre de la bande passante du filtre,
 c’est-à-dire pour <code>OSC_STEP = FILTER_CHANNEL + 1</code>.</p>
-<p>Pour exécuter la simulation, nous fournissons un script qui automatise le
+<p class="icon-mouse">Pour exécuter la simulation, nous fournissons un script qui automatise le
 démarrage du simulateur et l’exécution d’une séquence de commandes&nbsp;:</p>
 <ol>
 <li>Dans le menu <em>Tools</em>, choisissez <em>Run Tcl Script</em>.</li>
@@ -351,40 +351,36 @@ l’extrait audio «&nbsp;week-end&nbsp;» original dans l’oreille gauche, et 
 extrait filtré dans l’oreille droite.</p>
 </section><section><h2 id="synthetiser-et-implementer-le-circuit" tabindex="-1">Synthétiser et implémenter le circuit</h2>
 <p>Indiquez que l’entité <code>BiquadFilterDemo</code> est l’entité principale du circuit&nbsp;:</p>
-<pre><code class="icon-keyboard language-tcl">set_property top BiquadFilterDemo [get_filesets sources_1]
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">top</span> BiquadFilterDemo [<span class="hljs-keyword">get_filesets</span> sources_1]
 </code></pre>
-<p>Exécutez cette commande dans la console Tcl pour réduire la gravité de
-certains messages concernant les affectations de broches&nbsp;:</p>
-<pre><code class="icon-keyboard language-tcl">set_msg_config -id {Common <span class="hljs-number">17</span><span class="hljs-number">-55</span>} -new_severity {WARNING}
-</code></pre>
-<p>Générez le fichier binaire à charger dans le FPGA&nbsp;:
+<p class="icon-mouse">Générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
 <p><img src="../assets/images/langage-vhdl/vivado-generate-bitstream.png" alt="Vivado generate bitstream"></p>
 <p>Vivado va enchaîner toutes les étapes d’analyse des fichiers sources, de synthèse logique, de placement et routage,
 pour terminer par la génération d’un fichier binaire à charger dans le FPGA.</p>
-<p>À la fin des opérations, la boîte de dialogue <em>Bitstream Generation Completed</em> s’affiche.
+<p class="icon-mouse">À la fin des opérations, la boîte de dialogue <em>Bitstream Generation Completed</em> s’affiche.
 Choisissez <em>Open Hardware Manager</em>.</p>
 </section><section><h2 id="configurer-le-fpga" tabindex="-1">Configurer le FPGA</h2>
-<p>Vérifiez que l’interrupteur d’alimentation de votre carte Basys3 est en position <em>OFF</em>.
+<p class="icon-eye">Vérifiez que l’interrupteur d’alimentation de votre carte Basys3 est en position <em>OFF</em>.
 Le cavalier situé à côté de l’interrupteur doit être en position <em>USB</em>.</p>
-<p>Branchez le module PmodI2S sur le connecteur <em>JA</em> (en haut sur le côté gauche de la carte)
+<p class="icon-hand">Branchez le module PmodI2S sur le connecteur <em>JA</em> (en haut sur le côté gauche de la carte)
 et branchez un casque stéréo ou des enceintes sur le connecteur jack.</p>
 <div class="warning">
 <p>Vous ne connaissez pas à l’avance le volume de la sortie audio.
 Ne mettez pas vos écouteurs sur les oreilles avant d’être sûr
 que le son n’est pas trop fort.</p>
 </div>
-<p>Reliez le connecteur micro-USB de la carte à un port USB de votre PC.
+<p class="icon-hand">Reliez le connecteur micro-USB de la carte à un port USB de votre PC.
 Mettez la carte sous tension.</p>
-<p>En haut du panneau <em>Hardware Manager</em>, pressez <em>Open target</em> et choisissez <em>Auto Connect</em>.</p>
+<p class="icon-mouse">En haut du panneau <em>Hardware Manager</em>, pressez <em>Open target</em> et choisissez <em>Auto Connect</em>.</p>
 <p><img src="../assets/images/langage-vhdl/vivado-open-target.png" alt="Vivado open target"></p>
-<p>Pressez ensuite <em>Program Device</em>.</p>
+<p class="icon-mouse">Pressez ensuite <em>Program Device</em>.</p>
 <p><img src="../assets/images/langage-vhdl/vivado-program-device.png" alt="Vivado program device"></p>
 </section><section><h1 id="observations-et-optimisation-des-ressources-materielles" tabindex="-1">Observations et optimisation des ressources matérielles</h1>
 <p>Avant d’aller plus loin, nous allons nous intéresser aux ressources matérielles
 utilisées par ce circuit.</p>
 </section><section><h2 id="affichage-du-schema-logique" tabindex="-1">Affichage du schéma logique</h2>
-<p>Affichez le schéma RTL&nbsp;: <em>Flow Navigator</em> → <em>RTL Analysis</em> → <em>Open Elaborated Design</em> → <em>Schematic</em>.</p>
+<p class="icon-mouse">Affichez le schéma RTL&nbsp;: <em>Flow Navigator</em> → <em>RTL Analysis</em> → <em>Open Elaborated Design</em> → <em>Schematic</em>.</p>
 <p>Dans le schéma, repérez l’instance <code>filter_inst</code> et ouvrez-la.
 Identifiez ensuite les opérations d’addition, de soustraction et de multiplication
 utilisées.</p>
@@ -393,27 +389,25 @@ arithmétiques, logiques, de sélection, de mémorisation.
 En réalité, après synthèse et optimisation, certaines opérations pourront être
 fusionnées ou associées dans un même composant.</p>
 </section><section><h2 id="affichage-du-schema-technologique" tabindex="-1">Affichage du schéma technologique</h2>
-<p>Affichez le schéma du circuit synthétisé&nbsp;: <em>Flow Navigator</em> → <em>Synthesis</em> → <em>Open Synthesized Design</em> → <em>Schematic</em>.</p>
+<p class="icon-mouse">Affichez le schéma du circuit synthétisé&nbsp;: <em>Flow Navigator</em> → <em>Synthesis</em> → <em>Open Synthesized Design</em> → <em>Schematic</em>.</p>
 <p>Dans ce nouveau schéma, repérez l’instance <code>filter_inst</code>, ouvrez-la
-et identifiez les composants DSP48E1.
-Combien y en a-t-il ?
+et identifiez les composants DSP48E1.</p>
+<p class="icon-question">Combien y en a-t-il ?
 Est-ce cohérent avec la description VHDL&nbsp;?</p>
 </section><section><h2 id="affichage-des-statistiques-dutilisation-du-fpga" tabindex="-1">Affichage des statistiques d’utilisation du FPGA</h2>
-<p>Dans la barre d’outils en haut de la fenêtre, pressez le bouton <em>Project Summary</em>,
+<p class="icon-mouse">Dans la barre d’outils en haut de la fenêtre, pressez le bouton <em>Project Summary</em>,
 dont l’icône est une lettre Sigma (Σ).</p>
 <p><img src="../assets/images/langage-vhdl/vivado-project-summary.png" alt="Vivado project summary"></p>
 <p>La rubrique <em>Utilization</em> donne un aperçu du taux d’occupation du FPGA.
 Vous pouvez l’afficher sous forme de diagramme ou sous forme de tableau.
 Repérez le nombre de ressources <em>DSP</em> utilisées après implémentation.</p>
-<div class="info">
-<p>Sachant que notre application vocodeur travaillera sur 12 voies,
+<p class="icon-question">Sachant que notre application vocodeur travaillera sur 12 voies,
 avec un filtre passe-bande et un filtre passe-bas par voie,
 y a-t-il assez de cellules DSP48E1 dans notre FPGA&nbsp;?</p>
-</div>
 </section><section><h2 id="amelioration" tabindex="-1">Amélioration</h2>
-<p>Proposez une solution et modifiez l’architecture du filtre de manière à utiliser
+<p class="icon-file">Proposez une solution et modifiez l’architecture du filtre de manière à utiliser
 moins de cellules DSP48E1.</p>
-<p>Simulez et synthétisez <code>BiquadFilterDemo</code> avec la nouvelle version du filtre.</p>
+<p class="icon-check">Simulez et synthétisez <code>BiquadFilterDemo</code> avec la nouvelle version du filtre.</p>
 <div class="warning">
 <p>Après synthèse, vous ne constaterez peut-être pas de diminution du nombre
 de cellules DSP48E1 utilisées.

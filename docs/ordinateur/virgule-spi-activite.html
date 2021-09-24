@@ -296,7 +296,7 @@ Ajoutez au projet Vivado le fichier de contraintes
 <p>Dans le fichier <code>Computer_pkg.vhd</code>, ajoutez les définitions suivantes pour
 définir la plage d’adresses associée au contrôleur SPI et au timer qui lui
 sera associé&nbsp;:</p>
-<pre><code class="language-vhdl"><span class="hljs-keyword">constant</span> SPI_TIMER_ADDRESS  : <span class="hljs-built_in">unsigned</span> := x<span class="hljs-string">"84000000"</span>;
+<pre><code class="icon-file language-vhdl"><span class="hljs-keyword">constant</span> SPI_TIMER_ADDRESS  : <span class="hljs-built_in">unsigned</span> := x<span class="hljs-string">"84000000"</span>;
 
 <span class="hljs-keyword">constant</span> SPI_MASTER_ADDRESS : <span class="hljs-built_in">unsigned</span> := x<span class="hljs-string">"85000000"</span>;
 <span class="hljs-keyword">constant</span> SPI_MASTER_SIZE    : <span class="hljs-built_in">positive</span> := <span class="hljs-number">12</span>;
@@ -308,7 +308,7 @@ sera associé&nbsp;:</p>
 <span class="hljs-keyword">type</span> device_t <span class="hljs-keyword">is</span> (..., SPI_TIMER, SPI_MASTER);
 </code></pre>
 </section><section><h2 id="completer-lentite" tabindex="-1">Compléter l’entité</h2>
-<p>Dans le fichier <code>Computer.vhd</code>, complétez l’entité <code>Computer</code> en déclarant
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, complétez l’entité <code>Computer</code> en déclarant
 les ports du connecteur d’extension que vous avez choisi.
 Le tableau ci-dessous donne la liste des ports disponibles et leur rôle.
 Ils sont tous de type <code>std_logic</code>.</p>
@@ -359,7 +359,7 @@ Ils sont tous de type <code>std_logic</code>.</p>
 </tbody>
 </table>
 </section><section><h2 id="completer-larchitecture" tabindex="-1">Compléter l’architecture</h2>
-<p>Dans le fichier <code>Computer.vhd</code>, complétez l’architecture pour intégrer le
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, complétez l’architecture pour intégrer le
 contrôleur SPI et un second timer dans le système en utilisant les constantes
 que vous avez ajoutées au paquetage <code>Computer_pkg</code>.</p>
 <p>Inspirez-vous de l’exemple du timer que vous avez intégré dans l’activité
@@ -367,7 +367,7 @@ que vous avez ajoutées au paquetage <code>Computer_pkg</code>.</p>
 <p>Par précaution, le port d’entrée correspondant à la ligne <em>Master In Slave Out</em>
 devra être resynchronisé.
 Modifiez l’instance <code>sync_inst</code> de la manière suivante&nbsp;:</p>
-<pre><code class="language-vhdl">sync_inst : <span class="hljs-keyword">entity</span> work.InputSynchronizer
+<pre><code class="icon-file language-vhdl">sync_inst : <span class="hljs-keyword">entity</span> work.InputSynchronizer
     <span class="hljs-keyword">generic</span> <span class="hljs-keyword">map</span>(
         <span class="hljs-literal">WIDTH</span> =&gt; <span class="hljs-number">3</span>
     )
@@ -381,7 +381,7 @@ Modifiez l’instance <code>sync_inst</code> de la manière suivante&nbsp;:</p>
         data_o(<span class="hljs-number">2</span>) =&gt; sync_spi_miso <span class="hljs-comment">-- Pensez à déclarer ce signal</span>
     );
 </code></pre>
-<p>Une fois ce travail terminé, générez le fichier binaire à charger dans le FPGA&nbsp;:
+<p class="icon-mouse">Une fois ce travail terminé, générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
 </section>
     

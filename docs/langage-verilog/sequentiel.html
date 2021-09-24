@@ -55,8 +55,8 @@
 dans la syntaxe des listes de sensibilité.
 Si votre module possède une entrée horloge <code>clk_i</code>, l’exécution
 d’un processus sur front montant de <code>clk_i</code> s’écrira&nbsp;:</p>
-<pre><code class="language-verilog"><span class="hljs-keyword">always</span> @ (<span class="hljs-keyword">posedge</span> clk_i)
-    ⟨instruction séquentielle ou bloc⟩
+<pre><code class="language-verilog-syntax"><span class="hljs-keyword">always</span> @ (<span class="hljs-keyword">posedge</span> clk_i)
+    <span class="hljs-non-terminal">instruction séquentielle ou bloc</span>
 </code></pre>
 <p>De même le mot-clé <code>negedge</code> est utilisé pour déclencher un processus
 sur front descendant.</p>
@@ -125,12 +125,12 @@ seule l’horloge apparaît dans la liste de sensibilité.</p>
 </section><section><h1 id="linstruction-initial" tabindex="-1">L’instruction <code>initial</code></h1>
 <p>Contrairement à VHDL, qui permet d’indiquer la valeur initiale des signaux
 directement dans leur déclaration, Verilog fournit à cet effet une
-instruction <code>initial</code> qui doit être exécutée au démarrage du système,
+instruction <code>initial</code> qui est exécutée au démarrage du système,
 et indépendamment de l’existence d’un signal <code>reset_i</code>&nbsp;:</p>
 <pre><code class="language-verilog-syntax"><span class="hljs-keyword">initial</span>
     <span class="hljs-non-terminal">instruction séquentielle ou bloc</span>
 </code></pre>
-<p>Cette instruction sera traitée différemment selon les outils de développement
+<p>Cette instruction est traitée différemment selon les outils de développement
 utilisés et selon la technologie de circuit visée&nbsp;:</p>
 <ul>
 <li>Dans un simulateur, l’instruction <code>initial</code> est exécutée au démarrage de la simulation.</li>

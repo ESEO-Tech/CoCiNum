@@ -190,7 +190,7 @@ Les tableaux ci-dessous spécifie les intervalles de temps à respecter&nbsp;:</
 </tr>
 </tbody>
 </table>
-<p>Complétez le module <code>VGAController</code> de manière à réaliser ce comportement.
+<p class="icon-file">Complétez le module <code>VGAController</code> de manière à réaliser ce comportement.
 Utilisez les <a href="../langage-verilog/declarations.html#constantes">constantes</a>
 définies dans le fichier <code>SquashCommon.v</code>.</p>
 <div class="info">
@@ -206,32 +206,42 @@ définies dans le fichier <code>SquashCommon.v</code>.</p>
 <ol>
 <li>Indiquer que le module <code>VGAController</code> est le module principal à simuler&nbsp;:</li>
 </ol>
-<pre><code class="icon-keyboard language-tcl">set_property top VGAController [get_filesets sim_1]
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">top</span> VGAController [<span class="hljs-keyword">get_filesets</span> sim_1]
 </code></pre>
 <ol start="2">
 <li>Démarrer la simulation&nbsp;:</li>
 </ol>
-<pre><code class="icon-keyboard language-tcl">launch_simulation
-restart
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">launch_simulation</span>
+<span class="hljs-keyword">restart</span>
 </code></pre>
 <ol start="3">
 <li>Créer une horloge de fréquence 25 MHz (période 40 ns)&nbsp;:</li>
 </ol>
-<pre><code class="icon-keyboard language-tcl">add_force -repeat_every <span class="hljs-number">40</span>ns clk_i <span class="hljs-number">0</span> <span class="hljs-number">0</span>ns <span class="hljs-number">1</span> <span class="hljs-number">20</span>ns
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">add_force</span> <span class="hljs-built_in">-repeat_every</span> <span class="hljs-number">40</span><span class="hljs-number">ns</span> clk_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">20</span><span class="hljs-number">ns</span>
 </code></pre>
 <ol start="4">
 <li>Simuler pendant 17 millisecondes&nbsp;:</li>
 </ol>
-<pre><code class="icon-keyboard language-tcl">run <span class="hljs-number">17</span>ms
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">run</span> <span class="hljs-number">17</span><span class="hljs-number">ms</span>
 </code></pre>
 <ol start="5">
 <li>Après avoir observé les chronogrammes, fermer la session de simulation&nbsp;:</li>
 </ol>
-<pre><code class="icon-keyboard language-tcl">close_sim -force
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">close_sim</span> <span class="hljs-built_in">-force</span>
 </code></pre>
 </section><section><h1 id="le-module-squashdisplay" tabindex="-1">Le module <code>SquashDisplay</code></h1>
-<p>Créez une instance de <code>VGAController</code> dans le module <code>SquashDisplay</code>.
+<p class="icon-file">Créez une instance de <code>VGAController</code> dans le module <code>SquashDisplay</code>.
 Effectuez les connexions nécessaires, en déclarant les signaux manquants.</p>
+<p class="icon-file">Déclarez et affectez un signal <code>in_ball</code> et un signal <code>in_paddle</code> indiquant si
+le pixel courant, de coordonnées (<code>x</code>, <code>y</code>), fait partie de la balle ou de la
+raquette.
+On rappelle ci-dessous les informations disponibles&nbsp;:</p>
+<p><a href="SquashDisplay-ball-paddle.svg"><img src="SquashDisplay-ball-paddle.svg" alt="Coordonnées des objets du jeu" width="600px"></a></p>
+<div class="info">
+<p>Dans un premier temps, la balle sera dessinée sous la forme d’un rectangle.</p>
+<p>Une fois l’affichage validé, vous pourrez réfléchir à une solution pour
+dessiner une forme circulaire.</p>
+</div>
 <p>La sortie <code>vga_rgb_o</code> respectera le codage de couleurs suivant&nbsp;:</p>
 <table>
 <thead>
@@ -275,28 +285,18 @@ Effectuez les connexions nécessaires, en déclarant les signaux manquants.</p>
 </tr>
 </tbody>
 </table>
-<p>L’affectation de cette sortie se fera de cette manière&nbsp;:</p>
+<p class="icon-file">Affectez la sortie <code>vga_rgb_o</code> de manière à obtenir ce comportement&nbsp;:</p>
 <ul>
 <li>Pendant le rafraîchissement de l’écran, <code>vga_rgb_o</code> devra être à zéro.</li>
-<li>Quand le pixel de coordonnées (<code>x_o</code>, <code>y_o</code>) fait partie de la balle,
+<li>Quand le pixel de coordonnées (<code>x</code>, <code>y</code>) fait partie de la balle,
 affecter le code de la couleur blanche.</li>
-<li>Quand le pixel de coordonnées (<code>x_o</code>, <code>y_o</code>) fait partie de la raquette,
+<li>Quand le pixel de coordonnées (<code>x</code>, <code>y</code>) fait partie de la raquette,
 affecter le code de la couleur jaune.</li>
 <li>Dans les autres cas, il s’agit d’un pixel du fond de l’écran.
 Il sera vert en cas de victoire (<code>success_i</code>),
 rouge en cas de défaire (<code>game_over_i</code>),
 et bleu le reste du temps.</li>
 </ul>
-<div class="info">
-<p>Dans un premier temps, la balle sera dessinée sous la forme d’un rectangle.</p>
-<p>Une fois l’affichage validé, vous pourrez réfléchir à une solution pour
-dessiner une forme circulaire.</p>
-</div>
-<p>Nous vous proposons de créer un signal <code>in_ball</code> et un un signal <code>in_paddle</code>
-indiquant si le pixel courant fait partie, respectivement, de la balle ou
-de la raquette.
-On rappelle ci-dessous les informations disponibles&nbsp;:</p>
-<p><a href="SquashDisplay-ball-paddle.svg"><img src="SquashDisplay-ball-paddle.svg" alt="Coordonnées des objets du jeu" width="600px"></a></p>
 <div class="info">
 <p>Pour réaliser cette étape, vous devrez appliquer les notions suivantes&nbsp;:</p>
 <ul>
@@ -306,7 +306,7 @@ On rappelle ci-dessous les informations disponibles&nbsp;:</p>
 </ul>
 </div>
 </section><section><h1 id="le-module-squashcore" tabindex="-1">Le module <code>SquashCore</code></h1>
-<p>Complétez le module <code>SquashCore</code> en affectant toutes ses sorties.
+<p class="icon-file">Complétez le module <code>SquashCore</code> en affectant toutes ses sorties.
 Pour les coordonnées de la balle et de la raquette, utilisez
 les coordonnées initiales définies dans <code>SquashCommon.v</code>.
 Pour <code>game_over_o</code> et <code>success_o</code>, vous pouvez tester différentes combinaisons
@@ -365,7 +365,7 @@ Choisissez la stratégie <em>Flow RuntimeOptimized</em>.</li>
 </section><section><h2 id="synthetiser-et-implementer-le-circuit" tabindex="-1">Synthétiser et implémenter le circuit</h2>
 <p>Exécutez cette commande dans la console Tcl pour réduire la gravité de
 certains messages concernant les affectations de broches&nbsp;:</p>
-<pre><code class="icon-keyboard language-tcl">set_msg_config -id {Common <span class="hljs-number">17</span><span class="hljs-number">-55</span>} -new_severity {WARNING}
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_msg_config</span> <span class="hljs-built_in">-id</span> {Common <span class="hljs-number">17</span><span class="hljs-built_in">-</span><span class="hljs-number">55</span>} <span class="hljs-built_in">-new_severity</span> {WARNING}
 </code></pre>
 <p class="icon-mouse">Générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
