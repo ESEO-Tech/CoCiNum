@@ -213,6 +213,12 @@ pre {
     font-variant-ligatures: none;
 }
 
+h1 code,
+h2 code,
+h3 code {
+    font-size: 80%;
+}
+
 code {
     background: rgba(0, 0, 0, 0.06);
     border-radius: 0.2rem;

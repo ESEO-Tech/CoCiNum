@@ -183,17 +183,17 @@ définir la plage d’adresses associée au timer&nbsp;:</p>
 <p><a href="../langage-vhdl/legende.svg" target="_blank"><i class="fas fa-info-circle"></i> Afficher la légende des schémas.</a></p>
 </div>
 </section><section><h1 id="generer-le-bitstream-et-configurer-le-fpga" tabindex="-1">Générer le bitstream et configurer le FPGA</h1>
-<p>Générez le fichier binaire à charger dans le FPGA&nbsp;:
+<p class="icon-mouse">Générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
-<p>Si ce n’est pas déjà fait, reliez le connecteur micro-USB de la carte à un port USB de votre PC et
-mettez la carte sous tension.
-Ouvrez ensuite un terminal pour port série&nbsp;:</p>
+<p class="icon-hand">Si ce n’est pas déjà fait, reliez le connecteur micro-USB de la carte à un port USB de votre PC et
+mettez la carte sous tension.</p>
+<p>Ouvrez ensuite un terminal pour port série&nbsp;:</p>
 <pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum
 ./scripts/gtkterm
 </code></pre>
 <p>Dans le menu <em>Configuration</em> de GTKTerm, activez l’option <em>CR LF auto</em>.</p>
-<p>Connectez Vivado à votre carte Basys3&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Open Target</em> → <em>Auto-connect</em>.</p>
-<p>Configurez le FPGA&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Program Device</em>.</p>
+<p class="icon-mouse">Connectez Vivado à votre carte Basys3&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Open Target</em> → <em>Auto-connect</em>.</p>
+<p class="icon-mouse">Configurez le FPGA&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Program Device</em>.</p>
 <p>Comme lors de l’étape précédente, la fenêtre GTKTerm doit à présent afficher le texte&nbsp;:</p>
 <pre><code>\\// This is the Virgule program loader. Please send an hex file to execute...
 </code></pre>

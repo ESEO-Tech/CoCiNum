@@ -653,9 +653,6 @@ comme identifiant. Ainsi&nbsp;:</p>
 <p>Matériellement, les bits 31 à 24 de l’adresse seront utilisés pour <em>aiguiller</em>
 la sortie <code>valid_o</code> du processeur vers l’entrée <code>valid_i</code> de la mémoire ou du
 périphérique concerné.</p>
-<p>Dans cet exemple, nous allons regrouper les interrupteurs et les LED dans la plage du périphérique numéro 0.
-Le circuit produira un signal <code>mem_valid</code> destiné à la mémoire, et un signal <code>io_valid</code>
-pour les entrées/sorties.</p>
 <div class="info">
 <p>Dans un souci de lisibilité du code source VHDL, nous avons déclaré un <em>alias</em>
 <code>dev_address</code> de la manière suivante&nbsp;:</p>
@@ -664,7 +661,51 @@ pour les entrées/sorties.</p>
 <p>Ainsi, dans le corps de l’architecture, on pourra simplement écrire
 <code>dev_address</code> au lieu de <code>core_address(31 downto 24)</code>.</p>
 </div>
-<p class="icon-file">Complétez le fichier <code>Computer.vhd</code> de manière à respecter le schéma ci-dessous&nbsp;:</p>
+<p>Dans cet exemple, nous allons regrouper les interrupteurs et les LED dans la
+plage du périphérique numéro 0.
+Le circuit produira un signal <code>mem_valid</code> destiné à la mémoire, et un signal
+<code>io_valid</code> pour les entrées/sorties.</p>
+<p>Le fichier <code>Computer_pkg.vhd</code> contient des constantes que vous devrez utiliser
+dans votre architecture&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Constante</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Valeur</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>CLK_FREQUENCY_HZ</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">100000000</td>
+<td style="text-align:left">La fréquence d’horloge du système, en Hz</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>MEM_ADDRESS</code></td>
+<td style="text-align:left">Octet</td>
+<td style="text-align:left">00<sub>hex</sub></td>
+<td style="text-align:left">Les bits 31 à 24 de l’adresse pour accéder à la mémoire</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>MEM_CONTENT</code></td>
+<td style="text-align:left">Tableau de mots</td>
+<td style="text-align:left"><code>work.SimpleIO_pkg.DATA</code></td>
+<td style="text-align:left">Le contenu initial de la mémoire</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>IO_ADDRESS</code></td>
+<td style="text-align:left">Octet</td>
+<td style="text-align:left">80<sub>hex</sub></td>
+<td style="text-align:left">Les bits 31 à 24 de l’adresse pour accéder aux entrées/sorties</td>
+</tr>
+</tbody>
+</table>
+<p class="icon-file">Complétez le fichier <code>Computer.vhd</code> de manière à respecter le schéma ci-dessous
+(pour une question de place, nous avons abrégé les noms des constantes
+<code>MEM_ADDRESS</code> et <code>IO_ADDRESS</code> en <code>MEM_AD...</code> et <code>IO_AD...</code>).</p>
 <p><a href="Virgule-VMemory-IO-valid.svg"><img src="Virgule-VMemory-IO-valid.svg" alt="Virgule : ordinateur avec entrées/sorties simples, signaux de validation"></a></p>
 </section><section><h2 id="lecture-et-ecriture-des-donnees" tabindex="-1">Lecture et écriture des données</h2>
 <p>En lecture, l’entrée <code>rdata_i</code> du processeur recevra&nbsp;:</p>
@@ -845,7 +886,7 @@ des logiciels libres suivants&nbsp;:</p>
 <li><a href="http://gtkwave.sourceforge.net/">GTKWave</a>, pour afficher des chronogrammes.</li>
 </ul>
 <p>Démarrez la simulation en exécutant les commandes suivantes&nbsp;:</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Computer/tests
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Computer/tests-io
 make
 </code></pre>
 <p class="icon-check">Si tout s’est bien passé, la fenêtre ci-dessous doit s’afficher.

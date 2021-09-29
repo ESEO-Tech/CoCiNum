@@ -35,20 +35,14 @@
             
             
                 
-                <li><a href="#creer-un-projet-vivado">Créer un projet Vivado</a></li>
+                <li><a href="#completer-le-projet-vivado">Compléter le projet Vivado</a></li>
             
                 
-                <li><a href="#structure-du-systeme">Structure du système</a></li>
+                <li><a href="#contenu-des-nouveaux-fichiers-vhdl">Contenu des nouveaux fichiers VHDL</a></li>
             
                 
                     <li><ul>
                     
-                
-                <li><a href="#processeur">Processeur</a></li>
-            
-                
-                <li><a href="#memoire">Mémoire</a></li>
-            
                 
                 <li><a href="#controleur-dinterruptions">Contrôleur d’interruptions</a></li>
             
@@ -56,68 +50,62 @@
                 <li><a href="#interface-serie-asynchrone">Interface série asynchrone</a></li>
             
                 
-                <li><a href="#synchronisation-des-entrees">Synchronisation des entrées</a></li>
-            
-                
-                <li><a href="#entite-principale">Entité principale</a></li>
+                <li><a href="#programme-de-chargement-par-liaison-serie">Programme de chargement par liaison série</a></li>
             
                 
                     </ul></li>
                     
                 
-                <li><a href="#completer-larchitecture">Compléter l’architecture</a></li>
+                <li><a href="#modification-du-systeme">Modification du système</a></li>
             
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#paquetage-computerpkg">Paquetage Computer_pkg</a></li>
+            
+                
+                <li><a href="#entite-computer">Entité Computer</a></li>
+            
+                
+                <li><a href="#architecture-structural">Architecture Structural</a></li>
+            
+                
+                    </ul></li>
+                    
                 
                 <li><a href="#simuler-le-fonctionnement-du-systeme">Simuler le fonctionnement du système</a></li>
             
                 
-                <li><a href="#synthetiser-le-circuit">Synthétiser le circuit</a></li>
+                <li><a href="#generer-le-bitstream-et-configurer-le-fpga">Générer le bitstream et configurer le FPGA</a></li>
             
                 
-                    <li><ul>
-                    
-                
-                <li><a href="#configurer-les-optimisations">Configurer les optimisations</a></li>
+                <li><a href="#utilisation-du-programme-de-chargement">Utilisation du programme de chargement</a></li>
             
                 
-                <li><a href="#synthetiser-et-implementer-le-circuit">Synthétiser et implémenter le circuit</a></li>
+                <li><a href="#programmation-en-langage-c">Programmation en langage C</a></li>
             
-                
-                    </ul></li>
-                    
-                
-                <li><a href="#configurer-le-fpga">Configurer le FPGA</a></li>
-            
-                
-                <li><a href="#executer-un-programme-sur-notre-ordinateur">Exécuter un programme sur notre ordinateur</a></li>
-            
-                
-                    <li><ul>
-                    
-                
-                <li><a href="#que-sest-il-passe">Que s’est-il passé ?</a></li>
-            
-                
-                <li><a href="#creer-et-compiler-un-nouveau-programme">Créer et compiler un nouveau programme</a></li>
-            
-            
-        </ul>
             
         </ul>
             
     
-    <p>Dans cette activité, nous allons assembler les éléments d’un ordinateur
-minimal comprenant les éléments suivants&nbsp;:</p>
+    <p>À présent, nous allons compléter notre ordinateur en lui ajoutant une interface
+de communication série qui lui permettra d’échanger des données avec un autre
+équipement, comme un PC par exemple.
+Grâce à cette interface, l’entité <code>Computer</code> pourra&nbsp;:</p>
 <ul>
-<li>Un processeur.</li>
-<li>De la mémoire.</li>
-<li>Un contrôleur d’interruptions.</li>
-<li>Un récepteur série.</li>
-<li>Un transmetteur série.</li>
+<li>afficher du texte dans un terminal série sur votre PC,</li>
+<li>recevoir des caractères frappés au clavier de votre PC,</li>
+<li>recevoir des programmes à exécuter.</li>
 </ul>
-<p>Dans les étapes suivantes, nous ajouterons de nouveaux éléments.</p>
-<section><h1 id="creer-un-projet-vivado" tabindex="-1">Créer un projet Vivado</h1>
-<p>Voici la liste des fichiers sources VHDL que nous utiliserons dans cette activité.
+<section><h1 id="completer-le-projet-vivado" tabindex="-1">Compléter le projet Vivado</h1>
+<p>Si ce n’est pas déjà fait, ouvrez votre projet <code>Computer</code> dans Vivado&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum
+./scripts/vivado vivado/Computer/Computer.xpr
+</code></pre>
+<p class="icon-config">Dans le panneau, <em>Flow Navigator</em>, exécutez l’action <em>Add Sources</em>,
+choisissez <em>Add or create design sources</em> et pressez le bouton <em>Next</em>.</p>
+<p class="icon-config">Ajoutez les fichiers source VHDL suivants à votre projet.
 Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl</code>.</p>
 <table class="wider">
 <thead>
@@ -129,11 +117,6 @@ Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl<
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left"><code>InputSynchronizer</code></td>
-<td style="text-align:left"><code>InputSynchronizer.vhd</code></td>
-<td style="text-align:left">Une entité pour synchroniser les entrées du circuit.</td>
-</tr>
-<tr>
 <td style="text-align:left"><code>UART</code></td>
 <td style="text-align:left"><code>SerialReceiver.vhd</code></td>
 <td style="text-align:left">Un récepteur série asynchrone.</td>
@@ -144,19 +127,9 @@ Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl<
 <td style="text-align:left">Un transmetteur série asynchrone.</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>Virgule</code></td>
-<td style="text-align:left"><code>Virgule_pkg.vhd</code></td>
-<td style="text-align:left">Définitions de types et de constantes pour travailler avec le processeur <code>Virgule</code>.</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>Virgule</code></td>
-<td style="text-align:left"><code>Virgule-precompiled.vhd</code></td>
-<td style="text-align:left">Une version précompilée du processeur <code>Virgule</code>.</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>Virgule</code></td>
-<td style="text-align:left"><code>VMemory.vhd</code></td>
-<td style="text-align:left">De la mémoire vive pour le processeur <code>Virgule</code>.</td>
+<td style="text-align:left"><code>UART</code></td>
+<td style="text-align:left"><code>UART.vhd</code></td>
+<td style="text-align:left">Une entité qui rassemble un récepteur et un transmetteur série.</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>Virgule</code></td>
@@ -165,29 +138,23 @@ Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl<
 </tr>
 <tr>
 <td style="text-align:left"><code>Computer</code></td>
-<td style="text-align:left"><code>Computer_pkg.vhd</code></td>
-<td style="text-align:left">Définitions de constantes pour l’entité <code>Computer</code>.</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>Computer</code></td>
-<td style="text-align:left"><code>Computer.vhd</code></td>
-<td style="text-align:left">L’entité <code>Computer</code> et son architecture à compléter.</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>Computer</code></td>
 <td style="text-align:left"><code>Loader_pkg.vhd</code></td>
 <td style="text-align:left">Un programme de démarrage pour l’entité <code>Computer</code>.</td>
 </tr>
+</tbody>
+</table>
+<p class="icon-config">Dans le panneau, <em>Flow Navigator</em>, exécutez à nouveau l’action <em>Add Sources</em>,
+choisissez <em>Add or create constraints</em> et pressez le bouton <em>Next</em>.</p>
+<p class="icon-config">Ajoutez le fichier de contraintes suivant à votre projet&nbsp;:</p>
+<table class="wider">
+<thead>
 <tr>
-<td style="text-align:left"><code>Basys3</code></td>
-<td style="text-align:left"><code>Basys3_Buttons.xdc</code></td>
-<td style="text-align:left">Fichier de contraintes pour Vivado, définition des boutons-poussoirs.</td>
+<th style="text-align:left">Sous-dossier</th>
+<th style="text-align:left">Fichier</th>
+<th style="text-align:left">Rôle</th>
 </tr>
-<tr>
-<td style="text-align:left"><code>Basys3</code></td>
-<td style="text-align:left"><code>Basys3_Clock.xdc</code></td>
-<td style="text-align:left">Fichier de contraintes pour Vivado, définition de l’horloge.</td>
-</tr>
+</thead>
+<tbody>
 <tr>
 <td style="text-align:left"><code>Basys3</code></td>
 <td style="text-align:left"><code>Basys3_UART.xdc</code></td>
@@ -195,93 +162,12 @@ Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl<
 </tr>
 </tbody>
 </table>
-<div class="info">
-<p>Nous ne fournissons pas le code source du processeur Virgule.
-Nous nous réservons la possibilité d’organiser des activités pratiques où
-les participants développeraient eux-mêmes le processeur.</p>
-<p>Le fichier <code>Virgule-precompiled.vhd</code> contient du code VHDL qui a fait l’objet
-d’une première étape de synthèse logique.
-Il n’est pas destiné à être lu par un être humain.</p>
-</div>
-<p>Si vous ne l’avez pas encore fait, démarrez Vivado à l’aide des commandes suivantes&nbsp;:</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum
-./scripts/vivado
-</code></pre>
-<p class="icon-config">Créez un nouveau projet en renseignant les informations suivantes&nbsp;:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">Page</th>
-<th style="text-align:left">Champ ou action</th>
-<th style="text-align:left">Valeur</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">Project Name</td>
-<td style="text-align:left">Project name</td>
-<td style="text-align:left"><code>Computer</code></td>
-</tr>
-<tr>
-<td style="text-align:left"></td>
-<td style="text-align:left">Project location</td>
-<td style="text-align:left"><code>CoCiNum/vivado</code></td>
-</tr>
-<tr>
-<td style="text-align:left"></td>
-<td style="text-align:left">Create project subdirectory</td>
-<td style="text-align:left">Oui</td>
-</tr>
-<tr>
-<td style="text-align:left">Project Type</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">RTL Project</td>
-</tr>
-<tr>
-<td style="text-align:left">Add Sources</td>
-<td style="text-align:left">Add Files</td>
-<td style="text-align:left">Fichiers <code>.vhd</code> dans le tableau précédent</td>
-</tr>
-<tr>
-<td style="text-align:left"></td>
-<td style="text-align:left">Copy sources into project</td>
-<td style="text-align:left">Non</td>
-</tr>
-<tr>
-<td style="text-align:left">Add Constraints</td>
-<td style="text-align:left">Add Files</td>
-<td style="text-align:left">Fichiers <code>.xdc</code> dans le tableau précédent</td>
-</tr>
-<tr>
-<td style="text-align:left"></td>
-<td style="text-align:left">Copy constraints files into project</td>
-<td style="text-align:left">Non</td>
-</tr>
-<tr>
-<td style="text-align:left">Default Part</td>
-<td style="text-align:left">Family</td>
-<td style="text-align:left">Artix-7</td>
-</tr>
-<tr>
-<td style="text-align:left"></td>
-<td style="text-align:left">Package</td>
-<td style="text-align:left">cpg236</td>
-</tr>
-<tr>
-<td style="text-align:left"></td>
-<td style="text-align:left">Speed</td>
-<td style="text-align:left">-1</td>
-</tr>
-<tr>
-<td style="text-align:left"></td>
-<td style="text-align:left">Part</td>
-<td style="text-align:left">xc7a35tcpg236-1</td>
-</tr>
-</tbody>
-</table>
-</section><section><h1 id="structure-du-systeme" tabindex="-1">Structure du système</h1>
-</section><section><h2 id="processeur" tabindex="-1">Processeur</h2>
-<p>L’entité <code>Virgule</code> possède les ports suivants&nbsp;:</p>
+</section><section><h1 id="contenu-des-nouveaux-fichiers-vhdl" tabindex="-1">Contenu des nouveaux fichiers VHDL</h1>
+</section><section><h2 id="controleur-dinterruptions" tabindex="-1">Contrôleur d’interruptions</h2>
+<p>L’entité <code>VInterruptController</code> peut gérer les événements ou les demandes
+d’interruption de 32 sources connectées à chaque bit de son entrée <code>events_i</code>.
+Lorsqu’elles sont autorisées, il transmet les demandes d’interruption au
+processeur sur <code>irq_o</code>.</p>
 <table>
 <thead>
 <tr>
@@ -305,223 +191,46 @@ Il n’est pas destiné à être lu par un être humain.</p>
 <td style="text-align:left">La commande de réinitialisation</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>address_o</code></td>
-<td style="text-align:left">Sortie</td>
-<td style="text-align:left">Vecteur de 32 bits</td>
-<td style="text-align:left">Le bus d’adresses</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>select_o</code></td>
-<td style="text-align:left">Sortie</td>
-<td style="text-align:left">Vecteur de 4 bits</td>
-<td style="text-align:left">Sélection des octets à lire ou écrire</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>write_o</code></td>
-<td style="text-align:left">Sortie</td>
+<td style="text-align:left"><code>valid_i</code></td>
+<td style="text-align:left">Entrée</td>
 <td style="text-align:left">Logique</td>
-<td style="text-align:left">La commande d’écriture</td>
+<td style="text-align:left">Demande de transfert de donnée</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>data_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Vecteur de 32 bits</td>
-<td style="text-align:left">Le bus de données en lecture</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>data_o</code></td>
+<td style="text-align:left"><code>ready_o</code></td>
 <td style="text-align:left">Sortie</td>
-<td style="text-align:left">Vecteur de 32 bits</td>
-<td style="text-align:left">Le bus de données en écriture</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>done_i</code></td>
-<td style="text-align:left">Entrée</td>
 <td style="text-align:left">Logique</td>
 <td style="text-align:left">Indicateur de fin d’une lecture ou d’une écriture</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>irq_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">Demande d’interruption</td>
-</tr>
-</tbody>
-</table>
-<p>Le processeur ne fait pas de différence entre la mémoire et les périphériques.
-On considère que chaque composant, mémoire ou périphérique, possède une plage d’adresses
-qui lui est attribuée.
-Ce point sera détaillé plus loin.</p>
-<p>Le processeur peut lire ou écrire 1, 2 ou 4 octets simultanément.
-Pour cette raison, <code>address_o</code> correspond à l’adresse d’un groupe de 4 octets,
-et <code>select_o</code> indique quels octets sont concernés parmi les 4.</p>
-<p>Pour écrire une valeur en mémoire, ou pour envoyer une valeur à un périphérique,
-le processeur effectue les opérations suivantes&nbsp;:</p>
-<ol>
-<li>Configurer les bus pour une écriture&nbsp;:
-<ul>
-<li>Affecter à <code>address_o</code> l’adresse de destination.</li>
-<li>Affecter à <code>data_o</code> la valeur à écrire.</li>
-<li>Indiquer sur <code>select_o</code> quels octets il faut modifier.</li>
-<li>Mettre <code>write_o</code> à <code>'1'</code>.</li>
-</ul>
-</li>
-<li>Attendre que <code>done_i</code> passe à <code>'1'</code>.</li>
-<li>Remettre <code>select_o</code> et <code>write_o</code> à zéro.</li>
-</ol>
-<p>Pour une lecture, le processeur effectue les opérations suivantes&nbsp;:</p>
-<ol>
-<li>Configurer les bus pour une lecture&nbsp;:
-<ul>
-<li>Affecter à <code>address_o</code> l’adresse source.</li>
-<li>Indiquer sur <code>select_o</code> quels octets il faut lire.</li>
-</ul>
-</li>
-<li>Attendre que <code>done_i</code> passe à <code>'1'</code>.</li>
-<li>Prélever la valeur lue sur <code>data_i</code> et remettre <code>select_o</code> à zéro.</li>
-</ol>
-</section><section><h2 id="memoire" tabindex="-1">Mémoire</h2>
-<p>L’entité <code>VMemory</code> décrit un bloc de mémoire vive préchargée avec un programme
-et des données.
-Elle possède un paramètre générique&nbsp;:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">Paramètre</th>
-<th style="text-align:left">Type</th>
-<th style="text-align:left">Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left"><code>CONTENT</code></td>
-<td style="text-align:left">Tableau de vecteurs de 32 bits</td>
-<td style="text-align:left">Contenu initial de la mémoire</td>
-</tr>
-</tbody>
-</table>
-<p>Voici la liste de ses ports&nbsp;:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">Port</th>
-<th style="text-align:left">Direction</th>
-<th style="text-align:left">Type</th>
-<th style="text-align:left">Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left"><code>clk_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">Le signal d’horloge global</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>reset_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">La commande de réinitialisation</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>address_i</code></td>
 <td style="text-align:left">Entrée</td>
-<td style="text-align:left">Vecteur de 32 bits</td>
+<td style="text-align:left">Logique</td>
 <td style="text-align:left">Le bus d’adresses</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>select_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Vecteur de 4 bits</td>
-<td style="text-align:left">Sélection des octets à lire ou écrire</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>write_i</code></td>
 <td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">La commande d’écriture</td>
+<td style="text-align:left">Vecteur de 4 bits</td>
+<td style="text-align:left">Sélection des octets à écrire</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>data_i</code></td>
+<td style="text-align:left"><code>wdata_i</code></td>
 <td style="text-align:left">Entrée</td>
 <td style="text-align:left">Vecteur de 32 bits</td>
 <td style="text-align:left">Le bus de données en écriture</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>data_o</code></td>
+<td style="text-align:left"><code>rdata_o</code></td>
 <td style="text-align:left">Sortie</td>
 <td style="text-align:left">Vecteur de 32 bits</td>
 <td style="text-align:left">Le bus de données en lecture</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>done_o</code></td>
-<td style="text-align:left">Sortie</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">Indicateur de fin d’une lecture ou d’une écriture</td>
-</tr>
-</tbody>
-</table>
-<p>L’entité <code>VMemory</code> est conçue pour être implémentée avec les blocs de RAM
-intégrés aux FPGA Xilinx.
-Le fonctionnement de ces blocs de RAM se traduit par les durées suivantes
-pour les accès&nbsp;:</p>
-<ul>
-<li>En lecture, 2 périodes d’horloge.</li>
-<li>En écriture, 1 période d’horloge.</li>
-</ul>
-</section><section><h2 id="controleur-dinterruptions" tabindex="-1">Contrôleur d’interruptions</h2>
-<p>L’entité <code>VInterruptController</code> possède les ports suivants&nbsp;:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">Port</th>
-<th style="text-align:left">Direction</th>
-<th style="text-align:left">Type</th>
-<th style="text-align:left">Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left"><code>clk_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">Le signal d’horloge global</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>reset_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">La commande de réinitialisation</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>events_i</code></td>
 <td style="text-align:left">Entrée</td>
 <td style="text-align:left">Vecteur de 32 bits</td>
 <td style="text-align:left">Indicateurs d’événements ou de demandes d’interruptions de chaque périphérique</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>address_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">Le bus d’adresses</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>write_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">La commande d’écriture</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>data_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Vecteur de 32 bits</td>
-<td style="text-align:left">Le bus de données en écriture</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>data_o</code></td>
-<td style="text-align:left">Sortie</td>
-<td style="text-align:left">Vecteur de 32 bits</td>
-<td style="text-align:left">Le bus de données en lecture</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>irq_o</code></td>
@@ -531,9 +240,6 @@ pour les accès&nbsp;:</p>
 </tr>
 </tbody>
 </table>
-<p>Ce composant peut gérer les événements ou les demandes d’interruption de 32 sources
-connectées à chaque bit de son entrée <code>events_i</code>.
-Il transmet les demandes au processeur sur <code>irq_o</code>.</p>
 <p><code>VInterruptController</code> est aussi un périphérique que le processeur peut
 configurer et interroger.
 Son entrée <code>address_i</code> est sur un bit car il n’y a que deux registres&nbsp;:</p>
@@ -563,16 +269,19 @@ configurera <code>mask_reg</code> pour choisir à quels événements on souhaite
 À chaque fois qu’une interruption sera demandée&nbsp;:</p>
 <ol>
 <li>On lira <code>events_reg</code> pour identifier le type d’événement à traiter.</li>
-<li>On écrira un <code>'1'</code> dans le bit du registre <code>events_reg</code> correspondant à cet évenement pour indiquer que celui-ci a été traité.</li>
+<li>On écrira un <code>'1'</code> dans le bit du registre <code>events_reg</code> correspondant à cet
+évenement pour indiquer que celui-ci a été traité.</li>
 </ol>
 </section><section><h2 id="interface-serie-asynchrone" tabindex="-1">Interface série asynchrone</h2>
 <p>Les entités <code>SerialTransmitter</code> et <code>SerialReceiver</code> seront utilisées
-ensemble pour réaliser une interface de communication série communément appelée
+pour réaliser une interface de communication série communément appelée
 UART (<em>Universal Asynchronous Receiver Transmitter</em>).
-Ils permettront au processeur de communiquer avec votre PC à
+Cette interface permettra au processeur de communiquer avec votre PC à
 travers une interface série/USB.</p>
-<p>Les deux entités possèdent les paramètres génériques suivants qui leur permettent
-de régler leurs diviseurs de fréquence internes&nbsp;:</p>
+<p>Dans le fichier <code>UART/UART.vhd</code> nous fournissons un composant <code>UART</code>
+composé d’un transmetteur et d’un récepteur.
+Il possède les paramètres génériques suivants afin
+de régler ses diviseurs de fréquence internes&nbsp;:</p>
 <table>
 <thead>
 <tr>
@@ -594,7 +303,7 @@ de régler leurs diviseurs de fréquence internes&nbsp;:</p>
 </tr>
 </tbody>
 </table>
-<p>L’entité <code>SerialTransmitter</code> possède les ports suivants&nbsp;:</p>
+<p>Et voici la liste de ses ports&nbsp;:</p>
 <table>
 <thead>
 <tr>
@@ -618,22 +327,46 @@ de régler leurs diviseurs de fréquence internes&nbsp;:</p>
 <td style="text-align:left">La commande de réinitialisation</td>
 </tr>
 <tr>
+<td style="text-align:left"><code>valid_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Demande de transfert de donnée</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ready_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Indicateur de fin d’une lecture ou d’une écriture</td>
+</tr>
+<tr>
 <td style="text-align:left"><code>write_i</code></td>
 <td style="text-align:left">Entrée</td>
 <td style="text-align:left">Logique</td>
-<td style="text-align:left">La commande de démarrage d’une transmission</td>
+<td style="text-align:left">La commande d’écriture</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>data_i</code></td>
+<td style="text-align:left"><code>wdata_i</code></td>
 <td style="text-align:left">Entrée</td>
 <td style="text-align:left">Vecteur de 8 bits</td>
-<td style="text-align:left">L’octet à envoyer</td>
+<td style="text-align:left">Le bus de données en écriture (octet à envoyer)</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>done_o</code></td>
+<td style="text-align:left"><code>rdata_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Vecteur de 8 bits</td>
+<td style="text-align:left">Le bus de données en lecture (octet reçu)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>tx_evt_o</code></td>
 <td style="text-align:left">Sortie</td>
 <td style="text-align:left">Logique</td>
 <td style="text-align:left">Indicateur de fin de transmission</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>rx_evt_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Indicateur de fin de réception</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>tx_o</code></td>
@@ -641,79 +374,74 @@ de régler leurs diviseurs de fréquence internes&nbsp;:</p>
 <td style="text-align:left">Logique</td>
 <td style="text-align:left">La ligne de transmission série</td>
 </tr>
-</tbody>
-</table>
-<p>L’entité <code>SerialReceiver</code> possède les ports suivants&nbsp;:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">Port</th>
-<th style="text-align:left">Direction</th>
-<th style="text-align:left">Type</th>
-<th style="text-align:left">Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left"><code>clk_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">Le signal d’horloge global</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>reset_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">La commande de réinitialisation</td>
-</tr>
 <tr>
 <td style="text-align:left"><code>rx_i</code></td>
 <td style="text-align:left">Entrée</td>
 <td style="text-align:left">Logique</td>
 <td style="text-align:left">La ligne de réception série</td>
 </tr>
-<tr>
-<td style="text-align:left"><code>data_o</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Vecteur de 8 bits</td>
-<td style="text-align:left">L’octet reçu</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>done_o</code></td>
-<td style="text-align:left">Sortie</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">Indicateur de fin de réception</td>
-</tr>
 </tbody>
 </table>
-</section><section><h2 id="synchronisation-des-entrees" tabindex="-1">Synchronisation des entrées</h2>
-<p>L’entité <code>InputSynchronizer</code> est utilisée pour éviter le problème de
-<a href="../circuits-logiques/sequentiel-element-de-memorisation.html#contraintes-de-temps">métastabilité</a>
-qui peut se produire lors de la mémorisation de signaux dont le timing n’est
-pas maîtrisé.
-Elle est utile dans deux situations&nbsp;:</p>
-<ul>
-<li>dans un circuit composé de différentes parties qui doivent échanger des informations, mais qui sont synchronisées par des signaux d’horloge différents,</li>
-<li>dans un circuit qui possède des entrées asynchrones.</li>
-</ul>
-<p>L’entité <code>InputSynchronizer</code> possède un paramètre générique&nbsp;:</p>
+</section><section><h2 id="programme-de-chargement-par-liaison-serie" tabindex="-1">Programme de chargement par liaison série</h2>
+<p>Le fichier <code>Loader_pkg.vhd</code> contient un programme de démarrage et de chargement.
+Son rôle est de recevoir un autre programme par la liaison série,
+de le charger en mémoire et de l’exécuter.</p>
+<p>Cela évitera de resynthétiser l’entité <code>Computer</code> à chaque fois que vous voudrez
+exécuter un nouveau programme.</p>
+</section><section><h1 id="modification-du-systeme" tabindex="-1">Modification du système</h1>
+</section><section><h2 id="paquetage-computerpkg" tabindex="-1">Paquetage <code>Computer_pkg</code></h2>
+<p>Dans le fichier <code>Computer_pkg.vhd</code>, modifiez la constante <code>MEM_CONTENT</code>
+pour que le programme initial chargé en mémoire soit celui défini dans le
+paquetage <code>Loader_pkg</code>&nbsp;:</p>
+<pre><code class="icon-file language-vhdl"><span class="hljs-keyword">constant</span> MEM_CONTENT : word_vector_t := work.Loader_pkg.DATA;
+</code></pre>
+<p class="icon-file">Ajoutez des constantes pour définir les caractéristiques des nouveaux
+périphériques du système&nbsp;:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align:left">Paramètre</th>
+<th style="text-align:left">Constante</th>
 <th style="text-align:left">Type</th>
+<th style="text-align:left">Valeur</th>
 <th style="text-align:left">Rôle</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left"><code>WIDTH</code></td>
+<td style="text-align:left"><code>INTC_ADDRESS</code></td>
+<td style="text-align:left">Octet</td>
+<td style="text-align:left">81<sub>hex</sub></td>
+<td style="text-align:left">Les bits 31 à 24 de l’adresse pour accéder au contrôleur d’interruption.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>UART_ADDRESS</code></td>
+<td style="text-align:left">Octet</td>
+<td style="text-align:left">82<sub>hex</sub></td>
+<td style="text-align:left">Les bits 31 à 24 de l’adresse pour accéder à l’interface série.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>UART_BIT_RATE_HZ</code></td>
 <td style="text-align:left">Entier</td>
-<td style="text-align:left">Le nombre d’entrées logiques à synchroniser</td>
+<td style="text-align:left">115200</td>
+<td style="text-align:left">La vitesse de communication de l’interface série, en bits/seconde.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>INTC_EVENTS_UART_RX</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">Pour le contrôleur d’interruptions, le numéro de l’événement indiquant la réception d’un octet sur l’interface série.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>INTC_EVENTS_UART_TX</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">Pour le contrôleur d’interruptions, le numéro de l’événement indiquant la fin de l’envio d’un octet sur l’interface série.</td>
 </tr>
 </tbody>
 </table>
-<p>Voici la liste de ses ports&nbsp;:</p>
+</section><section><h2 id="entite-computer" tabindex="-1">Entité <code>Computer</code></h2>
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, modifiez l’entité <code>Computer</code> en ajoutant les
+ports suivants&nbsp;:</p>
 <table>
 <thead>
 <tr>
@@ -724,53 +452,6 @@ Elle est utile dans deux situations&nbsp;:</p>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td style="text-align:left"><code>clk_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">Le signal d’horloge global</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>data_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Vecteur de <code>WIDTH</code> bits</td>
-<td style="text-align:left">Les données à synchroniser</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>data_o</code></td>
-<td style="text-align:left">Sortie</td>
-<td style="text-align:left">Vecteur de <code>WIDTH</code> bits</td>
-<td style="text-align:left">Les données synchronisées</td>
-</tr>
-</tbody>
-</table>
-<p>En interne, <code>InputSynchronizer</code> fait entrer chaque bit de <code>data_i</code>
-dans un registre à décalage composé de deux bascules D.
-Vivado devra s’efforcer de placer chaque paire de bascules dans la même tranche du FPGA.</p>
-</section><section><h2 id="entite-principale" tabindex="-1">Entité principale</h2>
-<p>Voici les ports de l’entité <code>Computer</code>&nbsp;:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">Port</th>
-<th style="text-align:left">Direction</th>
-<th style="text-align:left">Type</th>
-<th style="text-align:left">Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left"><code>clk_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">Le signal d’horloge global</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>btn_center_i</code></td>
-<td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">Le bouton de réinitialisation</td>
-</tr>
 <tr>
 <td style="text-align:left"><code>uart_rx_i</code></td>
 <td style="text-align:left">Entrée</td>
@@ -785,181 +466,190 @@ Vivado devra s’efforcer de placer chaque paire de bascules dans la même tranc
 </tr>
 </tbody>
 </table>
-<p>Cette entité sera associée à une architecture <code>Structural</code> représentée
-ci-dessous.</p>
-<p><a href="Computer-architecture.svg"><img src="Computer-architecture.svg" alt="L'architecture pour l'entité Computer"></a></p>
-<div class="caption">
-<p><a href="../langage-vhdl/legende.svg" target="_blank"><i class="fas fa-info-circle"></i> Afficher la légende des schémas.</a></p>
-</div>
-</section><section><h1 id="completer-larchitecture" tabindex="-1">Compléter l’architecture</h1>
-<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, ajoutez les instructions d’instanciation
-correspondant au schéma ci-dessus.
-Le contenu de la mémoire <code>mem_inst</code> est défini par la constante <code>MEM_CONTENT</code>
-dans le paquetage <code>Computer_pkg</code>.
-Cette constante elle-même renvoie au contenu du paquetage <code>Loader_pkg</code>.</p>
-<p>Lors d’une opération de lecture ou d’écriture, le décodage d’adresse consiste
-à identifier à quel périphérique correspond l’adresse courante.
-Le signal <code>current_device</code> peut prendre l’une des valeurs définies par le
-type énuméré <code>device_t</code> dans le paquetage <code>Computer_pkg</code>.</p>
-<p>Affectez le signal <code>current_device</code> de manière à respecter les règles suivantes&nbsp;:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center"><code>core_select</code></th>
-<th style="text-align:center"><code>core_address</code></th>
-<th style="text-align:center">→</th>
-<th style="text-align:center"><code>current_device</code></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center"><code>"0000"</code></td>
-<td style="text-align:center">–</td>
-<td style="text-align:center">→</td>
-<td style="text-align:center"><code>NONE</code></td>
-</tr>
-<tr>
-<td style="text-align:center">autres</td>
-<td style="text-align:center"><code>MEM_ADDRESS</code> à <code>MEM_ADDRESS + MEM_SIZE - 1</code></td>
-<td style="text-align:center">→</td>
-<td style="text-align:center"><code>MEM</code></td>
-</tr>
-<tr>
-<td style="text-align:center">autres</td>
-<td style="text-align:center"><code>INTC_ADDRESS</code> à <code>INTC_ADDRESS + INTC_SIZE - 1</code></td>
-<td style="text-align:center">→</td>
-<td style="text-align:center"><code>INTC</code></td>
-</tr>
-<tr>
-<td style="text-align:center">autres</td>
-<td style="text-align:center"><code>UART_ADDRESS</code></td>
-<td style="text-align:center">→</td>
-<td style="text-align:center"><code>UART</code></td>
-</tr>
-<tr>
-<td style="text-align:center">autres</td>
-<td style="text-align:center">autres</td>
-<td style="text-align:center">→</td>
-<td style="text-align:center"><code>NONE</code></td>
-</tr>
-</tbody>
-</table>
-<p>Affectez les signaux <code>uart_write</code>, <code>intc_write</code>, <code>mem_write</code>, <code>mem_select</code>,
-<code>core_rdata</code> et <code>core_done</code>.</p>
-<div class="warning">
-<p>Si vous écrivez la comparaison suivante, par exemple, vous obtiendrez un message
-d’erreur indiquant que l’opérateur <code>&gt;=</code> n’existe pas pour les types de
-<code>core_address</code> et <code>MEM_ADDRESS</code>.</p>
-<pre><code class="language-vhdl">core_address &gt;= MEM_ADDRESS
-</code></pre>
-<p>En effet, le signal <code>core_address</code> est de type <code>word_t</code>, c’est-à-dire un
-<code>std_logic_vector</code> de 32 bits, tandis que <code>MEM_ADDRESS</code> est de type
-<code>unsigned</code> (voir à ce sujet la section <a href="../essentiel-vhdl/types.html#types-binaires-pour-representer-des-nombres">Types binaires pour représenter des nombres</a>).</p>
-<p>Pour pouvoir les comparer, il faut effectuer une <a href="../essentiel-vhdl/expressions.html#conversion-de-type">Conversion de type</a>
-de la manière suivante&nbsp;:</p>
-<pre><code class="language-vhdl"><span class="hljs-built_in">unsigned</span>(core_address) &gt;= MEM_ADDRESS
-</code></pre>
-</div>
+</section><section><h2 id="architecture-structural" tabindex="-1">Architecture <code>Structural</code></h2>
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, dans l’architecture <code>Structural</code>,
+modifiez l’instance <code>sync_inst</code> pour lui ajouter une entrée et une sortie
+supplémentaires que vous connecterez de la manière indiquée ci-dessous.
+Ensuite, instanciez les entités <code>UART</code> et <code>VInterruptController</code>
+représentées sur ce schéma.
+Pensez à déclarer les signaux manquants.</p>
+<p><a href="Computer-Loader-architecture.svg"><img src="Computer-Loader-architecture.svg" alt="Ajout d'une interface série"></a></p>
+<p>Le rectangle rose en pointillés, au centre du schéma, représente toutes les
+instructions d’affectation concurrentes qui gèrent la communication entre le
+processeur et ses périphériques.</p>
+<p class="icon-file">Complétez l’architecture pour que le processeur puisse communiquer avec
+l’UART et le contrôleur d’interruptions.</p>
+<ul>
+<li>Quelles instructions devez-vous modifier&nbsp;?</li>
+<li>Quelles instructions devez-vous ajouter&nbsp;?</li>
+</ul>
+<p class="icon-question">Représentez sous forme de tableau le nouveau plan d’adressage du système
+en incluant&nbsp;:</p>
+<ul>
+<li>les registres <code>mask_reg</code> et <code>events_reg</code> du contrôleur d’interruptions,</li>
+<li>les données de l’UART.</li>
+</ul>
+<p class="icon-check">Faites valider votre plan d’adressage par l’enseignant de votre groupe.</p>
 </section><section><h1 id="simuler-le-fonctionnement-du-systeme" tabindex="-1">Simuler le fonctionnement du système</h1>
-<p>Démarrez le simulateur et exécutez les commandes ci-dessous.</p>
-<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">restart</span>
-<span class="hljs-keyword">add_force</span> <span class="hljs-built_in">-repeat_every</span> <span class="hljs-number">10</span><span class="hljs-number">ns</span> clk_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">5</span><span class="hljs-number">ns</span>
-<span class="hljs-keyword">add_force</span> btn_center_i <span class="hljs-number">1</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">40</span><span class="hljs-number">ns</span>
-<span class="hljs-keyword">run</span> <span class="hljs-number">400</span><span class="hljs-number">us</span>
+<p>Pour un premier test du système en simulation, nous allons utiliser
+un programme simple qui réalise un écho, c’est-à-dire qu’il retransmet
+chaque octet qu’il reçoit sur la liaison série.
+Le programme se trouve dans le dossier <code>CoCiNum/src/asm/Echo</code>.</p>
+<pre><code class="icon-file language-riscvasm">    .set INTC_ADDRESS,      <span class="hljs-number">0x81000000</span>
+    .set UART_ADDRESS,      <span class="hljs-number">0x82000000</span>
+    .set INTC_MASK_UART_RX, <span class="hljs-number">0x00000001</span>
+    .set INTC_MASK_UART_TX, <span class="hljs-number">0x00000002</span>
+
+    .<span class="hljs-meta">global</span> main
+<span class="hljs-symbol">main</span>:
+    <span class="hljs-keyword">li </span><span class="hljs-built_in">x5</span>, INTC_ADDRESS
+    <span class="hljs-keyword">li </span><span class="hljs-built_in">x6</span>, UART_ADDRESS
+<span class="hljs-symbol">
+main_rx_loop:</span>
+    <span class="hljs-keyword">lw </span><span class="hljs-built_in">x7</span>, <span class="hljs-number">4</span>(<span class="hljs-built_in">x5</span>)                   <span class="hljs-comment">/* Lire le registre events_reg du contrôleur d'interruptions.        */</span>
+    <span class="hljs-keyword">andi </span><span class="hljs-built_in">x7</span>, <span class="hljs-built_in">x7</span>, INTC_MASK_UART_RX <span class="hljs-comment">/* Isoler le bit indicateur de l'événement "réception" de l'UART.    */</span>
+    <span class="hljs-keyword">beqz </span><span class="hljs-built_in">x7</span>, main_rx_loop          <span class="hljs-comment">/* S'il est égal à zéro, continuer la boucle d'attente.              */</span>
+    <span class="hljs-keyword">sw </span><span class="hljs-built_in">x7</span>, <span class="hljs-number">4</span>(<span class="hljs-built_in">x5</span>)                   <span class="hljs-comment">/* Sinon, remettre à zéro l'indicateur d'événement.                  */</span>
+
+    <span class="hljs-keyword">lbu </span><span class="hljs-built_in">x8</span>, (<span class="hljs-built_in">x6</span>)                   <span class="hljs-comment">/* Lire l'octet de donnée reçu sur l'entrée série.                   */</span>
+    <span class="hljs-keyword">sb </span> <span class="hljs-built_in">x8</span>, (<span class="hljs-built_in">x6</span>)                   <span class="hljs-comment">/* Envoyer le même octet sur la sortie série.                        */</span>
+<span class="hljs-symbol">
+main_tx_loop:</span>
+    <span class="hljs-keyword">lw </span><span class="hljs-built_in">x7</span>, <span class="hljs-number">4</span>(<span class="hljs-built_in">x5</span>)                   <span class="hljs-comment">/* Lire le registre events_reg du contrôleur d'interruptions.        */</span>
+    <span class="hljs-keyword">andi </span><span class="hljs-built_in">x7</span>, <span class="hljs-built_in">x7</span>, INTC_MASK_UART_TX <span class="hljs-comment">/* Isoler le bit indicateur de l'événement "transmission" de l'UART. */</span>
+    <span class="hljs-keyword">beqz </span><span class="hljs-built_in">x7</span>, main_tx_loop          <span class="hljs-comment">/* S'il est égal à zéro, continuer la boucle d'attente.              */</span>
+    <span class="hljs-keyword">sw </span><span class="hljs-built_in">x7</span>, <span class="hljs-number">4</span>(<span class="hljs-built_in">x5</span>)                   <span class="hljs-comment">/* Sinon, remettre à zéro l'indicateur d'événement.                  */</span>
+
+    <span class="hljs-keyword">j </span>main_rx_loop                 <span class="hljs-comment">/* Retourner à la boucle d'attente de réception.                     */</span>
 </code></pre>
-<p>La simulation dure 400 microsecondes.
-Au bout de 160 microsecondes, le programme préchargé dans la mémoire commence
-à transmettre des caractères sur la liaison série.
-On doit voir la sortie <code>uart_tx_o</code> passer à zéro.</p>
-<p>Si ce n’est pas le cas, observez les chronogrammes et vérifiez la cohérence
-entre les signaux <code>core_address</code>, <code>core_write</code>, <code>current_device</code>, <code>uart_write</code>,
-<code>intc_write</code>, etc.</p>
-</section><section><h1 id="synthetiser-le-circuit" tabindex="-1">Synthétiser le circuit</h1>
-</section><section><h2 id="configurer-les-optimisations" tabindex="-1">Configurer les optimisations</h2>
-<ol>
-<li class="icon-config">Ouvrez la fenêtre des paramètres de Vivado&nbsp;: <em>Flow Navigator</em> → <em>Project Manager</em> → <em>Settings</em>.</li>
-</ol>
-<p><img src="../assets/images/langage-vhdl/vivado-settings.png" alt="Accès aux réglages de Vivado"></p>
-<ol start="2">
-<li class="icon-config">Dans la catégorie <em>Synthesis</em>, sous le titre <em>Options</em>, le champ <em>Strategy</em> propose une liste des stratégies
-d’optimisation disponibles à l’étape de synthèse logique du circuit.
-Choisissez la stratégie <em>Flow RuntimeOptimized</em>.</li>
-</ol>
-<p><img src="../assets/images/langage-vhdl/vivado-settings-synthesis.png" alt="Accès aux réglages de Vivado, synthèse"></p>
-<ol start="3">
-<li class="icon-config">Dans la catégorie <em>Implementation</em>, sous le titre <em>Options</em>, modifiez le champ <em>Strategy</em> en choisissant
-également la stratégie <em>Flow RuntimeOptimized</em>.</li>
-</ol>
-<p><img src="../assets/images/langage-vhdl/vivado-settings-implementation.png" alt="Accès aux réglages de Vivado, implémentation"></p>
-</section><section><h2 id="synthetiser-et-implementer-le-circuit" tabindex="-1">Synthétiser et implémenter le circuit</h2>
-<p>Exécutez cette commande dans la console Tcl pour réduire la gravité de
-certains messages concernant les affectations de broches&nbsp;:</p>
-<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_msg_config</span> <span class="hljs-built_in">-id</span> {Common <span class="hljs-number">17</span><span class="hljs-built_in">-</span><span class="hljs-number">55</span>} <span class="hljs-built_in">-new_severity</span> {WARNING}
+<p>Les blocs d’instructions désignés par les étiquettes <code>main_rx_loop</code> et <code>main_tx_loop</code>
+réalisent des boucles d’attente dans lesquelles le programme interroge de façon
+répétitive le registre <code>events_reg</code> du contrôleur d’interruptions
+(à l’adresse 81000004<sub>hex</sub>).
+Des opérations de masquage (<code>andi</code>) isolent le bit indicateur d’un événement
+en émission ou en réception.
+Les boucles d’attente s’exécutent tant que le bit testé est nul (<code>beqz</code>).</p>
+<p>Lorsqu’un événement a été détecté, une instruction <code>sw</code> commande la remise à
+zéro de l’indicateur correspondant dans le registre <code>events_reg</code>.</p>
+<p>L’instruction <code>lbu</code> est utilisée pour lire l’octet reçu.
+L’instruction <code>sb</code> écrit cet octet vers l’UART pour qu’il soit transmis.</p>
+<div class="info">
+<p>Ce programme n’utilise pas d’interruptions.
+La détection des événements s’effectue avec des boucles d’attente
+selon le principe de <em>l’attente active</em> (également appelée
+<em>scrutation</em>, ou en anglais, <em>polling</em>).</p>
+<p>Nous utiliserons les interruptions au cours de l’activité suivante.</p>
+</div>
+<p>Compilez le programme <code>Echo.s</code> pour produire un paquetage VHDL <code>Echo_pkg</code>&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/asm/Echo
+make
 </code></pre>
-<p class="icon-mouse">Générez le fichier binaire à charger dans le FPGA&nbsp;:
+<div class="info">
+<p>Pendant la simulation, nous utiliserons une version modifiée du paquetage
+<code>Computer_pkg</code>, située dans le dossier <code>Computer/tests-uart</code>.
+Cette version utilise le programme <code>Echo</code>&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">constant</span> MEM_CONTENT : word_vector_t := work.Echo_pkg.DATA;
+</code></pre>
+<p>Pour éviter de surcharger votre PC, elle définit des fréquences d’horloge et de
+communication plus petites que celles utilisées sur le vrai matériel&nbsp;:</p>
+<pre><code class="language-vhdl"><span class="hljs-keyword">constant</span> CLK_FREQUENCY_HZ : <span class="hljs-built_in">positive</span> := <span class="hljs-number">10e3</span>;
+<span class="hljs-keyword">constant</span> UART_BIT_RATE_HZ : <span class="hljs-built_in">positive</span> := <span class="hljs-number">1e3</span>;
+</code></pre>
+</div>
+<p>Démarrez la simulation en exécutant les commandes suivantes&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Computer/tests-uart
+make
+</code></pre>
+<p class="icon-check">Si tout s’est bien passé, la fenêtre ci-dessous doit s’afficher.
+Dans le cas contraire, vérifiez les messages d’erreurs, corrigez votre fichier
+<code>Computer.vhd</code> et relancez la commande <code>make</code>.</p>
+<p><img src="../assets/images/ordinateur/Computer-cocotb-uart.png" alt="Simulation de l'entité Computer avec UART"></p>
+<p class="icon-keyboard">Entrez des caractères dans le champ de texte <em>Input</em>. Ces caractères sont envoyés
+à votre entité <code>Computer</code> par son entrée série.</p>
+<p class="icon-check">Vérifiez que le programme <code>Echo</code> s’exécute correctement.
+Les caractères reçus doivent être renvoyés par <code>Computer</code> sur sa sortie série
+et doivent s’afficher dans le champ <em>Output</em>.</p>
+<div class="warning">
+<p>Le programme de test enregistre tous les signaux du système dans un fichier.
+Ne laissez pas la fenêtre ouverte trop longtemps pour éviter de saturer
+votre espace de stockage.</p>
+</div>
+<p>Après avoir fermé la fenêtre <em>tk</em>, affichez les chronogrammes à l’aide de la commande suivante&nbsp;:</p>
+<pre><code class="icon-term language-bash">gtkwave -S Computer.tcl Computer.ghw
+</code></pre>
+<p class="icon-mouse">Réglez le niveau de zoom et faites défiler les chronogrammes de manière à
+observer les changements des signaux <code>uart_rx_i</code>, <code>uart_tx_o</code>, <code>uart_rx_evt</code> et <code>uart_tx_evt</code>.</p>
+<p class="icon-question">En faisant le lien avec le programme <code>Echo.s</code>, expliquez ce que vous obtenez.</p>
+</section><section><h1 id="generer-le-bitstream-et-configurer-le-fpga" tabindex="-1">Générer le bitstream et configurer le FPGA</h1>
+<p class="icon-mouse">Dans Vivado, générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
-<p><img src="../assets/images/langage-vhdl/vivado-generate-bitstream.png" alt="Vivado generate bitstream"></p>
-<p>Vivado va enchaîner toutes les étapes d’analyse des fichiers sources, de synthèse logique, de placement et routage,
-pour terminer par la génération d’un fichier binaire à charger dans le FPGA.</p>
-<p class="icon-mouse">À la fin des opérations, la boîte de dialogue <em>Bitstream Generation Completed</em> s’affiche.
-Choisissez <em>Open Hardware Manager</em>.</p>
-</section><section><h1 id="configurer-le-fpga" tabindex="-1">Configurer le FPGA</h1>
-<p class="icon-eye">Vérifiez que l’interrupteur d’alimentation de votre carte Basys3 est en position <em>OFF</em>.
-Le cavalier situé à côté de l’interrupteur doit être en position <em>USB</em>.</p>
-<p class="icon-hand">Reliez le connecteur micro-USB de la carte à un port USB de votre PC.
-Mettez la carte sous tension.</p>
-<p class="icon-mouse">En haut du panneau <em>Hardware Manager</em>, pressez <em>Open target</em> et choisissez <em>Auto Connect</em>.</p>
-<p><img src="../assets/images/langage-vhdl/vivado-open-target.png" alt="Vivado open target"></p>
-<p class="icon-mouse">Pressez ensuite <em>Program Device</em>.</p>
-<p><img src="../assets/images/langage-vhdl/vivado-program-device.png" alt="Vivado program device"></p>
-</section><section><h1 id="executer-un-programme-sur-notre-ordinateur" tabindex="-1">Exécuter un programme sur notre ordinateur</h1>
+<p class="icon-hand">Si ce n’est pas déjà fait, reliez le connecteur micro-USB de la carte à un port
+USB de votre PC et mettez la carte sous tension.</p>
+<p class="icon-mouse">Connectez Vivado à votre carte Basys3&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Open Target</em> → <em>Auto-connect</em>.</p>
+<p class="icon-mouse">Configurez le FPGA&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Program Device</em>.</p>
+</section><section><h1 id="utilisation-du-programme-de-chargement" tabindex="-1">Utilisation du programme de chargement</h1>
 <p>Nous allons utiliser le logiciel <em>GTKTerm</em> pour communiquer avec
 l’ordinateur embarqué dans notre FPGA par liaison série sur USB&nbsp;:</p>
 <pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum
 ./scripts/gtkterm
 </code></pre>
-<p>Dans le menu <em>Configuration</em>, activez l’option <em>CR LF auto</em>.</p>
+<p class="icon-mouse">Dans le menu <em>Configuration</em> de GTKTerm, activez l’option <em>CR LF auto</em>.</p>
 <div class="info">
 <p>GTKTerm est déjà configuré pour utiliser le port série <code>/dev/ttyUSB1</code>
 avec 8 bits de données, 1 bit d’arrêt, pas de contrôle de parité.</p>
 </div>
-<p>Forcez un redémarrage du processeur en pressant le bouton-poussoir central
+<p class="icon-hand">Forcez un redémarrage du processeur en pressant le bouton-poussoir central
 de la carte Basys3.</p>
 <p>La fenêtre GTKTerm doit à présent afficher le texte&nbsp;:</p>
-<pre><code>\\// This is the Virgule program loader. Please send an hex file to execute...
+<pre><code>\\// This is the Virgule program loader.
+\\// Send an hex file to execute or press ESC to switch into interactive mode.
 </code></pre>
-</section><section><h2 id="que-sest-il-passe" tabindex="-1">Que s’est-il passé ?</h2>
-<p>Le circuit que vous avez synthétisé contient une mémoire (<code>VMemory</code>)
-préchargée avec un programme que nous avons préparé pour vous.
-Ce programme est représenté en hexadécimal dans le paquetage <code>Loader_pkg</code>.
-Son code source est entièrement disponible dans le dossier
-<code>CoCiNum/src/c/Loader</code>.</p>
-<p>Au démarrage, le processeur <code>Virgule</code> commence à lire et exécuter les
-instructions de ce programme.
-Elles consistent à effectuer les opérations suivantes&nbsp;:</p>
-<ol>
-<li>Envoyer la chaîne <code>\\// This is the Virgule program loader...</code> à travers
-le transmetteur série (<code>SerialTransmitter</code>).
-Cette chaîne est reçue par votre PC et affichée par GTKTerm.</li>
-<li>Recevoir une chaine de caractères contenant un programme RISC-V au format
-<a href="https://fr.wikipedia.org/wiki/HEX_(Intel)">Intel HEX</a>
-à travers le récepteur série (<code>SerialReceiver</code>),
-la décoder et écrire le résultat en mémoire à partir de l’adresse 0.</li>
-<li>Poursuivre l’exécution en sautant à l’adresse 0.</li>
-</ol>
-<p>Pour continuer, nous devons donc créer un programme, le compiler et l’envoyer
-par liaison série vers le FPGA.</p>
-</section><section><h2 id="creer-et-compiler-un-nouveau-programme" tabindex="-1">Créer et compiler un nouveau programme</h2>
-<p>Nous allons créer un nouveau programme en langage C.
-Dans un terminal, exécutez les commandes suivantes&nbsp;:</p>
+<p>Pour continuer, nous devons donc envoyer un programme au format
+<a href="https://fr.wikipedia.org/wiki/HEX_(Intel)">Intel HEX</a> par liaison série vers le FPGA.</p>
+<p>Nous allons reprendre le programme <code>Echo.s</code>, mais au lieu de le convertir
+en VHDL, nous allons produire un fichier <code>Echo.hex</code>.
+Exécutez les commandes suivantes dans un terminal&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/asm/Echo
+make Echo.hex
+cat Echo.hex
+</code></pre>
+<p>Le contenu du fichier <code>Echo.hex</code> doit ressembler à ceci&nbsp;:</p>
+<pre><code>:100000006F0040016F00C0004800000000000000C9
+:1000100073002030970100009381810717010100D0
+:10002000130141FE9302C0081303C00863F8620085
+:1000300023A0020093824200E3EC62FEEF00C001C5
+:100040009702000083A282FC67800200000000008B
+:100050000000000000000000B702008137030082AA
+:1000600083A3420093F31300E38C03FE23A27200E8
+:10007000034403002300830083A3420093F323007F
+:0C008000E38C03FE23A272006FF09FFDD2
+:00000001FF
+</code></pre>
+<p>Envoyez-le au FPGA par la liaison série&nbsp;:</p>
+<pre><code class="icon-term language-bash">cat Echo.hex &gt; /dev/ttyUSB1
+</code></pre>
+<p class="icon-check">GTKTerm doit afficher&nbsp;:</p>
+<pre><code>\\// Starting user program.
+</code></pre>
+<p class="icon-check">Dans la fenêtre de GTKTerm, entrez des caractères au clavier.
+Chaque caractère que vous avez entré doit s’afficher en écho.</p>
+<div class="warning">
+<p>Le programme <code>Echo</code> tourne en boucle et ne se termine jamais.
+Pour réinitialiser le système, vous devez recharger le bitstream dans le FPGA.</p>
+<p class="icon-mouse">Dans Vivado&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Program Device</em>.</p>
+<p>Par la suite, nous ferons attention à écrire des programmes qui se terminent.</p>
+</div>
+</section><section><h1 id="programmation-en-langage-c" tabindex="-1">Programmation en langage C</h1>
+<p>Nous vous proposons une réécriture du programme <code>Echo</code> en langage C.
+Créez et éditez un nouveau fichier <code>Echo.c</code>&nbsp;:</p>
 <pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/c
 mkdir Echo
 <span class="hljs-built_in">cd</span> Echo
 gedit Echo.c &amp;
 </code></pre>
-<p>Ce programme réalisera un <em>écho</em> en affichant chacun des caractères que vous
-frappez au clavier, jusqu’à ce que l’utilisateur presse la touche <em>Entrée</em>&nbsp;:</p>
-<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span>
+<pre><code class="icon-file language-c"><span class="hljs-comment">// Echo.c</span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span>
 
 <span class="hljs-comment">// Définition des adresses des périphériques.</span>
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_ADDR 0x81000000</span>
@@ -972,29 +662,29 @@ frappez au clavier, jusqu’à ce que l’utilisateur presse la touche <em>Entr�
 
 <span class="hljs-comment">// Définition des masques pour détecter et acquitter les événements.</span>
 <span class="hljs-comment">// masque = 2^(numéro de l'interruption)</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_UART_RX 1</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_UART_TX 2</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_MASK_UART_RX 1</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_MASK_UART_TX 2</span>
 
 <span class="hljs-comment">/* -------------------------------------------------------------------------- *
  * Fonctions d'accès aux registres des périphériques.
  * -------------------------------------------------------------------------- */</span>
 
-<span class="hljs-comment">// Lire un octet à l'adresse addr.</span>
+<span class="hljs-comment">// Lire un octet à l'adresse addr (équivaut à l'instruction LBU).</span>
 <span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">uint8_t</span> <span class="hljs-title function_">read8</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr)</span> {
     <span class="hljs-keyword">return</span> *(<span class="hljs-keyword">volatile</span> <span class="hljs-type">uint8_t</span>*)addr;
 }
 
-<span class="hljs-comment">// Écrire l'octet val à l'adresse addr.</span>
+<span class="hljs-comment">// Écrire l'octet val à l'adresse addr (équivaut à l'instruction SB).</span>
 <span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">write8</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr, <span class="hljs-type">uint8_t</span> val)</span> {
     *(<span class="hljs-type">uint8_t</span>*)addr = val;
 }
 
-<span class="hljs-comment">// Lire un mot de 32 bits à l'adresse addr.</span>
+<span class="hljs-comment">// Lire un mot de 32 bits à l'adresse addr (équivaut à l'instruction LW).</span>
 <span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">uint32_t</span> <span class="hljs-title function_">read32</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr)</span> {
     <span class="hljs-keyword">return</span> *(<span class="hljs-keyword">volatile</span> <span class="hljs-type">uint32_t</span>*)addr;
 }
 
-<span class="hljs-comment">// Écrire le mot de 32 bits val à l'adresse addr.</span>
+<span class="hljs-comment">// Écrire le mot de 32 bits val à l'adresse addr (équivaut à l'instruction SW).</span>
 <span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">write32</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr, <span class="hljs-type">uint32_t</span> val)</span> {
     *(<span class="hljs-type">uint32_t</span>*)addr = val;
 }
@@ -1008,9 +698,9 @@ frappez au clavier, jusqu’à ce que l’utilisateur presse la touche <em>Entr�
     <span class="hljs-comment">// Ecrire le caractère dans le registre de données.</span>
     write8(UART_DATA_REG, c);
     <span class="hljs-comment">// Attendre que l'envoi soit terminé.</span>
-    <span class="hljs-keyword">while</span> (!(read32(INTC_EVENTS_REG) &amp; INTC_EVENTS_UART_TX));
+    <span class="hljs-keyword">while</span> (!(read32(INTC_EVENTS_REG) &amp; INTC_MASK_UART_TX));
     <span class="hljs-comment">// Signaler que l'événement a été traité.</span>
-    write32(INTC_EVENTS_REG, INTC_EVENTS_UART_TX);
+    write32(INTC_EVENTS_REG, INTC_MASK_UART_TX);
 }
 
 <span class="hljs-comment">// Envoyer une chaîne de caractères à travers la liaison série.</span>
@@ -1027,9 +717,9 @@ frappez au clavier, jusqu’à ce que l’utilisateur presse la touche <em>Entr�
 <span class="hljs-comment">// Recevoir un caractère en provenance de la liaison série.</span>
 <span class="hljs-type">char</span> <span class="hljs-title function_">UART_receive_char</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
     <span class="hljs-comment">// Attendre la réception.</span>
-    <span class="hljs-keyword">while</span> (!(read32(INTC_EVENTS_REG) &amp; INTC_EVENTS_UART_RX));
+    <span class="hljs-keyword">while</span> (!(read32(INTC_EVENTS_REG) &amp; INTC_MASK_UART_RX));
     <span class="hljs-comment">// Signaler que l'événement a été traité.</span>
-    write32(INTC_EVENTS_REG, INTC_EVENTS_UART_RX);
+    write32(INTC_EVENTS_REG, INTC_MASK_UART_RX);
     <span class="hljs-comment">// Retourner le caractère reçu.</span>
     <span class="hljs-keyword">return</span> read8(UART_DATA_REG);
 }
@@ -1039,7 +729,7 @@ frappez au clavier, jusqu’à ce que l’utilisateur presse la touche <em>Entr�
  * -------------------------------------------------------------------------- */</span>
 
 <span class="hljs-type">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
-    <span class="hljs-comment">// Envoyer un message de début.</span>
+    <span class="hljs-comment">// Envoyer un message d'accueil.</span>
     UART_send_string(<span class="hljs-string">"Echo&gt; "</span>);
     <span class="hljs-comment">// Afficher chaque caractère reçu jusqu'à ce que l'utilisateur presse &lt;Entrée&gt;</span>
     <span class="hljs-type">char</span> c;
@@ -1129,46 +819,13 @@ riscv64-unknown-elf-objcopy -O ihex Echo.elf Echo.hex
 </tr>
 </tbody>
 </table>
-<p>En cas de problème à l’exécution du compilateur C, vous pouvez créer vous-même
-le fichier <code>Echo.hex</code> avec le contenu suivant&nbsp;:</p>
-<pre><code class="icon-file">:100000006F0040016F00C0004800000000000000C9
-:1000100073002030970100009381C11A170101007D
-:10002000130141FE9302001C1303001C63F86200DD
-:1000300023A0020093824200E3EC62FEEF00C011B5
-:100040009702000083A282FC67800200000000008B
-:100050000000000000000000130101FE232E8100BB
-:100060001304010293070500A307F4FEB7070082FB
-:100070000347F4FE2380E70013000000B707008168
-:100080009387470083A7070093F72700E38807FEBD
-:10009000B7070081938747001307200023A0E700DC
-:1000A000130000000324C101130101026780000056
-:1000B000130101FE232E1100232C810013040102E1
-:1000C0002326A4FE6F0000028327C4FE83C7070017
-:1000D00013850700EFF05FF88327C4FE93871700AE
-:1000E0002326F4FE8327C4FE83C70700E39E07FC94
-:1000F00013000000130000008320C10103248101CC
-:100100001301010267800000130101FF2326810013
-:100110001304010113000000B70700819387470013
-:1001200083A7070093F71700E38807FEB70700814E
-:10013000938747001307100023A0E700B70700824A
-:1001400083C7070093F7F70F138507000324C10047
-:100150001301010167800000130101FE232E11002D
-:10016000232C8100130401021305001BEFF05FF440
-:10017000EFF09FF993070500A307F4FE8347F4FE11
-:1001800013850700EFF05FED0347F4FE9307D000FF
-:10019000E310F7FE1305801BEFF09FF11300000042
-:1001A0008320C10103248101130101026780000043
-:0E01B0004563686F3E200000427965210A0019
-:00000001FF
-</code></pre>
-<p>Dans la fenêtre terminal de Linux qui vous a servi à lancer GTKTerm,
-exécutez la commande&nbsp;:</p>
-<pre><code class="icon-term language-bash">cat <span class="hljs-variable">$HOME</span>/CoCiNum/src/c/Echo/Echo.hex &gt; /dev/ttyUSB1
+<p>Dans la même fenêtre terminal exécutez la commande&nbsp;:</p>
+<pre><code class="icon-term language-bash">cat Echo.hex &gt; /dev/ttyUSB1
 </code></pre>
 <!-- Dans GTKTerm, dans le menu *File*, choisissez *Send Raw File*
 et sélectionnez le fichier `CoCiNum/src/c/Echo/Echo.hex`. -->
-<p>Dans le terminal, vous devez à présent voir&nbsp;:</p>
-<pre><code>\\// Starting user program...
+<p class="icon-check">Dans la fenêtre GTKTerm, vous devez à présent voir&nbsp;:</p>
+<pre><code>\\// Starting user program.
 Echo&gt;
 </code></pre>
 <p>Tapez quelques caractères au clavier. Ils doivent s’afficher à
