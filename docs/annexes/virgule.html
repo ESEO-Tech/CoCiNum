@@ -261,9 +261,9 @@ de poids fort, à des adresses croissantes.</p>
 </section><section><h1 id="jeu-dinstructions" tabindex="-1">Jeu d’instructions</h1>
 <p>Dans la syntaxe des instructions&nbsp;:</p>
 <ul>
-<li><code>{rd}</code> représente le numéro du registre de destination.</li>
-<li><code>{rs1}</code> et <code>{rs2}</code> représentent les numéros des registres sources.</li>
-<li><code>{imm}</code> représente une valeur immédiate.</li>
+<li><code>rd</code> représente le registre de destination (<code>x0</code> à <code>x31</code>).</li>
+<li><code>rs1</code> et <code>rs2</code> représentent les registres sources (<code>x0</code> à <code>x31</code>).</li>
+<li><code>imm</code> représente une valeur immédiate.</li>
 </ul>
 <table class="small-font wider">
 <thead>
@@ -275,189 +275,189 @@ de poids fort, à des adresses croissantes.</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left"><code>LUI x{rd}, {imm}</code></td>
+<td style="text-align:left"><code>LUI rd, imm</code></td>
 <td style="text-align:left">Load Upper Immediate</td>
-<td style="text-align:left"><code>x[rd] ← imm</code></td>
+<td style="text-align:left"><code>rd ← imm</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>AUIPC x{rd}, {imm}</code></td>
+<td style="text-align:left"><code>AUIPC rd, imm</code></td>
 <td style="text-align:left">Add Upper Immediate to PC</td>
-<td style="text-align:left"><code>x[rd] ← pc + imm</code></td>
+<td style="text-align:left"><code>rd ← pc + imm</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>JAL x{rd}, {imm}</code></td>
+<td style="text-align:left"><code>JAL rd, imm</code></td>
 <td style="text-align:left">Jump And Link</td>
-<td style="text-align:left"><code>x[rd] ← pc + 4; pc ← pc + imm</code></td>
+<td style="text-align:left"><code>rd ← pc + 4; pc ← pc + imm</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>JALR x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left"><code>JALR rd, rs1, imm</code></td>
 <td style="text-align:left">Jump And Link Register</td>
-<td style="text-align:left"><code>x[rd] ← pc + 4; pc ← x[rs1] + imm</code></td>
+<td style="text-align:left"><code>rd ← pc + 4; pc ← rs1 + imm</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>BEQ x{rs1}, x{rs2}, {imm}</code></td>
+<td style="text-align:left"><code>BEQ rs1, rs2, imm</code></td>
 <td style="text-align:left">Branch if Equal</td>
-<td style="text-align:left"><code>pc ← si x[rs1] = x[rs2]: pc + imm, sinon: pc + 4</code></td>
+<td style="text-align:left"><code>pc ← si rs1 = rs2: pc + imm, sinon: pc + 4</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>BNE x{rs1}, x{rs2}, {imm}</code></td>
+<td style="text-align:left"><code>BNE rs1, rs2, imm</code></td>
 <td style="text-align:left">Branch if Not Equal</td>
-<td style="text-align:left"><code>pc ← si x[rs1] ≠ x[rs2]: pc + imm, sinon: pc + 4</code></td>
+<td style="text-align:left"><code>pc ← si rs1 ≠ rs2: pc + imm, sinon: pc + 4</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>BLT x{rs1}, x{rs2}, {imm}</code></td>
+<td style="text-align:left"><code>BLT rs1, rs2, imm</code></td>
 <td style="text-align:left">Branch if Less Than</td>
-<td style="text-align:left"><code>pc ← si signed(x[rs1]) &lt; signed(x[rs2]): pc + imm, sinon: pc + 4</code></td>
+<td style="text-align:left"><code>pc ← si signed(rs1) &lt; signed(rs2): pc + imm, sinon: pc + 4</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>BGE x{rs1}, x{rs2}, {imm}</code></td>
+<td style="text-align:left"><code>BGE rs1, rs2, imm</code></td>
 <td style="text-align:left">Branch if Greater or Equal</td>
-<td style="text-align:left"><code>pc ← si signed(x[rs1]) ≥ signed(x[rs2]): pc + imm, sinon: pc + 4</code></td>
+<td style="text-align:left"><code>pc ← si signed(rs1) ≥ signed(rs2): pc + imm, sinon: pc + 4</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>BLTU x{rs1}, x{rs2}, {imm}</code></td>
+<td style="text-align:left"><code>BLTU rs1, rs2, imm</code></td>
 <td style="text-align:left">Branch if Less Than Unsigned</td>
-<td style="text-align:left"><code>pc ← si unsigned(x[rs1]) &lt; unsigned(x[rs2]): pc + imm, sinon: pc + 4</code></td>
+<td style="text-align:left"><code>pc ← si unsigned(rs1) &lt; unsigned(rs2): pc + imm, sinon: pc + 4</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>BGEU x{rs1}, x{rs2}, {imm}</code></td>
+<td style="text-align:left"><code>BGEU rs1, rs2, imm</code></td>
 <td style="text-align:left">Branch if Greater or Equal Unsigned</td>
-<td style="text-align:left"><code>pc ← si unsigned(x[rs1]) ≥ unsigned(x[rs2]): pc + imm, sinon: pc + 4</code></td>
+<td style="text-align:left"><code>pc ← si unsigned(rs1) ≥ unsigned(rs2): pc + imm, sinon: pc + 4</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>LB x{rd}, {imm}(x{rs1})</code></td>
+<td style="text-align:left"><code>LB rd, imm(rs1)</code></td>
 <td style="text-align:left">Load Byte</td>
-<td style="text-align:left"><code>x[rd] ← signed(mem[x[rs1]])</code></td>
+<td style="text-align:left"><code>rd ← signed(mem[rs1+imm])</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>LH x{rd}, {imm}(x{rs1})</code></td>
+<td style="text-align:left"><code>LH rd, imm(rs1)</code></td>
 <td style="text-align:left">Load Half word</td>
-<td style="text-align:left"><code>x[rd] ← signed(mem[x[rs1]:x[rs1]+1])</code></td>
+<td style="text-align:left"><code>rd ← signed(mem[rs1+imm:rs1+imm+1])</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>LW x{rd}, {imm}(x{rs1})</code></td>
+<td style="text-align:left"><code>LW rd, imm(rs1)</code></td>
 <td style="text-align:left">Load Word</td>
-<td style="text-align:left"><code>x[rd] ← signed(mem[x[rs1]:x[rs1]+3])</code></td>
+<td style="text-align:left"><code>rd ← signed(mem[rs1+imm:rs1+imm+3])</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>LBU x{rd}, {imm}(x{rs1})</code></td>
+<td style="text-align:left"><code>LBU rd, imm(rs1)</code></td>
 <td style="text-align:left">Load Byte Unsigned</td>
-<td style="text-align:left"><code>x[rd] ← unsigned(mem[x[rs1]])</code></td>
+<td style="text-align:left"><code>rd ← unsigned(mem[rs1+imm])</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>LHU x{rd}, {imm}(x{rs1})</code></td>
+<td style="text-align:left"><code>LHU rd, imm(rs1)</code></td>
 <td style="text-align:left">Load Half word Unsigned</td>
-<td style="text-align:left"><code>x[rd] ← unsigned(mem[x[rs1]:x[rs1]+1])</code></td>
+<td style="text-align:left"><code>rd ← unsigned(mem[rs1+imm:rs1+imm+1])</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SB x{rs2}, {imm}(x{rs1})</code></td>
+<td style="text-align:left"><code>SB rs2, imm(rs1)</code></td>
 <td style="text-align:left">Store Byte</td>
-<td style="text-align:left"><code>mem[x[rs1]] ← x[rs2][7:0]</code></td>
+<td style="text-align:left"><code>mem[rs1+imm] ← rs2[7:0]</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SH x{rs2}, {imm}(x{rs1})</code></td>
+<td style="text-align:left"><code>SH rs2, imm(rs1)</code></td>
 <td style="text-align:left">Store Half word</td>
-<td style="text-align:left"><code>mem[x[rs1]:x[rs1]+1] ← x[rs2][15:0]</code></td>
+<td style="text-align:left"><code>mem[rs1+imm:rs1+imm+1] ← rs2[15:0]</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SW x{rs2}, {imm}(x{rs1})</code></td>
+<td style="text-align:left"><code>SW rs2, imm(rs1)</code></td>
 <td style="text-align:left">Store Word</td>
-<td style="text-align:left"><code>mem[x[rs1]:x[rs1]+3] ← x[rs2]</code></td>
+<td style="text-align:left"><code>mem[rs1+imm:rs1+imm+3] ← rs2</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>ADDI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left"><code>ADDI rd, rs1, imm</code></td>
 <td style="text-align:left">Add Immediate</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] + imm</code></td>
+<td style="text-align:left"><code>rd ← rs1 + imm</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SLLI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left"><code>SLLI rd, rs1, imm</code></td>
 <td style="text-align:left">Shift Left Logical Immediate</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] sll imm</code></td>
+<td style="text-align:left"><code>rd ← rs1 sll imm</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SLTI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left"><code>SLTI rd, rs1, imm</code></td>
 <td style="text-align:left">Set on Less Than Immediate</td>
-<td style="text-align:left"><code>x[rd] ← si signed(x[rs1]) &lt; signed(imm): 1, sinon: 0</code></td>
+<td style="text-align:left"><code>rd ← si signed(rs1) &lt; signed(imm): 1, sinon: 0</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SLTIU x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left"><code>SLTIU rd, rs1, imm</code></td>
 <td style="text-align:left">Set on Less Than Immediate Unsigned</td>
-<td style="text-align:left"><code>x[rd] ← si unsigned(x[rs1]) &lt; unsigned(imm): 1, sinon: 0</code></td>
+<td style="text-align:left"><code>rd ← si unsigned(rs1) &lt; unsigned(imm): 1, sinon: 0</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>XORI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left"><code>XORI rd, rs1, imm</code></td>
 <td style="text-align:left">Exclusive Or Immediate</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] xor imm</code></td>
+<td style="text-align:left"><code>rd ← rs1 xor imm</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SRLI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left"><code>SRLI rd, rs1, imm</code></td>
 <td style="text-align:left">Shift Right Logical Immediate</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] srl imm</code></td>
+<td style="text-align:left"><code>rd ← rs1 srl imm</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SRAI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left"><code>SRAI rd, rs1, imm</code></td>
 <td style="text-align:left">Shift Right Arithmetic Immediate</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] sra imm</code></td>
+<td style="text-align:left"><code>rd ← rs1 sra imm</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>ORI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left"><code>ORI rd, rs1, imm</code></td>
 <td style="text-align:left">Or Immediate</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] or imm</code></td>
+<td style="text-align:left"><code>rd ← rs1 or imm</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>ANDI x{rd}, x{rs1}, {imm}</code></td>
+<td style="text-align:left"><code>ANDI rd, rs1, imm</code></td>
 <td style="text-align:left">And Immediate</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] and imm</code></td>
+<td style="text-align:left"><code>rd ← rs1 and imm</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>ADD x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left"><code>ADD rd, rs1, rs2</code></td>
 <td style="text-align:left">Add</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] + x[rs2]</code></td>
+<td style="text-align:left"><code>rd ← rs1 + rs2</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SUB x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left"><code>SUB rd, rs1, rs2</code></td>
 <td style="text-align:left">Subtract</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] - x[rs2]</code></td>
+<td style="text-align:left"><code>rd ← rs1 - rs2</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SLL x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left"><code>SLL rd, rs1, rs2</code></td>
 <td style="text-align:left">Shift Left Logical</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] sll x[rs2]</code></td>
+<td style="text-align:left"><code>rd ← rs1 sll rs2</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SLT x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left"><code>SLT rd, rs1, rs2</code></td>
 <td style="text-align:left">Set on Less Than</td>
-<td style="text-align:left"><code>x[rd] ← si signed(x[rs1]) &lt; signed(x[rs2]): 1, sinon: 0</code></td>
+<td style="text-align:left"><code>rd ← si signed(rs1) &lt; signed(rs2): 1, sinon: 0</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SLTU x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left"><code>SLTU rd, rs1, rs2</code></td>
 <td style="text-align:left">Set on Less Than Unsigned</td>
-<td style="text-align:left"><code>x[rd] ← si unsigned(x[rs1]) &lt; unsigned(x[rs2]): 1, sinon: 0</code></td>
+<td style="text-align:left"><code>rd ← si unsigned(rs1) &lt; unsigned(rs2): 1, sinon: 0</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>XOR x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left"><code>XOR rd, rs1, rs2</code></td>
 <td style="text-align:left">Exclusive Or</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] xor x[rs2]</code></td>
+<td style="text-align:left"><code>rd ← rs1 xor rs2</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SRL x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left"><code>SRL rd, rs1, rs2</code></td>
 <td style="text-align:left">Shift Right Logical</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] srl x[rs2][4:0]</code></td>
+<td style="text-align:left"><code>rd ← rs1 srl rs2[4:0]</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>SRA x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left"><code>SRA rd, rs1, rs2</code></td>
 <td style="text-align:left">Shift Right Arithmetic</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] sra x[rs2][4:0]</code></td>
+<td style="text-align:left"><code>rd ← rs1 sra rs2[4:0]</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>OR x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left"><code>OR rd, rs1, rs2</code></td>
 <td style="text-align:left">Or</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] or x[rs2]</code></td>
+<td style="text-align:left"><code>rd ← rs1 or rs2</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><code>AND x{rd}, x{rs1}, x{rs2}</code></td>
+<td style="text-align:left"><code>AND rd, rs1, rs2</code></td>
 <td style="text-align:left">And</td>
-<td style="text-align:left"><code>x[rd] ← x[rs1] and x[rs2]</code></td>
+<td style="text-align:left"><code>rd ← rs1 and rs2</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><code>MRET</code></td>
