@@ -115,6 +115,14 @@ footer nav a {
     display: table-cell;
 }
 
+footer .legal {
+    margin-top: 2rem;
+	font-size: 80%;
+	background: rgb(245,245,245);
+	border-top: 1px solid rgb(200,200,200);
+	padding: 1rem 2rem;
+}
+
 /* ------------------------------------------------------------------------- *
  * Links
  * ------------------------------------------------------------------------- */
