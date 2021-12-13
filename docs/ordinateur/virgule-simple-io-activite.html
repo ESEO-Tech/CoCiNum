@@ -147,11 +147,11 @@ et de mémoire.
 La mémoire contient&nbsp;:</p>
 <ul>
 <li>les codes binaires des instructions que le processeur doit exécuter,</li>
-<li>les données traitées par ces programmes.</li>
+<li>les données traitées par ces programmes, également représentées en binaire.</li>
 </ul>
 <p><a href="ordinateur-minimal.svg"><img src="ordinateur-minimal.svg" alt="Un ordinateur minimal"></a></p>
-<p>Pour le processeur, la mémoire est un tableau de cellules.
-Chaque cellule est repérée par un numéro (son adresse), et contient un octet (8 bits) de donnée.</p>
+<p>Pour le processeur, la mémoire est un tableau de <em>cellules</em>.
+Chaque cellule contient un <em>octet</em> (8 bits) et est repérée par un numéro&nbsp;: son <em>adresse</em>.</p>
 <p><a href="ordinateur-minimal-memoire-lineaire.svg"><img src="ordinateur-minimal-memoire-lineaire.svg" alt="Un ordinateur minimal avec organisation linéaire de la mémoire" width="700px"></a></p>
 <p>Virgule étant un processeur 32 bits, ses instructions peuvent traiter
 des données qui occupent entre 1 et 4 cellules consécutives en mémoire.
@@ -220,8 +220,8 @@ instruction en mémoire&nbsp;:</p>
 est organisée en lignes de quatre cellules.</p>
 <ul>
 <li>Une instruction <code>LB</code>, <code>LBU</code> ou <code>SB</code> peut accéder à n’importe quelle cellule dans une ligne.</li>
-<li>Une instruction <code>LH</code>, <code>LHU</code> ou <code>SH</code> peut accéder à la moitié d’une ligne.</li>
-<li>Une instruction <code>LW</code> ou <code>SW</code>, ou une opération <em>Fetch</em>, peut accéder à une ligne entière.</li>
+<li>Une instruction <code>LH</code>, <code>LHU</code> ou <code>SH</code> peut accéder à la moitié gauche ou droite d’une ligne.</li>
+<li>Une instruction <code>LW</code> ou <code>SW</code>, ou une opération <em>Fetch</em>, accède à une ligne entière.</li>
 </ul>
 <p><a href="ordinateur-minimal-memoire-mots.svg"><img src="ordinateur-minimal-memoire-mots.svg" alt="Un ordinateur minimal avec organisation de la mémoire par lignes de 4 octets" width="800px"></a></p>
 <p>Comme le montre la figure ci-dessus, Virgule accède à la mémoire en mode
@@ -230,10 +230,10 @@ l’octet de poids faible est rangé <em>en premier</em> dans la mémoire, à l�
 <div class="info">
 <p>Le processeur ne fait pas de différence entre la mémoire et les périphériques.
 Il utilise les mêmes instructions et le même protocole de communication pour
-échanger des données avec chaque composant du système quelle que soit
+échanger des données avec chaque composant du système, quelle que soit
 sa fonction.</p>
 <p>Pour que ce soit possible, on attribue une plage d’adresses à chaque bloc de
-mémoire et à chaque périphérique,.
+mémoire et à chaque périphérique.
 Ces plages d’adresses constituent le <em>plan mémoire</em>, ou <em>plan d’adressage</em>
 du système.
 Nous verrons plus loin comment cela se concrétise physiquement.</p>
@@ -241,10 +241,10 @@ Nous verrons plus loin comment cela se concrétise physiquement.</p>
 </section><section><h2 id="linterface-bus-de-virgule" tabindex="-1">L’interface bus de Virgule</h2>
 <p>Dans le langage de la vie courante, un bus est un moyen de transport en commun.
 En électronique, on utilise le terme «&nbsp;bus&nbsp;» pour désigner un ensemble de
-fils électriques qui transportent des données et des informations de contrôle
+conducteurs électriques qui transportent des données et des informations de contrôle
 entre différents composants en respectant un certain protocole.</p>
-<p>Un processeur possède typiquement un bus de données, un bus d’adresses et
-un bus de contrôle.
+<p>Un processeur possède typiquement des bus de données et d’adresses associés à
+des signaux de contrôle.
 Pour le processeur <code>Virgule</code>, ils figurent parmi les ports de son entité&nbsp;:</p>
 <table>
 <thead>
@@ -710,7 +710,7 @@ dans votre architecture&nbsp;:</p>
 <ul>
 <li>soit la valeur du port <code>rdata_o</code> de la mémoire, à travers un signal <code>mem_rdata</code>,</li>
 <li>soit l’état des interrupteurs, à travers un signal <code>io_rdata</code>,</li>
-<li>soit zéro lorsque l’adresse ne correspond par à une plage connue.</li>
+<li>soit zéro lorsque l’adresse ne correspond pas à une plage connue.</li>
 </ul>
 <p>Ici encore, on utilise les bits 31 à 24 de l’adresse pour assurer l’<em>aiguillage</em> des données&nbsp;:</p>
 <p><a href="Virgule-VMemory-IO-rdata.svg"><img src="Virgule-VMemory-IO-rdata.svg" alt="Virgule : ordinateur avec entrées/sorties simples, lecture"></a></p>
