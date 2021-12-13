@@ -39,13 +39,25 @@
                 <li><a href="#lentite-timer">L’entité Timer</a></li>
             
                 
-                <li><a href="#completer-larchitecture">Compléter l’architecture</a></li>
+                <li><a href="#modification-du-systeme">Modification du système</a></li>
             
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#paquetage-computerpkg">Paquetage Computer_pkg</a></li>
+            
+                
+                <li><a href="#entite-computer-et-architecture-structural">Entité Computer et architecture Structural</a></li>
+            
+                
+                    </ul></li>
+                    
                 
                 <li><a href="#generer-le-bitstream-et-configurer-le-fpga">Générer le bitstream et configurer le FPGA</a></li>
             
                 
-                <li><a href="#executer-un-programme-de-demonstration">Exécuter un programme de démonstration</a></li>
+                <li><a href="#compiler-et-executer-un-programme-de-demonstration">Compiler et exécuter un programme de démonstration</a></li>
             
             
         </ul>
@@ -54,15 +66,35 @@
     <p>Nous allons à présent compléter notre système embarqué en ajoutant un
 périphérique qui effectuera des demandes d’interruption périodiques.</p>
 <section><h1 id="completer-le-projet-vivado" tabindex="-1">Compléter le projet Vivado</h1>
-<p>Si ce n’est pas déjà fait, démarrez Vivado et ouvrez votre projet <code>Computer</code>.</p>
+<p>Si ce n’est pas déjà fait, ouvrez votre projet <code>Computer</code> dans Vivado&nbsp;:</p>
 <pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum
-./scripts/vivado
+./scripts/vivado vivado/Computer/Computer.xpr
 </code></pre>
-<p>Ajoutez le fichier <code>CoCiNum/src/vhdl/Timer/Timer.vhd</code> à votre projet.</p>
+<p class="icon-config">Dans le panneau, <em>Flow Navigator</em>, exécutez l’action <em>Add Sources</em>,
+choisissez <em>Add or create design sources</em> et pressez le bouton <em>Next</em>.</p>
+<p class="icon-config">Ajoutez les fichiers source VHDL suivants à votre projet.
+Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Sous-dossier</th>
+<th style="text-align:left">Fichier</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>Timer</code></td>
+<td style="text-align:left"><code>Timer.vhd</code></td>
+<td style="text-align:left">Un périphérique pour compter le temps.</td>
+</tr>
+</tbody>
+</table>
 </section><section><h1 id="lentite-timer" tabindex="-1">L’entité Timer</h1>
 <p>Un timer est un périphérique capable de compter le temps et de déclencher
 des interruptions périodiques.
-L’entité <code>Timer</code> est conçue comme un périphérique pour le processeur <code>Virgule</code> avec les ports suivants&nbsp;:</p>
+L’entité <code>Timer</code> est conçue comme un périphérique pour le processeur <code>Virgule</code>
+avec les ports suivants&nbsp;:</p>
 <table>
 <thead>
 <tr>
@@ -86,6 +118,18 @@ L’entité <code>Timer</code> est conçue comme un périphérique pour le proce
 <td style="text-align:left">La commande de réinitialisation</td>
 </tr>
 <tr>
+<td style="text-align:left"><code>valid_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Demande de transfert de donnée</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ready_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Indicateur de fin d’une lecture ou d’une écriture</td>
+</tr>
+<tr>
 <td style="text-align:left"><code>address_i</code></td>
 <td style="text-align:left">Entrée</td>
 <td style="text-align:left">Logique</td>
@@ -94,26 +138,26 @@ L’entité <code>Timer</code> est conçue comme un périphérique pour le proce
 <tr>
 <td style="text-align:left"><code>write_i</code></td>
 <td style="text-align:left">Entrée</td>
-<td style="text-align:left">Logique</td>
-<td style="text-align:left">La commande d’écriture</td>
+<td style="text-align:left">Vecteur de 4 bits</td>
+<td style="text-align:left">Sélection des octets à écrire</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>data_i</code></td>
+<td style="text-align:left"><code>wdata_i</code></td>
 <td style="text-align:left">Entrée</td>
 <td style="text-align:left">Vecteur de 32 bits</td>
 <td style="text-align:left">Le bus de données en écriture</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>data_o</code></td>
+<td style="text-align:left"><code>rdata_o</code></td>
 <td style="text-align:left">Sortie</td>
 <td style="text-align:left">Vecteur de 32 bits</td>
 <td style="text-align:left">Le bus de données en lecture</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>irq_o</code></td>
+<td style="text-align:left"><code>evt_o</code></td>
 <td style="text-align:left">Sortie</td>
 <td style="text-align:left">Logique</td>
-<td style="text-align:left">Demande d’interruption (interrupt request)</td>
+<td style="text-align:left">Indicateur d’événement</td>
 </tr>
 </tbody>
 </table>
@@ -142,7 +186,7 @@ L’entité <code>Timer</code> est conçue comme un périphérique pour le proce
 <p>Le fonctionnement du timer est le suivant&nbsp;:</p>
 <ul>
 <li>Au démarrage, ou lorsque <code>reset_i</code> vaut <code>'1'</code>, les registres <code>limit_reg</code> et <code>count_reg</code> sont mis à zéro.</li>
-<li>Lors d’une écriture (<code>write_i = '1'</code>), la valeur de <code>data_i</code> est copiée dans&nbsp;:
+<li>Lors d’une écriture, la valeur de <code>wdata_i</code> est copiée dans&nbsp;:
 <ul>
 <li><code>limit_reg</code> si <code>address_i = '0'</code>,</li>
 <li><code>count_reg</code> si <code>address_i = '1'</code>.</li>
@@ -155,136 +199,86 @@ L’entité <code>Timer</code> est conçue comme un périphérique pour le proce
 </ul>
 </li>
 </ul>
-<p>La sortie <code>data_o</code> est égale à&nbsp;:</p>
+<p>La sortie <code>rdata_o</code> est égale à&nbsp;:</p>
 <ul>
 <li><code>limit_reg</code> lorsque <code>address_i = '0'</code></li>
 <li><code>count_reg</code> lorsque <code>address_i = '1'</code></li>
 </ul>
-<p>Si <code>limit_reg</code> est non nul, la sortie <code>irq_o</code> vaut <code>'1'</code> à la fin de chaque
+<p>Si <code>limit_reg</code> est non nul, la sortie <code>evt_o</code> vaut <code>'1'</code> à la fin de chaque
 cycle de comptage, c’est-à-dire lorsque <code>count_reg</code> ≥ <code>limit_reg</code>.</p>
 <p>Si <code>limit_reg</code> vaut zéro, le timer ne compte pas et ne produit aucune
 demande d’interruption.</p>
-</section><section><h1 id="completer-larchitecture" tabindex="-1">Compléter l’architecture</h1>
-<p>Dans le fichier <code>Computer_pkg.vhd</code>, ajoutez les définitions suivantes pour
-définir la plage d’adresses associée au timer&nbsp;:</p>
-<pre><code class="icon-file language-vhdl"><span class="hljs-keyword">constant</span> TIMER_ADDRESS : <span class="hljs-built_in">unsigned</span> := x<span class="hljs-string">"83000000"</span>;
-<span class="hljs-keyword">constant</span> TIMER_SIZE    : <span class="hljs-built_in">positive</span> := <span class="hljs-number">8</span>;
-
-<span class="hljs-keyword">constant</span> INTC_EVENTS_TIMER : <span class="hljs-built_in">natural</span> := <span class="hljs-number">2</span>;
-
-<span class="hljs-comment">-- Complétez le type device_t existant</span>
-<span class="hljs-keyword">type</span> device_t <span class="hljs-keyword">is</span> (..., TIMER);
-</code></pre>
-<p class="icon-file">Modifiez le fichier <code>Computer.vhd</code> pour intégrer le timer dans notre système&nbsp;:</p>
-<p><a href="Computer-Timer-architecture.svg"><img src="Computer-Timer-architecture.svg" alt="L'architecture pour l'entité Computer avec Timer"></a></p>
-<div class="caption">
-<p><a href="../langage-vhdl/legende.svg" target="_blank"><i class="fas fa-info-circle"></i> Afficher la légende des schémas.</a></p>
-</div>
+</section><section><h1 id="modification-du-systeme" tabindex="-1">Modification du système</h1>
+</section><section><h2 id="paquetage-computerpkg" tabindex="-1">Paquetage <code>Computer_pkg</code></h2>
+<p class="icon-file">Dans le fichier <code>Computer_pkg.vhd</code>, ajoutez des constantes pour définir les
+caractéristiques des nouveaux périphériques du système&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Constante</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Valeur</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>TIMER_ADDRESS</code></td>
+<td style="text-align:left">Octet</td>
+<td style="text-align:left">83<sub>hex</sub></td>
+<td style="text-align:left">Les bits 31 à 24 de l’adresse pour accéder au timer.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>INTC_EVENTS_TIMER</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">2</td>
+<td style="text-align:left">Pour le contrôleur d’interruptions, le numéro de l’événement indiquant la fin d’un cycle de comptage du timer.</td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="entite-computer-et-architecture-structural" tabindex="-1">Entité <code>Computer</code> et architecture <code>Structural</code></h2>
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, dans l’architecture <code>Structural</code>,
+ajoutez une instance de l’entité <code>Timer</code>.</p>
+<p>Nous ne fournissons pas de schéma pour cette étape.
+Vous pouvez prendre pour modèles les instances des périphériques
+<code>UART</code> et <code>VInterruptController</code> déjà présentes dans l’architecture.</p>
 </section><section><h1 id="generer-le-bitstream-et-configurer-le-fpga" tabindex="-1">Générer le bitstream et configurer le FPGA</h1>
-<p class="icon-mouse">Générez le fichier binaire à charger dans le FPGA&nbsp;:
+<p class="icon-mouse">Dans Vivado, générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
-<p class="icon-hand">Si ce n’est pas déjà fait, reliez le connecteur micro-USB de la carte à un port USB de votre PC et
-mettez la carte sous tension.</p>
-<p>Ouvrez ensuite un terminal pour port série&nbsp;:</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum
-./scripts/gtkterm
-</code></pre>
-<p>Dans le menu <em>Configuration</em> de GTKTerm, activez l’option <em>CR LF auto</em>.</p>
+<p class="icon-hand">Si ce n’est pas déjà fait, reliez le connecteur micro-USB de la carte à un port
+USB de votre PC et mettez la carte sous tension.</p>
 <p class="icon-mouse">Connectez Vivado à votre carte Basys3&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Open Target</em> → <em>Auto-connect</em>.</p>
 <p class="icon-mouse">Configurez le FPGA&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Program Device</em>.</p>
-<p>Comme lors de l’étape précédente, la fenêtre GTKTerm doit à présent afficher le texte&nbsp;:</p>
-<pre><code>\\// This is the Virgule program loader. Please send an hex file to execute...
-</code></pre>
-</section><section><h1 id="executer-un-programme-de-demonstration" tabindex="-1">Exécuter un programme de démonstration</h1>
-<p>Nous allons créer un nouveau programme en langage C.
-Dans un terminal, exécutez les commandes suivantes&nbsp;:</p>
+</section><section><h1 id="compiler-et-executer-un-programme-de-demonstration" tabindex="-1">Compiler et exécuter un programme de démonstration</h1>
+<p>Nous allons adapter le programme <code>Echo.c</code> de manière à créer un nouveau
+programme de démonstration du timer <code>Tick.c</code>&nbsp;:</p>
 <pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/c
 mkdir Tick
+cp Echo/Echo.c Tick/Tick.c
 <span class="hljs-built_in">cd</span> Tick
 gedit Tick.c &amp;
 </code></pre>
-<p>Ce programme configure le timer pour demander des interruptions toutes
-les secondes.
-À chaque demande d’interruption, la fonction <code>irq_handler</code> est
-appelée automatiquement et affiche la chaîne <code>"Tick!"</code> dans le terminal.</p>
-<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span>
-
-<span class="hljs-comment">// Définition des adresses des périphériques.</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_ADDR  0x81000000</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> UART_ADDR  0x82000000</span>
+<p>Dans le fichier <code>Tick.c</code>, ajoutez des constantes pour définir les
+caractéristiques du timer&nbsp;:</p>
+<pre><code class="icon-file language-c"><span class="hljs-comment">// Définition des adresses des périphériques.</span>
+...
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> TIMER_ADDR 0x83000000</span>
 
 <span class="hljs-comment">// Définition des registres des périphériques.</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_MASK_REG   INTC_ADDR</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_REG (INTC_ADDR + 4)</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> UART_DATA_REG   UART_ADDR</span>
+...
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> TIMER_LIMIT_REG TIMER_ADDR</span>
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> TIMER_COUNT_REG (TIMER_ADDR + 4)</span>
 
 <span class="hljs-comment">// Définition des masques pour détecter et acquitter les événements.</span>
 <span class="hljs-comment">// masque = 2^(numéro de l'événement)</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_UART_RX 1</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_UART_TX 2</span>
+...
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_TIMER   4</span>
 
 <span class="hljs-comment">// La fréquence d'horloge permettra de configurer le timer.</span>
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> CLK_FREQUENCY_HZ 100e6</span>
-
-<span class="hljs-comment">/* -------------------------------------------------------------------------- *
- * Fonctions d'accès aux registres des périphériques.
- * -------------------------------------------------------------------------- */</span>
-
-<span class="hljs-comment">// Lire un octet à l'adresse addr.</span>
-<span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">uint8_t</span> <span class="hljs-title function_">read8</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr)</span> {
-    <span class="hljs-keyword">return</span> *(<span class="hljs-keyword">volatile</span> <span class="hljs-type">uint8_t</span>*)addr;
-}
-
-<span class="hljs-comment">// Écrire l'octet val à l'adresse addr.</span>
-<span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">write8</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr, <span class="hljs-type">uint8_t</span> val)</span> {
-    *(<span class="hljs-type">uint8_t</span>*)addr = val;
-}
-
-<span class="hljs-comment">// Lire un mot de 32 bits à l'adresse addr.</span>
-<span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">uint32_t</span> <span class="hljs-title function_">read32</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr)</span> {
-    <span class="hljs-keyword">return</span> *(<span class="hljs-keyword">volatile</span> <span class="hljs-type">uint32_t</span>*)addr;
-}
-
-<span class="hljs-comment">// Écrire le mot de 32 bits val à l'adresse addr.</span>
-<span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">write32</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr, <span class="hljs-type">uint32_t</span> val)</span> {
-    *(<span class="hljs-type">uint32_t</span>*)addr = val;
-}
-
-<span class="hljs-comment">/* -------------------------------------------------------------------------- *
- * Fonctions de lecture/écriture sur l'interface série.
- * -------------------------------------------------------------------------- */</span>
-
-<span class="hljs-comment">// Envoyer un caractère à travers la liaison série.</span>
-<span class="hljs-type">void</span> <span class="hljs-title function_">UART_send_char</span><span class="hljs-params">(<span class="hljs-type">char</span> c)</span> {
-    <span class="hljs-comment">// Ecrire le caractère dans le registre de données.</span>
-    write8(UART_DATA_REG, c);
-    <span class="hljs-comment">// Attendre que l'envoi soit terminé.</span>
-    <span class="hljs-keyword">while</span> (!(read32(INTC_EVENTS_REG) &amp; INTC_EVENTS_UART_TX));
-    <span class="hljs-comment">// Signaler que l'événement a été traité.</span>
-    write32(INTC_EVENTS_REG, INTC_EVENTS_UART_TX);
-}
-
-<span class="hljs-comment">// Envoyer une chaîne de caractères à travers la liaison série.</span>
-<span class="hljs-type">void</span> <span class="hljs-title function_">UART_send_string</span><span class="hljs-params">(<span class="hljs-keyword">const</span> <span class="hljs-type">char</span> *str)</span> {
-    <span class="hljs-comment">// Tant que le caractère courant est non nul.</span>
-    <span class="hljs-keyword">while</span> (*str) {
-        <span class="hljs-comment">// Envoyer le caractère courant.</span>
-        UART_send_char(*str);
-        <span class="hljs-comment">// Passer au caractère suivant.</span>
-        str ++;
-    }
-}
-
-<span class="hljs-comment">/* -------------------------------------------------------------------------- *
- * Programme principal.
- * -------------------------------------------------------------------------- */</span>
-
-<span class="hljs-comment">// Cette fonction sera exécutée à chaque demande d'interruption.</span>
-__attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
+</code></pre>
+<p>Ajoutez une fonction qui sera appelée à chaque demande d’interruption&nbsp;:</p>
+<pre><code class="icon-file language-c">__attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
 <span class="hljs-type">void</span> <span class="hljs-title function_">irq_handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
     <span class="hljs-comment">// Vérifier qu'il s'agit bien d'une interruption du timer.</span>
     <span class="hljs-keyword">if</span> (read32(INTC_EVENTS_REG) &amp; INTC_EVENTS_TIMER) {
@@ -294,8 +288,9 @@ __attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
         UART_send_string(<span class="hljs-string">"Tick! "</span>);
     }
 }
-
-<span class="hljs-type">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+</code></pre>
+<p>Modifiez le programme principal&nbsp;:</p>
+<pre><code class="icon-file language-c"><span class="hljs-type">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
     <span class="hljs-comment">// Activer les interruptions du timer.</span>
     write32(INTC_MASK_REG, INTC_EVENTS_TIMER);
     <span class="hljs-comment">// Régler le cycle de comptage sur 1 seconde.</span>
@@ -304,6 +299,7 @@ __attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
     <span class="hljs-comment">// Pendant ce temps, le timer demande des interruptions toutes les secondes.</span>
     UART_send_string(<span class="hljs-string">"Press a key to terminate the program.\n"</span>);
     <span class="hljs-keyword">while</span> (!(read32(INTC_EVENTS_REG) &amp; INTC_EVENTS_UART_RX));
+    <span class="hljs-comment">// Envoyer un message de fin.</span>
     UART_send_string(<span class="hljs-string">"\nBye!\n"</span>);
 }
 </code></pre>
@@ -312,40 +308,21 @@ __attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
 riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -ffreestanding -nostdlib -T ../../../scripts/Virgule.ld -o Tick.elf ../../asm/Startup/Startup.s Tick.c
 riscv64-unknown-elf-objcopy -O ihex Tick.elf Tick.hex
 </code></pre>
-<p>En cas de problème à l’exécution du compilateur C, vous pouvez créer vous-même
-le fichier <code>Tick.hex</code> avec le contenu suivant&nbsp;:</p>
-<pre><code class="icon-file">:100000006F0040016F00C00A4800000000000000BF
-:1000100073002030970100009381C11C170101007B
-:10002000130141FE9302001E1303001E63F86200D9
-:1000300023A0020093824200E3EC62FEEF00001274
-:100040009702000083A282FC67800200000000008B
-:100050000000000000000000B70700822380A70016
-:10006000370700818327470093F72700E38C07FEBB
-:10007000930720002322F70067800000130101FF8F
-:1000800023248100232611001304050003450400E6
-:10009000631A05008320C1000324810013010101BC
-:1000A00067800000EFF05FFB130414006FF01FFE89
-:1000B000130101FC232EE10037070081232CF100FE
-:1000C00083274700232E1102232C5102232A610289
-:1000D000232871022326A1022324B1022322C10274
-:1000E0002320D102232A0101232811012326C10143
-:1000F0002324D1012322E1012320F10193F74700BA
-:10010000638A0700930740002322F7001305801A33
-:10011000EFF0DFF68320C103832281030323410331
-:10012000832301030325C1028325810203264102A3
-:10013000832601020327C10183278101032841018E
-:1001400083280101032EC100832E8100032F41006B
-:10015000832F01001301010473002030130101FFFC
-:1001600023261100B70700811307400023A0E700F2
-:10017000B7E7F505370700839387F70F2320F700CC
-:100180001305001BEFF09FEF37070081832747001F
-:1001900093F71700E38C07FE8320C1001305801D31
-:0801A000130101016FF09FED56
-:1001A8005469636B212000005072657373206120CD
-:1001B8006B657920746F207465726D696E61746502
-:1001C800207468652070726F6772616D2E0A000076
-:0701D8000A427965210A00CB
-:00000001FF
+<p>Si ce n’est pas déjà fait, ouvrez le logiciel <em>GTKTerm</em> pour communiquer avec
+l’ordinateur embarqué dans notre FPGA par liaison série sur USB&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum
+./scripts/gtkterm
+</code></pre>
+<p class="icon-mouse">Dans le menu <em>Configuration</em> de GTKTerm, activez l’option <em>CR LF auto</em>.</p>
+<div class="info">
+<p>GTKTerm est déjà configuré pour utiliser le port série <code>/dev/ttyUSB1</code>
+avec 8 bits de données, 1 bit d’arrêt, pas de contrôle de parité.</p>
+</div>
+<p class="icon-hand">Forcez un redémarrage du processeur en pressant le bouton-poussoir central
+de la carte Basys3.</p>
+<p>La fenêtre GTKTerm doit à présent afficher le texte&nbsp;:</p>
+<pre><code>\\// This is the Virgule program loader.
+\\// Send an hex file to execute or press ESC to switch into interactive mode.
 </code></pre>
 <p>Dans la fenêtre terminal de Linux qui vous a servi à lancer GTKTerm,
 exécutez la commande&nbsp;:</p>
