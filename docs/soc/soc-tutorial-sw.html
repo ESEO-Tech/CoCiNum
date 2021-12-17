@@ -97,7 +97,7 @@ suivantes&nbsp;:</p>
 </div>
 <p>Dans le dossier <code>meta-eseo</code>, créez la structure de dossiers
 où nous allons modifier la <em>recette</em> de construction du noyau&nbsp;:</p>
-<pre><code class="icon-term language-bash">mkdir -p ../meta-eseo/recipes-kernel/linux/files
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">mkdir</span> -p ../meta-eseo/recipes-kernel/linux/files
 </code></pre>
 <p>Créez le fichier <code>meta-eseo/recipes-kernel/linux/files/zybo-minimal.dts</code> avec le contenu suivant&nbsp;:</p>
 <pre><code class="icon-file language-dts"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"zynq-zybo.dts"</span></span>
@@ -143,7 +143,7 @@ par défaut.</p>
 </section><section><h2 id="creer-un-module-noyau" tabindex="-1">Créer un module noyau</h2>
 <p>Dans le dossier <code>meta-eseo</code>, créez la structure de dossiers
 des sources d’un nouveau pilote de périphériques&nbsp;:</p>
-<pre><code class="icon-term language-bash">mkdir -p ../meta-eseo/recipes-kernel/simple-io-driver/files
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">mkdir</span> -p ../meta-eseo/recipes-kernel/simple-io-driver/files
 </code></pre>
 <p>Créez le fichier <code>meta-eseo/recipes-kernel/simple-io-driver/files/simple-io-driver.c</code>
 avec le code ci-dessous.
@@ -168,7 +168,7 @@ MODULE_DESCRIPTION(<span class="hljs-string">"simple-io-driver - Custom I/O driv
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> DEVICE_NAME <span class="hljs-string">"simple-io-device"</span></span>
 
 <span class="hljs-comment">/// Données utilisées par le driver.</span>
-<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> {</span>
+<span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> {</span>
     <span class="hljs-comment">/// Numéro majeur du périphérique caractère.</span>
     <span class="hljs-type">int</span> major;
     <span class="hljs-comment">/// Classe du périphérique.</span>
@@ -188,7 +188,7 @@ MODULE_DESCRIPTION(<span class="hljs-string">"simple-io-driver - Custom I/O driv
  *
  * @param state Le nouvel état des LED.
  */</span>
-<span class="hljs-keyword">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">simple_io_driver_set_leds</span><span class="hljs-params">(<span class="hljs-type">int</span> state)</span> {
+<span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">simple_io_driver_set_leds</span><span class="hljs-params">(<span class="hljs-type">int</span> state)</span> {
     iowrite32(state, simple_io_driver_data.leds_reg);
 }
 
@@ -199,7 +199,7 @@ MODULE_DESCRIPTION(<span class="hljs-string">"simple-io-driver - Custom I/O driv
  *
  * @return L'état des boutons.
  */</span>
-<span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_get_btns</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+<span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_get_btns</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
     <span class="hljs-keyword">return</span> ioread32(simple_io_driver_data.btns_reg);
 }
 
@@ -215,7 +215,7 @@ MODULE_DESCRIPTION(<span class="hljs-string">"simple-io-driver - Custom I/O driv
  * @param count La longueur de la chaîne de caractères.
  * @return Le nombre d'octets traités.
  */</span>
-<span class="hljs-keyword">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">leds_store</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> device *dev, <span class="hljs-keyword">struct</span> device_attribute *attr, <span class="hljs-keyword">const</span> <span class="hljs-type">char</span> *buf, <span class="hljs-type">size_t</span> count)</span> {
+<span class="hljs-type">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">leds_store</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> device *dev, <span class="hljs-keyword">struct</span> device_attribute *attr, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *buf, <span class="hljs-type">size_t</span> count)</span> {
     <span class="hljs-type">int</span> arg;
     <span class="hljs-keyword">if</span> (kstrtoint(buf, <span class="hljs-number">0</span>, &amp;arg)) {
         dev_err(dev, <span class="hljs-string">"Invalid value.\n"</span>);
@@ -230,7 +230,7 @@ MODULE_DESCRIPTION(<span class="hljs-string">"simple-io-driver - Custom I/O driv
  *
  * L'attribut est automatiquement associé à la fonction leds_store ci-dessus.
  */</span>
-<span class="hljs-keyword">static</span> <span class="hljs-title function_">DEVICE_ATTR_WO</span><span class="hljs-params">(leds)</span>;
+<span class="hljs-type">static</span> <span class="hljs-title function_">DEVICE_ATTR_WO</span><span class="hljs-params">(leds)</span>;
 
 <span class="hljs-comment">/** Lire l'état des boutons à partir d'un attribut du périphérique dans /sys
  *
@@ -243,7 +243,7 @@ MODULE_DESCRIPTION(<span class="hljs-string">"simple-io-driver - Custom I/O driv
  * @param buf La chaîne de caractère qui recevra la valeur de l'attribut.
  * @return Le nombre d'octets écrits dans buf.
  */</span>
-<span class="hljs-keyword">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">btns_show</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> device *dev, <span class="hljs-keyword">struct</span> device_attribute *attr, <span class="hljs-type">char</span> *buf)</span> {
+<span class="hljs-type">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">btns_show</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> device *dev, <span class="hljs-keyword">struct</span> device_attribute *attr, <span class="hljs-type">char</span> *buf)</span> {
     <span class="hljs-keyword">return</span> scnprintf(buf, PAGE_SIZE, <span class="hljs-string">"0x%x\n"</span>, simple_io_driver_get_btns());
 }
 
@@ -251,7 +251,7 @@ MODULE_DESCRIPTION(<span class="hljs-string">"simple-io-driver - Custom I/O driv
  *
  * L'attribut est automatiquement associé à la fonction btns_show ci-dessus.
  */</span>
-<span class="hljs-keyword">static</span> <span class="hljs-title function_">DEVICE_ATTR_RO</span><span class="hljs-params">(btns)</span>;
+<span class="hljs-type">static</span> <span class="hljs-title function_">DEVICE_ATTR_RO</span><span class="hljs-params">(btns)</span>;
 
 <span class="hljs-comment">/** Interface ioctl
  *
@@ -260,7 +260,7 @@ MODULE_DESCRIPTION(<span class="hljs-string">"simple-io-driver - Custom I/O driv
  * @param arg L'argument de la commande (ici un pointeur).
  * @return Un code d'erreur.
  */</span>
-<span class="hljs-keyword">static</span> <span class="hljs-type">long</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_ioctl</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *f, <span class="hljs-type">unsigned</span> cmd, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> arg)</span> {
+<span class="hljs-type">static</span> <span class="hljs-type">long</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_ioctl</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *f, <span class="hljs-type">unsigned</span> cmd, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> arg)</span> {
     <span class="hljs-type">int</span> value;
     <span class="hljs-keyword">switch</span> (cmd) {
         <span class="hljs-keyword">case</span> <span class="hljs-number">0</span>:
@@ -281,18 +281,18 @@ MODULE_DESCRIPTION(<span class="hljs-string">"simple-io-driver - Custom I/O driv
 }
 
 <span class="hljs-comment">/// Interface du pilote pour les opérations sur les fichiers.</span>
-<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">simple_io_driver_ops</span> =</span> {
+<span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">simple_io_driver_ops</span> =</span> {
     .unlocked_ioctl = simple_io_driver_ioctl
 };
 
-<span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_remove</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> platform_device *pdev)</span>;
+<span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_remove</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> platform_device *pdev)</span>;
 
 <span class="hljs-comment">/** Initialisation du pilote de périphérique.
  *
  * @param dev Un pointeur sur la structure de données représentant le périphérique.
  * @return Un code d'erreur, 0 en cas de succès.
  */</span>
-<span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_probe</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> platform_device *pdev)</span> {
+<span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_probe</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> platform_device *pdev)</span> {
     <span class="hljs-type">int</span> err = <span class="hljs-number">0</span>;
     <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">dev</span> =</span> &amp;pdev-&gt;dev;
     <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">resource</span> <span class="hljs-title">leds_res</span>, <span class="hljs-title">btns_res</span>;</span>
@@ -384,7 +384,7 @@ probe_error:
  * @param dev Un pointeur sur la structure de données représentant le périphérique.
  * @return Un code d'erreur, 0 en cas de succès.
  */</span>
-<span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_remove</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> platform_device *pdev)</span> {
+<span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">simple_io_driver_remove</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> platform_device *pdev)</span> {
     <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">dev</span> =</span> &amp;pdev-&gt;dev;
 
     device_remove_file(dev, &amp;dev_attr_leds);
@@ -406,7 +406,7 @@ probe_error:
 }
 
 <span class="hljs-comment">/// Table de critères pour la détection du périphérique.</span>
-<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">of_device_id</span> <span class="hljs-title">simple_io_driver_of_match</span>[] =</span> {
+<span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">of_device_id</span> <span class="hljs-title">simple_io_driver_of_match</span>[] =</span> {
     { .compatible = <span class="hljs-string">"eseo,simple-io-device"</span>, },
     { <span class="hljs-comment">/* end of list */</span> },
 };
@@ -414,7 +414,7 @@ probe_error:
 MODULE_DEVICE_TABLE(of, simple_io_driver_of_match);
 
 <span class="hljs-comment">/// La structure de données permettant d'enregistrer ce pilote de périphérique auprès du noyau.</span>
-<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">platform_driver</span> <span class="hljs-title">simple_io_driver_driver</span> =</span> {
+<span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">platform_driver</span> <span class="hljs-title">simple_io_driver_driver</span> =</span> {
     .driver = {
     .name = <span class="hljs-string">"simple-io-driver"</span>,
     .owner = THIS_MODULE,
@@ -428,12 +428,12 @@ MODULE_DEVICE_TABLE(of, simple_io_driver_of_match);
  *
  * @return Un code d'erreur, 0 en cas de succès.
  */</span>
-<span class="hljs-keyword">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">simple_io_driver_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+<span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">simple_io_driver_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
     <span class="hljs-keyword">return</span> platform_driver_register(&amp;simple_io_driver_driver);
 }
 
 <span class="hljs-comment">/// Terminaison du module.</span>
-<span class="hljs-keyword">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">simple_io_driver_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+<span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">simple_io_driver_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
     platform_driver_unregister(&amp;simple_io_driver_driver);
 }
 
@@ -502,13 +502,13 @@ et remettez-la sous tension.</p>
 <pre><code class="icon-term language-bash"><span class="hljs-built_in">echo</span> 5 &gt; /sys/class/eseo/simple-io-device/leds
 </code></pre>
 <p>Cette commande affiche l’état des boutons&nbsp;:</p>
-<pre><code class="icon-term language-bash">cat /sys/class/eseo/simple-io-device/btns
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cat</span> /sys/class/eseo/simple-io-device/btns
 </code></pre>
 </section><section><h1 id="executer-une-application-sur-la-carte-zybo" tabindex="-1">Exécuter une application sur la carte ZYBO</h1>
 </section><section><h2 id="creer-une-nouvelle-application-dans-larborescence-de-petalinux" tabindex="-1">Créer une nouvelle application dans l’arborescence de PetaLinux</h2>
 <p>Dans le dossier <code>meta-eseo</code>, créez la structure de dossiers
 des sources d’un nouveau programme&nbsp;:</p>
-<pre><code class="icon-term language-bash">mkdir -p ../meta-eseo/recipes-extended/simple-io-demo/files/src
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">mkdir</span> -p ../meta-eseo/recipes-extended/simple-io-demo/files/src
 </code></pre>
 <p>Créez le fichier <code>meta-eseo/recipes-extended/simple-io-demo/files/src/simple-io-demo.c</code>
 avec le code ci-dessous.</p>
@@ -517,11 +517,11 @@ avec le code ci-dessous.</p>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;time.h&gt;</span></span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/ioctl.h&gt;</span></span>
 
-<span class="hljs-keyword">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">set_leds</span><span class="hljs-params">(<span class="hljs-type">int</span> device, <span class="hljs-type">int</span> state)</span> {
+<span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">set_leds</span><span class="hljs-params">(<span class="hljs-type">int</span> device, <span class="hljs-type">int</span> state)</span> {
     ioctl(device, <span class="hljs-number">0</span>, &amp;state);
 }
 
-<span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">get_btns</span><span class="hljs-params">(<span class="hljs-type">int</span> device)</span> {
+<span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">get_btns</span><span class="hljs-params">(<span class="hljs-type">int</span> device)</span> {
     <span class="hljs-type">int</span> res;
     ioctl(device, <span class="hljs-number">1</span>, &amp;res);
     <span class="hljs-keyword">return</span> res;

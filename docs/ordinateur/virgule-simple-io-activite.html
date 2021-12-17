@@ -383,7 +383,7 @@ qui l’intéressent et les convertit au format signé ou non signé.</p>
 </section><section><h1 id="preparation-du-projet-vivado" tabindex="-1">Préparation du projet Vivado</h1>
 <p>Voici la liste des fichiers sources VHDL que nous utiliserons dans cette activité.
 Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl</code>.</p>
-<table class="wider">
+<table>
 <thead>
 <tr>
 <th style="text-align:left">Sous-dossier</th>
@@ -797,7 +797,7 @@ relire la valeur des registres <code>leds_o</code> en respectant le plan d’adr
 <p>À chaque opération de lecture ou d’écriture, après avoir activé sa sortie <code>valid_o</code>,
 le processeur attend le passage à <code>'1'</code> de son entrée <code>ready_i</code>.
 De son côté, lorsqu’il détecte l’activation de son signal <code>valid</code>, chaque bloc de mémoire ou
-chaque périphérique active son signal <code>ready</code> au bout de <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> périodes d’horloge.</p>
+chaque périphérique active son signal <code>ready</code> au bout de <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> périodes d’horloge.</p>
 <p>L’entité <code>VMemory</code> possède déjà une sortie <code>ready_o</code> qui impose un cycle d’attente
 lors de chaque opération de lecture ou d’écriture.
 Nous devons compléter le circuit pour gérer les autres cas&nbsp;:</p>

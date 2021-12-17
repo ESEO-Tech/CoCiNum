@@ -253,8 +253,8 @@ USB de votre PC et mettez la carte sous tension.</p>
 <p>Nous allons adapter le programme <code>Echo.c</code> de manière à créer un nouveau
 programme de démonstration du timer <code>Tick.c</code>&nbsp;:</p>
 <pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/c
-mkdir Tick
-cp Echo/Echo.c Tick/Tick.c
+<span class="hljs-built_in">mkdir</span> Tick
+<span class="hljs-built_in">cp</span> Echo/Echo.c Tick/Tick.c
 <span class="hljs-built_in">cd</span> Tick
 gedit Tick.c &amp;
 </code></pre>
@@ -314,10 +314,6 @@ l’ordinateur embarqué dans notre FPGA par liaison série sur USB&nbsp;:</p>
 ./scripts/gtkterm
 </code></pre>
 <p class="icon-mouse">Dans le menu <em>Configuration</em> de GTKTerm, activez l’option <em>CR LF auto</em>.</p>
-<div class="info">
-<p>GTKTerm est déjà configuré pour utiliser le port série <code>/dev/ttyUSB1</code>
-avec 8 bits de données, 1 bit d’arrêt, pas de contrôle de parité.</p>
-</div>
 <p class="icon-hand">Forcez un redémarrage du processeur en pressant le bouton-poussoir central
 de la carte Basys3.</p>
 <p>La fenêtre GTKTerm doit à présent afficher le texte&nbsp;:</p>
@@ -326,7 +322,7 @@ de la carte Basys3.</p>
 </code></pre>
 <p>Dans la fenêtre terminal de Linux qui vous a servi à lancer GTKTerm,
 exécutez la commande&nbsp;:</p>
-<pre><code class="icon-term language-bash">cat <span class="hljs-variable">$HOME</span>/CoCiNum/src/c/Tick/Tick.hex &gt; /dev/ttyUSB1
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cat</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/c/Tick/Tick.hex &gt; /dev/ttyUSB1
 </code></pre>
 <!-- Dans GTKTerm, dans le menu *File*, choisissez *Send Raw File*
 et sélectionnez le fichier `CoCiNum/src/c/Tick/Tick.hex`. -->

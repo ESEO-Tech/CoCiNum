@@ -105,7 +105,7 @@ Grâce à cette interface, l’entité <code>Computer</code> pourra&nbsp;:</p>
 choisissez <em>Add or create design sources</em> et pressez le bouton <em>Next</em>.</p>
 <p class="icon-config">Ajoutez les fichiers source VHDL suivants à votre projet.
 Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl</code>.</p>
-<table class="wider">
+<table>
 <thead>
 <tr>
 <th style="text-align:left">Sous-dossier</th>
@@ -144,7 +144,7 @@ Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl<
 <p class="icon-config">Dans le panneau, <em>Flow Navigator</em>, exécutez à nouveau l’action <em>Add Sources</em>,
 choisissez <em>Add or create constraints</em> et pressez le bouton <em>Next</em>.</p>
 <p class="icon-config">Ajoutez le fichier de contraintes suivant à votre projet&nbsp;:</p>
-<table class="wider">
+<table>
 <thead>
 <tr>
 <th style="text-align:left">Sous-dossier</th>
@@ -609,7 +609,7 @@ en VHDL, nous allons produire un fichier <code>Echo.hex</code>.
 Exécutez les commandes suivantes dans un terminal&nbsp;:</p>
 <pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/asm/Echo
 make Echo.hex
-cat Echo.hex
+<span class="hljs-built_in">cat</span> Echo.hex
 </code></pre>
 <p>Le contenu du fichier <code>Echo.hex</code> doit ressembler à ceci&nbsp;:</p>
 <pre><code>:100000006F0040016F00C0004800000000000000C9
@@ -624,7 +624,7 @@ cat Echo.hex
 :00000001FF
 </code></pre>
 <p>Envoyez-le au FPGA par la liaison série&nbsp;:</p>
-<pre><code class="icon-term language-bash">cat Echo.hex &gt; /dev/ttyUSB1
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cat</span> Echo.hex &gt; /dev/ttyUSB1
 </code></pre>
 <p class="icon-check">GTKTerm doit afficher&nbsp;:</p>
 <pre><code>\\// Starting user program.
@@ -641,7 +641,7 @@ Pour réinitialiser le système, vous devez recharger le bitstream dans le FPGA.
 <p>Nous vous proposons une réécriture du programme <code>Echo</code> en langage C.
 Créez et éditez un nouveau fichier <code>Echo.c</code>&nbsp;:</p>
 <pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/c
-mkdir Echo
+<span class="hljs-built_in">mkdir</span> Echo
 <span class="hljs-built_in">cd</span> Echo
 gedit Echo.c &amp;
 </code></pre>
@@ -668,22 +668,22 @@ gedit Echo.c &amp;
  * -------------------------------------------------------------------------- */</span>
 
 <span class="hljs-comment">// Lire un octet à l'adresse addr (équivaut à l'instruction LBU).</span>
-<span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">uint8_t</span> <span class="hljs-title function_">read8</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr)</span> {
+<span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">uint8_t</span> <span class="hljs-title function_">read8</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr)</span> {
     <span class="hljs-keyword">return</span> *(<span class="hljs-keyword">volatile</span> <span class="hljs-type">uint8_t</span>*)addr;
 }
 
 <span class="hljs-comment">// Écrire l'octet val à l'adresse addr (équivaut à l'instruction SB).</span>
-<span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">write8</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr, <span class="hljs-type">uint8_t</span> val)</span> {
+<span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">write8</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr, <span class="hljs-type">uint8_t</span> val)</span> {
     *(<span class="hljs-type">uint8_t</span>*)addr = val;
 }
 
 <span class="hljs-comment">// Lire un mot de 32 bits à l'adresse addr (équivaut à l'instruction LW).</span>
-<span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">uint32_t</span> <span class="hljs-title function_">read32</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr)</span> {
+<span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">uint32_t</span> <span class="hljs-title function_">read32</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr)</span> {
     <span class="hljs-keyword">return</span> *(<span class="hljs-keyword">volatile</span> <span class="hljs-type">uint32_t</span>*)addr;
 }
 
 <span class="hljs-comment">// Écrire le mot de 32 bits val à l'adresse addr (équivaut à l'instruction SW).</span>
-<span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">write32</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr, <span class="hljs-type">uint32_t</span> val)</span> {
+<span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">write32</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> addr, <span class="hljs-type">uint32_t</span> val)</span> {
     *(<span class="hljs-type">uint32_t</span>*)addr = val;
 }
 
@@ -702,7 +702,7 @@ gedit Echo.c &amp;
 }
 
 <span class="hljs-comment">// Envoyer une chaîne de caractères à travers la liaison série.</span>
-<span class="hljs-type">void</span> <span class="hljs-title function_">UART_send_string</span><span class="hljs-params">(<span class="hljs-keyword">const</span> <span class="hljs-type">char</span> *str)</span> {
+<span class="hljs-type">void</span> <span class="hljs-title function_">UART_send_string</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *str)</span> {
     <span class="hljs-comment">// Tant que le caractère courant est non nul.</span>
     <span class="hljs-keyword">while</span> (*str) {
         <span class="hljs-comment">// Envoyer le caractère courant.</span>
@@ -818,7 +818,7 @@ riscv64-unknown-elf-objcopy -O ihex Echo.elf Echo.hex
 </tbody>
 </table>
 <p>Dans la même fenêtre terminal exécutez la commande&nbsp;:</p>
-<pre><code class="icon-term language-bash">cat Echo.hex &gt; /dev/ttyUSB1
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cat</span> Echo.hex &gt; /dev/ttyUSB1
 </code></pre>
 <!-- Dans GTKTerm, dans le menu *File*, choisissez *Send Raw File*
 et sélectionnez le fichier `CoCiNum/src/c/Echo/Echo.hex`. -->
@@ -838,7 +838,8 @@ d’un nouveau programme&nbsp;:</p>
 <pre><code class="icon-keyboard">\\// Starting user program...
 Echo&gt; Je viens de taper ceci
 Bye!
-\\// This is the Virgule program loader. Please send an hex file to execute...
+\\// This is the Virgule program loader.
+\\// Send an hex file to execute or press ESC to switch into interactive mode.
 </code></pre>
 </section>
     

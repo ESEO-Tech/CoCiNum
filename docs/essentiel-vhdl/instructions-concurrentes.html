@@ -472,7 +472,7 @@ avec <code>N</code> additionneurs sur 1 bit&nbsp;:</p>
     s_o(N) &lt;= c(N);
 <span class="hljs-keyword">end</span> Structural;
 </code></pre>
-<p>La boucle <code>for...generate</code> ci-dessus construit <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> instances
+<p>La boucle <code>for...generate</code> ci-dessus construit <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> instances
 distinctes de l’entité <code>BitAdder</code>.
 L’utilisation de cette boucle impose la création d’un
 signal <code>c</code> de type vecteur qui rassemble les retenues en entrée et en sortie
@@ -482,7 +482,7 @@ de chaque instance.</p>
 et la <a href="instructions-sequentielles.html#instruction-for">boucle <code>for</code></a>.</p>
 <p>L’instruction <code>for...generate</code> est une instruction concurrente qui contient
 d’autres instructions concurrentes. Elle agit sur la <strong>structure</strong> du circuit
-en construisant <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> exemplaires d’un même groupe d’instructions.</p>
+en construisant <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> exemplaires d’un même groupe d’instructions.</p>
 <p>La <a href="instructions-sequentielles.html#instruction-for">boucle <code>for</code></a> est une instruction
 séquentielle qui contient d’autres instructions séquentielles. Elle agit sur
 le <strong>comportement</strong> du circuit en décrivant une séquence répétitive d’opérations.</p>

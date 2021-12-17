@@ -339,8 +339,8 @@ table {
 }
 
 table.wider {
-    margin-left: 0;
-    margin-right: calc(25rem - 50vw);
+    margin-left: -10rem;
+    margin-right: calc(26rem - 50vw);
 }
 
 td, th {

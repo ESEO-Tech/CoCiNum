@@ -48,28 +48,32 @@
                     </ul></li>
                     
                 
+                <li><a href="#completer-le-projet-vivado">Compléter le projet Vivado</a></li>
+            
+                
                 <li><a href="#lentite-spimaster">L’entité SPIMaster</a></li>
             
                 
-                <li><a href="#integrer-un-controleur-spi-a-votre-projet">Intégrer un contrôleur SPI à votre projet</a></li>
+                <li><a href="#modification-du-systeme">Modification du système</a></li>
             
                 
                     <li><ul>
                     
                 
-                <li><a href="#ajouter-les-fichiers-sources">Ajouter les fichiers sources</a></li>
+                <li><a href="#paquetage-computerpkg">Paquetage Computer_pkg</a></li>
             
                 
-                <li><a href="#completer-le-paquetage-computerpkg">Compléter le paquetage Computer_pkg</a></li>
+                <li><a href="#entite-computer">Entité Computer</a></li>
             
                 
-                <li><a href="#completer-lentite">Compléter l’entité</a></li>
+                <li><a href="#architecture-structural">Architecture Structural</a></li>
             
                 
-                <li><a href="#completer-larchitecture">Compléter l’architecture</a></li>
+                    </ul></li>
+                    
+                
+                <li><a href="#generer-le-bitstream-et-configurer-le-fpga">Générer le bitstream et configurer le FPGA</a></li>
             
-            
-        </ul>
             
         </ul>
             
@@ -105,12 +109,16 @@ des constructeurs et dans les spécifications de protocoles.</p>
 <p>Dans une communication SPI, le <em>maître</em> est le composant qui a l’initiative des
 communications. L’<em>esclave</em> répond aux demandes du maître.
 Le maître produit le signal d’horloge qui servira à cadencer l’émission et la
-réception des bits de données.</p>
+réception des bits de données.
+Les données sont échangées sur deux lignes souvent nommées <em>MISO</em> (<em>Master In Slave Out</em>)
+et <em>MOSI</em> (<em>Master Out Slave In</em>).
+On trouve également les dénominations <em>SDI</em> (<em>Serial Data In</em>) et <em>SDO</em> (<em>Serial Data Out</em>).</p>
 <p><a href="SPI-master-slave.svg"><img src="SPI-master-slave.svg" alt="Maître et esclave SPI"></a></p>
 <p>La figure ci-dessus illustre le fonctionnement typique de deux composants SPI.
-Le maître et l’esclave possèdent chacun un registre à décalage qui sert à la fois à l’émission et à la réception.
-Les deux <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html#registre-a-decalage">registres à décalage</a>
-sont reliés de manière à former un anneau.
+Le maître et l’esclave possèdent chacun un
+<a href="../circuits-logiques/sequentiel-registres-et-compteurs.html#registre-a-decalage">registre à décalage</a>
+qui sert à la fois à l’émission et à la réception.
+Ces deux registres sont reliés de manière à former un anneau.
 Si on se place du point de vue du maître, la transmission d’une valeur se passe de la manière suivante.
 À chaque période de l’horloge série&nbsp;:</p>
 <ul>
@@ -119,8 +127,8 @@ Si on se place du point de vue du maître, la transmission d’une valeur se pas
 <li>le bit en provenance de l’esclave est introduit à droite du registre à décalage</li>
 </ul>
 <p>Dans une transmission SPI, l’envoi et la réception des données se font en parallèle.
-Au bout de <code>DATA_WIDTH</code> périodes d’horloge, le maître et l’esclave ont simplement échangé les contenus
-de leur registres respectifs.</p>
+Dans l’exemple représenté ci-dessus, au bout de 8 périodes d’horloge, le maître
+et l’esclave ont simplement échangé les contenus de leur registres respectifs.</p>
 </section><section><h2 id="le-protocole-spi" tabindex="-1">Le protocole SPI</h2>
 <p>La synchronisation des données sur l’horloge série est définie par deux paramètres.</p>
 <ul>
@@ -130,11 +138,80 @@ en l’absence de communication.</li>
 ou le deuxième front d’horloge. Il peut s’agir d’un front montant ou descendant selon la
 polarité de l’horloge.</li>
 </ul>
-<p>La figure suivante représente une trame SPI pour un échange de 8 bits de données&nbsp;:</p>
+<p>La figure suivante représente une trame SPI pour un échange de 8 bits&nbsp;:</p>
 <p><a href="SPI-protocole.svg"><img src="SPI-protocole.svg" alt="Le protocole SPI"></a></p>
 <p>Ces deux paramètres autorisent quatre variantes du protocole SPI.
 Pour que la communication ait lieu sans erreur, le maître et l’esclave doivent
 avoir les mêmes réglages de polarité et de phase.</p>
+</section><section><h1 id="completer-le-projet-vivado" tabindex="-1">Compléter le projet Vivado</h1>
+<p>Si ce n’est pas déjà fait, ouvrez votre projet <code>Computer</code> dans Vivado&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum
+./scripts/vivado vivado/Computer/Computer.xpr
+</code></pre>
+<p class="icon-config">Dans le panneau, <em>Flow Navigator</em>, exécutez l’action <em>Add Sources</em>,
+choisissez <em>Add or create design sources</em> et pressez le bouton <em>Next</em>.</p>
+<p class="icon-config">Ajoutez les fichiers source VHDL suivants à votre projet.
+Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Sous-dossier</th>
+<th style="text-align:left">Fichier</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>SPI</code></td>
+<td style="text-align:left"><code>SPIMaster-precompiled.vhd</code></td>
+<td style="text-align:left">Un périphérique contrôleur de bus SPI.</td>
+</tr>
+</tbody>
+</table>
+<div class="info">
+<p>Nous ne fournissons pas le code source du contrôleur SPI.</p>
+<p>Le fichier <code>SPIMaster-precompiled.vhd</code> contient du code VHDL qui a fait l’objet
+d’une première étape de synthèse logique.
+Il n’est pas destiné à être lu par un être humain.</p>
+</div>
+<p>Choisissez sur quel connecteur d’extension <em>Pmod</em> de la carte Basys3 vous allez
+brancher votre périphérique SPI.
+Sur la sérigraphie de la carte, ils portent les noms <code>JA</code> (en haut à gauche),
+<code>JB</code> (en haut à droite), <code>JC</code> (en bas à droite), et <code>JXADC</code> (en bas à gauche).</p>
+<p class="icon-config">Dans le panneau, <em>Flow Navigator</em>, exécutez à nouveau l’action <em>Add Sources</em>,
+choisissez <em>Add or create constraints</em> et pressez le bouton <em>Next</em>.</p>
+<p class="icon-config">Ajoutez au projet Vivado le fichier de contraintes correspondant à votre choix&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Sous-dossier</th>
+<th style="text-align:left">Fichier</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>Basys3</code></td>
+<td style="text-align:left"><code>Basys3_PmodA.xdc</code></td>
+<td style="text-align:left">Fichier de contraintes pour Vivado, brochage du connecteur JA.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Basys3</code></td>
+<td style="text-align:left"><code>Basys3_PmodB.xdc</code></td>
+<td style="text-align:left">Fichier de contraintes pour Vivado, brochage du connecteur JB.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Basys3</code></td>
+<td style="text-align:left"><code>Basys3_PmodC.xdc</code></td>
+<td style="text-align:left">Fichier de contraintes pour Vivado, brochage du connecteur JC.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Basys3</code></td>
+<td style="text-align:left"><code>Basys3_PmodXADC.xdc</code></td>
+<td style="text-align:left">Fichier de contraintes pour Vivado, brochage du connecteur JD.</td>
+</tr>
+</tbody>
+</table>
 </section><section><h1 id="lentite-spimaster" tabindex="-1">L’entité SPIMaster</h1>
 <p>L’entité <code>SPIMaster</code> est conçue comme un périphérique pour le processeur <code>Virgule</code> avec les ports suivants&nbsp;:</p>
 <table>
@@ -160,10 +237,16 @@ avoir les mêmes réglages de polarité et de phase.</p>
 <td style="text-align:left">La commande de réinitialisation</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>address_i</code></td>
+<td style="text-align:left"><code>valid_i</code></td>
 <td style="text-align:left">Entrée</td>
-<td style="text-align:left">Vecteur de 2 bits</td>
-<td style="text-align:left">Le bus d’adresses</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Demande de transfert de donnée</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ready_o</code></td>
+<td style="text-align:left">Sortie</td>
+<td style="text-align:left">Logique</td>
+<td style="text-align:left">Indicateur de fin d’une lecture ou d’une écriture</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>write_i</code></td>
@@ -172,19 +255,25 @@ avoir les mêmes réglages de polarité et de phase.</p>
 <td style="text-align:left">La commande d’écriture</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>data_i</code></td>
+<td style="text-align:left"><code>address_i</code></td>
+<td style="text-align:left">Entrée</td>
+<td style="text-align:left">Vecteur de 2 bits</td>
+<td style="text-align:left">Le bus d’adresses</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>wdata_i</code></td>
 <td style="text-align:left">Entrée</td>
 <td style="text-align:left">Vecteur de 8 bits</td>
 <td style="text-align:left">Le bus de données en écriture</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>data_o</code></td>
+<td style="text-align:left"><code>rdata_o</code></td>
 <td style="text-align:left">Sortie</td>
 <td style="text-align:left">Vecteur de 8 bits</td>
 <td style="text-align:left">Le bus de données en lecture</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>done_o</code></td>
+<td style="text-align:left"><code>evt_o</code></td>
 <td style="text-align:left">Sortie</td>
 <td style="text-align:left">Logique</td>
 <td style="text-align:left">Indique la fin d’un échange de données</td>
@@ -264,7 +353,7 @@ avoir les mêmes réglages de polarité et de phase.</p>
 <li>Régler <code>polarity_reg</code> et <code>phase_reg</code> selon les caractéristiques de l’esclave. Mettre <code>cs_reg</code> à <code>'1'</code>.</li>
 <li>Attendre pendant une durée qui dépend de l’esclave.</li>
 <li>Écrire l’octet à envoyer dans <code>data_reg</code>.</li>
-<li>Attendre que <code>done_o</code> passe à <code>'1'</code>.</li>
+<li>Attendre que <code>evt_o</code> passe à <code>'1'</code>.</li>
 <li>Lire l’octet reçu dans <code>data_reg</code>.</li>
 <li>Répéter les étapes 2 à 5 tant qu’il reste des octets à échanger.</li>
 <li>Attendre pendant une durée qui dépend de l’esclave.</li>
@@ -272,40 +361,53 @@ avoir les mêmes réglages de polarité et de phase.</p>
 <li>Attendre pendant une durée qui dépend de l’esclave avant de commencer une nouvelle séquence.</li>
 </ol>
 <p>On utilisera un timer pour mesurer le temps dans les étapes 2, 7 et 9.</p>
-<p>La sortie <code>done_o</code> sera typiquement reliée au contrôleur d’interruptions.</p>
-</section><section><h1 id="integrer-un-controleur-spi-a-votre-projet" tabindex="-1">Intégrer un contrôleur SPI à votre projet</h1>
-</section><section><h2 id="ajouter-les-fichiers-sources" tabindex="-1">Ajouter les fichiers sources</h2>
-<p>Le code source du contrôleur SPI est disponible dans votre dossier
-<code>CoCiNum/src/vhdl/SPI</code>.
-Avant de poursuivre, exécutez cette commande pour récupérer les éventuelles
-modifications apportées à ces fichiers&nbsp;:</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum
-git pull
-</code></pre>
-<p>Ajoutez le fichier <code>CoCiNum/src/vhdl/SPI/SPIMaster-precompiled.vhd</code>
-à votre projet.</p>
-<p>Choisissez sur quel connecteur d’extension Pmod de la carte Basys3 vous allez
-brancher votre périphérique SPI.
-Sur la sérigraphie de la carte, ils portent les noms <code>JA</code> (en haut à gauche),
-<code>JB</code> (en haut à droite), <code>JC</code> (en bas à droite), et <code>JXADC</code> (en bas à gauche).
-Ajoutez au projet Vivado le fichier de contraintes
-<code>CoCiNum/src/vhdl/Basys3/Basys3_Pmod*.xdc</code> correspondant.</p>
-</section><section><h2 id="completer-le-paquetage-computerpkg" tabindex="-1">Compléter le paquetage Computer_pkg</h2>
-<p>Dans le fichier <code>Computer_pkg.vhd</code>, ajoutez les définitions suivantes pour
-définir la plage d’adresses associée au contrôleur SPI et au timer qui lui
-sera associé&nbsp;:</p>
-<pre><code class="icon-file language-vhdl"><span class="hljs-keyword">constant</span> SPI_TIMER_ADDRESS  : <span class="hljs-built_in">unsigned</span> := x<span class="hljs-string">"84000000"</span>;
-
-<span class="hljs-keyword">constant</span> SPI_MASTER_ADDRESS : <span class="hljs-built_in">unsigned</span> := x<span class="hljs-string">"85000000"</span>;
-<span class="hljs-keyword">constant</span> SPI_MASTER_SIZE    : <span class="hljs-built_in">positive</span> := <span class="hljs-number">12</span>;
-
-<span class="hljs-keyword">constant</span> INTC_EVENTS_SPI_TIMER  : <span class="hljs-built_in">natural</span> := <span class="hljs-number">3</span>;
-<span class="hljs-keyword">constant</span> INTC_EVENTS_SPI_MASTER : <span class="hljs-built_in">natural</span> := <span class="hljs-number">4</span>;
-
-<span class="hljs-comment">-- Complétez le type device_t existant</span>
-<span class="hljs-keyword">type</span> device_t <span class="hljs-keyword">is</span> (..., SPI_TIMER, SPI_MASTER);
-</code></pre>
-</section><section><h2 id="completer-lentite" tabindex="-1">Compléter l’entité</h2>
+<p>La sortie <code>evt_o</code> sera typiquement reliée au contrôleur d’interruptions.</p>
+</section><section><h1 id="modification-du-systeme" tabindex="-1">Modification du système</h1>
+</section><section><h2 id="paquetage-computerpkg" tabindex="-1">Paquetage <code>Computer_pkg</code></h2>
+<p class="icon-file">Dans le fichier <code>Computer_pkg.vhd</code>, ajoutez des constantes pour définir les
+caractéristiques des nouveaux périphériques du système&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Constante</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Valeur</th>
+<th style="text-align:left">Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>SPI_TIMER_ADDRESS</code></td>
+<td style="text-align:left">Octet</td>
+<td style="text-align:left">84<sub>hex</sub></td>
+<td style="text-align:left">Les bits 31 à 24 de l’adresse pour accéder au timer de gestion des communications SPI.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SPI_MASTER_ADDRESS</code></td>
+<td style="text-align:left">Octet</td>
+<td style="text-align:left">85<sub>hex</sub></td>
+<td style="text-align:left">Les bits 31 à 24 de l’adresse pour accéder au contrôleur SPI.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>INTC_EVENTS_SPI_TIMER</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">3</td>
+<td style="text-align:left">Pour le contrôleur d’interruptions, le numéro de l’événement indiquant la fin d’un cycle de comptage du timer SPI.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>INTC_EVENTS_SPI_MASTER</code></td>
+<td style="text-align:left">Entier</td>
+<td style="text-align:left">4</td>
+<td style="text-align:left">Pour le contrôleur d’interruptions, le numéro de l’événement indiquant la fin d’une communication SPI.</td>
+</tr>
+</tbody>
+</table>
+<div class="info">
+<p>Les informations contenues dans la colonne <em>Valeur</em> sont des exemples.
+Vous pouvez les modifier à condition que chaque périphérique de votre architecture
+ait une adresse et un numéro d’événement différents des autres périphériques.</p>
+</div>
+</section><section><h2 id="entite-computer" tabindex="-1">Entité <code>Computer</code></h2>
 <p class="icon-file">Dans le fichier <code>Computer.vhd</code>, complétez l’entité <code>Computer</code> en déclarant
 les ports du connecteur d’extension que vous avez choisi.
 Le tableau ci-dessous donne la liste des ports disponibles et leur rôle.
@@ -356,31 +458,40 @@ Ils sont tous de type <code>std_logic</code>.</p>
 </tr>
 </tbody>
 </table>
-</section><section><h2 id="completer-larchitecture" tabindex="-1">Compléter l’architecture</h2>
-<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, complétez l’architecture pour intégrer le
-contrôleur SPI et un second timer dans le système en utilisant les constantes
-que vous avez ajoutées au paquetage <code>Computer_pkg</code>.</p>
-<p>Inspirez-vous de l’exemple du timer que vous avez intégré dans l’activité
-<a href="virgule-interruptions-activite.html">Gestion d’interruptions</a>.</p>
+</section><section><h2 id="architecture-structural" tabindex="-1">Architecture <code>Structural</code></h2>
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, complétez l’architecture pour intégrer un
+contrôleur SPI et un second timer dans le système.
+Utilisez les constantes que vous avez ajoutées au paquetage <code>Computer_pkg</code>.</p>
 <p>Par précaution, le port d’entrée correspondant à la ligne <em>Master In Slave Out</em>
 devra être resynchronisé.
-Modifiez l’instance <code>sync_inst</code> de la manière suivante&nbsp;:</p>
+Ajoutez une entrée et une sortie à l’instance <code>sync_inst</code> de la manière suivante&nbsp;:</p>
 <pre><code class="icon-file language-vhdl">sync_inst : <span class="hljs-keyword">entity</span> work.InputSynchronizer
     <span class="hljs-keyword">generic</span> <span class="hljs-keyword">map</span>(
-        <span class="hljs-literal">WIDTH</span> =&gt; <span class="hljs-number">3</span>
+        <span class="hljs-literal">WIDTH</span> =&gt; <span class="hljs-number">19</span>
     )
     <span class="hljs-keyword">port</span> <span class="hljs-keyword">map</span>(
-        clk_i     =&gt; clk_i,
-        data_i(<span class="hljs-number">0</span>) =&gt; btn_center_i,
-        data_i(<span class="hljs-number">1</span>) =&gt; uart_rx_i,
-        data_i(<span class="hljs-number">2</span>) =&gt; ...,          <span class="hljs-comment">-- Votre port d'entrée Master In Slave Out</span>
-        data_o(<span class="hljs-number">0</span>) =&gt; sync_reset,
-        data_o(<span class="hljs-number">1</span>) =&gt; sync_uart_rx,
-        data_o(<span class="hljs-number">2</span>) =&gt; sync_spi_miso <span class="hljs-comment">-- Pensez à déclarer ce signal</span>
+        ...
+        data_i(<span class="hljs-number">18</span>) =&gt; ...,          <span class="hljs-comment">-- Votre port d'entrée Master In Slave Out</span>
+        data_o(<span class="hljs-number">18</span>) =&gt; sync_spi_miso <span class="hljs-comment">-- Pensez à déclarer ce signal</span>
     );
 </code></pre>
-<p class="icon-mouse">Une fois ce travail terminé, générez le fichier binaire à charger dans le FPGA&nbsp;:
+<p>Pensez à déclarer le signal <code>sync_spi_miso</code> et à le relier à l’entrée
+<code>miso_i</code> de votre contrôleur SPI.</p>
+<div class="info">
+<p>Inspirez-vous des instances déjà présentes dans l’architecture.</p>
+<p>Représentez sous la forme d’un schéma la nouvelle structure du système.</p>
+</div>
+</section><section><h1 id="generer-le-bitstream-et-configurer-le-fpga" tabindex="-1">Générer le bitstream et configurer le FPGA</h1>
+<p class="icon-mouse">Dans Vivado, générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
+<p class="icon-hand">Si ce n’est pas déjà fait, reliez le connecteur micro-USB de la carte à un port
+USB de votre PC et mettez la carte sous tension.</p>
+<p class="icon-mouse">Connectez Vivado à votre carte Basys3&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Open Target</em> → <em>Auto-connect</em>.</p>
+<p class="icon-mouse">Configurez le FPGA&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Program Device</em>.</p>
+<div class="info">
+<p>Si vous n’avez pas d’autre périphérique à ajouter, vous pouvez passer
+à la section <a href="virgule-logiciel-activite.html">Développement logiciel embarqué</a>.</p>
+</div>
 </section>
     
         

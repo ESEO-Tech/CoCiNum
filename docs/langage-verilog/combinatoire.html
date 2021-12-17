@@ -297,7 +297,7 @@ pourrait écrire&nbsp;:</p>
 <span class="hljs-keyword">end</span>
 </code></pre>
 <p>L’affectation <em>non bloquante</em> prend effet à la fin du processus
-(en VHDL, on dit qu’elle prend effet avec un retard fictif <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi></mrow><annotation encoding="application/x-tex">\delta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.03785em;">δ</span></span></span></span>).
+(en VHDL, on dit qu’elle prend effet avec un retard fictif <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi></mrow><annotation encoding="application/x-tex">\delta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03785em;">δ</span></span></span></span>).
 Pour obtenir le même comportement que dans l’exemple ci-dessus,
 il faudrait inclure <code>lt_o</code> et <code>gt_o</code> dans la liste de sensibilité
 pour forcer un recalcul de <code>eq_o</code> à chaque fois qu’ils sont mis à jour&nbsp;:</p>
