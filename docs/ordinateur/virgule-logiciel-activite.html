@@ -103,8 +103,7 @@ que vous pouvez incorporer à une application.</p>
 </tbody>
 </table>
 </section><section><h2 id="le-fichier-platformh" tabindex="-1">Le fichier Platform.h</h2>
-<p>Pour un système équipé d’une interface de communication série et d’un timer
-utilisant les adresses indiquées dans les étapes précédentes,
+<p>Pour un système équipé d’une interface de communication série et d’un timer,
 le fichier <code>Platform.h</code> aura le contenu suivant&nbsp;:</p>
 <pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> PLATFORM_H_</span>
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> PLATFORM_H_</span>
@@ -115,49 +114,15 @@ le fichier <code>Platform.h</code> aura le contenu suivant&nbsp;:</p>
 
 <span class="hljs-meta">#<span class="hljs-keyword">define</span> CLK_FREQUENCY_HZ     100000000</span>
 
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_ADDRESS        0x81000000</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> UART_ADDRESS        0x82000000</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> TIMER_ADDRESS       0x83000000</span>
-
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_UART_RX 0x00000001</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_UART_TX 0x00000002</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_TIMER   0x00000004</span>
-
 <span class="hljs-keyword">extern</span> InterruptController *<span class="hljs-type">const</span> intc;
 <span class="hljs-keyword">extern</span> UART                *<span class="hljs-type">const</span> uart;
 <span class="hljs-keyword">extern</span> Timer               *<span class="hljs-type">const</span> timer;
 
 <span class="hljs-meta">#<span class="hljs-keyword">endif</span></span>
 </code></pre>
-<div class="warning">
-<p>Les constantes définies dans <code>Platform.h</code> doivent être cohérentes avec
-celles définies dans <code>Computer_pkg.vhd</code>.</p>
-<p>Les octets de poids fort des adresses de périphériques doivent être les mêmes&nbsp;:</p>
-<pre><code class="icon-file language-vhdl"><span class="hljs-comment">-- Computer_pkg.vhd</span>
-<span class="hljs-keyword">constant</span> TIMER_ADDRESS : byte_t := x<span class="hljs-string">"83"</span>;
-</code></pre>
-<pre><code class="icon-file language-c"><span class="hljs-comment">// Platform.h</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> TIMER_ADDRESS 0x83000000</span>
-</code></pre>
-<p>Le masque d’un événement doit être égal à 2<sup>Numéro de l’événement</sup>&nbsp;:</p>
-<pre><code class="icon-file language-vhdl"><span class="hljs-comment">-- Computer_pkg.vhd</span>
-<span class="hljs-comment">-- Numéro de l'événement du timer.</span>
-<span class="hljs-keyword">constant</span> INTC_EVENTS_TIMER : <span class="hljs-built_in">natural</span> := <span class="hljs-number">2</span>;
-</code></pre>
-<pre><code class="icon-file language-c"><span class="hljs-comment">// Platform.h</span>
-<span class="hljs-comment">// Masque de l'événement du timer : 2^2 = 4</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_TIMER 0x00000004</span>
-</code></pre>
-</div>
 <h3 id="ajout-dun-peripherique-spi" tabindex="-1">Ajout d’un périphérique SPI</h3>
 <p>Pour chaque périphérique SPI, on ajoutera des définitions de la forme&nbsp;:</p>
 <pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;SPI/SPI.h&gt;</span></span>
-
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> SPI_TIMER_ADDRESS      0x84000000</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> SPI_MASTER_ADDRESS     0x85000000</span>
-
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_SPI_TIMER  0x00000008</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_SPI_MASTER 0x00000010</span>
 
 <span class="hljs-keyword">extern</span> Timer     *<span class="hljs-type">const</span> spi_timer;
 <span class="hljs-keyword">extern</span> SPIMaster *<span class="hljs-type">const</span> spi_master;
@@ -176,10 +141,6 @@ celles définies dans <code>Computer_pkg.vhd</code>.</p>
 <p>Pour un périphérique I<sup>2</sup>C, on ajoutera des définitions de la forme&nbsp;:</p>
 <pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;I2C/I2C.h&gt;</span></span>
 
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> I2C_ADDRESS     0x84000000</span>
-
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_I2C 0x00000008</span>
-
 <span class="hljs-keyword">extern</span> I2CMaster *<span class="hljs-type">const</span> i2c;
 </code></pre>
 <p>Si votre application utilise un module capteur de température I<sup>2</sup>C, vous pouvez ajouter&nbsp;:</p>
@@ -189,11 +150,7 @@ celles définies dans <code>Computer_pkg.vhd</code>.</p>
 </code></pre>
 <h3 id="ajout-dun-peripherique-uart" tabindex="-1">Ajout d’un périphérique UART</h3>
 <p>Pour un périphérique récepteur série, on ajoutera des définitions de la forme&nbsp;:</p>
-<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> RECV_ADDRESS     0x84000000</span>
-
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_RECV 0x00000008</span>
-
-<span class="hljs-keyword">extern</span> UART *<span class="hljs-type">const</span> recv;
+<pre><code class="icon-file language-c"><span class="hljs-keyword">extern</span> UART *<span class="hljs-type">const</span> recv;
 </code></pre>
 <p>Si votre application utilise un module sonar, vous pouvez ajouter&nbsp;:</p>
 <pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;UART/Sonar.h&gt;</span></span>
@@ -202,69 +159,73 @@ celles définies dans <code>Computer_pkg.vhd</code>.</p>
 </code></pre>
 </section><section><h2 id="le-fichier-platformc" tabindex="-1">Le fichier Platform.c</h2>
 <p>Ce fichier contient des <em>instances</em> des structures qui représentent les
-périphériques du système.</p>
+périphériques du système.
+La macro <code>EVT_MASK</code> convertit un numéro d’événement en un <em>masque</em>&nbsp;:
+pour un numéro d’événement <code>N</code>, elle retourne un entier dont le <code>N</code><sup>ième</sup> bit vaut 1.</p>
 <pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
 
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> REG(T, ADDR, N) (T*)(ADDR + 4 * N)</span>
-
 <span class="hljs-comment">// Le contrôleur d'interruptions.</span>
-InterruptController *<span class="hljs-type">const</span> intc = (InterruptController*)INTC_ADDRESS;
+InterruptController *<span class="hljs-type">const</span> intc = (InterruptController*)<span class="hljs-number">0x81000000</span>;
 
 <span class="hljs-comment">// L'interface série asynchrone (UART).</span>
 <span class="hljs-type">static</span> UART uart_priv = {
-    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements de l'UART</span>
-    .intc        = intc,
+    <span class="hljs-comment">// L'adresse de base des registres de l'UART.</span>
+    .address     = <span class="hljs-number">0x82000000</span>,
     <span class="hljs-comment">// Le masque des événements en réception.</span>
-    .rx_evt_mask = INTC_EVENTS_UART_RX,
+    .rx_evt_mask = EVT_MASK(<span class="hljs-number">0</span>),
     <span class="hljs-comment">// Le masque des événements en émission.</span>
-    .tx_evt_mask = INTC_EVENTS_UART_TX,
-    <span class="hljs-comment">// Un pointeur vers le registre de données (regitre 0).</span>
-    .data        = REG(<span class="hljs-type">uint8_t</span>, UART_ADDRESS, <span class="hljs-number">0</span>)
+    .tx_evt_mask = EVT_MASK(<span class="hljs-number">1</span>),
+    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements de l'UART</span>
+    .intc        = intc
 };
 
 UART *<span class="hljs-type">const</span> uart = &amp;uart_priv;
 
 <span class="hljs-comment">// Le timer à usage général.</span>
 <span class="hljs-type">static</span> Timer timer_priv = {
-    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du timer</span>
-    .intc     = intc,
+    <span class="hljs-comment">// L'adresse de base des registres du timer.</span>
+    .address  = <span class="hljs-number">0x83000000</span>,
     <span class="hljs-comment">// Le masque des événements périodiques.</span>
-    .evt_mask = INTC_EVENTS_TIMER,
-    <span class="hljs-comment">// Un pointeur vers le registre qui définit la limite de comptage (voir Timer/Timer.h).</span>
-    .limit    = REG(<span class="hljs-type">uint32_t</span>, TIMER_ADDRESS, TIMER_LIMIT_REG),
-    <span class="hljs-comment">// Un pointeur vers le registre qui contient la valeur courante du compteur (voir Timer/Timer.h).</span>
-    .count    = REG(<span class="hljs-type">uint32_t</span>, TIMER_ADDRESS, TIMER_COUNT_REG)
+    .evt_mask = EVT_MASK(<span class="hljs-number">2</span>),
+    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du timer</span>
+    .intc     = intc
 };
 
 Timer *<span class="hljs-type">const</span> timer = &amp;timer_priv;
 </code></pre>
+<div class="warning">
+<p>Les adresses et les numéros d’événemets renseignés dans <code>Platform.c</code> doivent être cohérents avec ceux définis dans <code>Computer_pkg.vhd</code>.</p>
+<pre><code class="icon-file language-vhdl"><span class="hljs-comment">-- Computer_pkg.vhd</span>
+<span class="hljs-keyword">constant</span> TIMER_ADDRESS : byte_t := x<span class="hljs-string">"83"</span>;
+
+<span class="hljs-keyword">constant</span> INTC_EVENTS_TIMER : <span class="hljs-built_in">natural</span> := <span class="hljs-number">2</span>;
+</code></pre>
+<pre><code class="icon-file language-c"><span class="hljs-comment">// Platform.c</span>
+<span class="hljs-type">static</span> Timer timer_priv = {
+    .address  = <span class="hljs-number">0x83000000</span>,
+    .evt_mask = EVT_MASK(<span class="hljs-number">2</span>),
+    ...
+};
+</code></pre>
+</div>
 <h3 id="definition-des-peripheriques-spi" tabindex="-1">Définition des périphériques SPI</h3>
 <pre><code class="icon-file language-c"><span class="hljs-comment">// Le timer utilisé pour les communications SPI.</span>
 <span class="hljs-type">static</span> Timer spi_timer_priv = {
-    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du timer</span>
-    .intc     = intc,
-    <span class="hljs-comment">// Le masque des événements périodiques.</span>
-    .evt_mask = INTC_EVENTS_SPI_TIMER,
-    <span class="hljs-comment">// Un pointeur vers le registre qui définit la limite de comptage (voir Timer/Timer.h).</span>
-    .limit    = REG(<span class="hljs-type">uint32_t</span>, SPI_TIMER_ADDRESS, TIMER_LIMIT_REG),
-    <span class="hljs-comment">// Un pointeur vers le registre qui contient la valeur courante du compteur (voir Timer/Timer.h).</span>
-    .count    = REG(<span class="hljs-type">uint32_t</span>, SPI_TIMER_ADDRESS, TIMER_COUNT_REG)
+    .address  = <span class="hljs-number">0x84000000</span>,
+    .evt_mask = EVT_MASK(<span class="hljs-number">3</span>),
+    .intc     = intc
 };
 
 Timer *<span class="hljs-type">const</span> spi_timer = &amp;spi_timer_priv;
 
 <span class="hljs-comment">// Le contrôleur SPI.</span>
 <span class="hljs-type">static</span> SPIMaster spi_master_priv = {
-    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du contrôleur SPI.</span>
-    .intc      = intc,
+    <span class="hljs-comment">// L'adresse de base des registres du contrôleur SPI.</span>
+    .address  = <span class="hljs-number">0x85000000</span>,
     <span class="hljs-comment">// Le masque des événements de fin de trame.</span>
-    .evt_mask  = INTC_EVENTS_SPI_MASTER,
-    <span class="hljs-comment">// Un pointeur vers le registre de données  (voir SPI/SPI.h).</span>
-    .data      = REG(<span class="hljs-type">uint8_t</span>, SPI_MASTER_ADDRESS, SPI_DATA_REG),
-    <span class="hljs-comment">// Un pointeur vers les bits de contrôle (voir SPI/SPI.h).</span>
-    .control   = REG(<span class="hljs-type">uint8_t</span>, SPI_MASTER_ADDRESS, SPI_CONTROL_REG),
-    <span class="hljs-comment">// Un pointeur vers le registre qui définit la vitesse de communication (voir SPI/SPI.h).</span>
-    .timer_max = REG(<span class="hljs-type">uint8_t</span>, SPI_MASTER_ADDRESS, SPI_TIMER_MAX_REG)
+    .evt_mask = EVT_MASK(<span class="hljs-number">4</span>),
+    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du contrôleur SPI.</span>
+    .intc     = intc
 };
 
 SPIMaster *<span class="hljs-type">const</span> spi_master = &amp;spi_master_priv;
@@ -307,14 +268,12 @@ SPIDevice *<span class="hljs-type">const</span> acl = &amp;acl_priv;
 </code></pre>
 <h3 id="definition-des-peripheriques-i2c" tabindex="-1">Définition des périphériques I<sup>2</sup>C</h3>
 <pre><code class="icon-file language-c"><span class="hljs-type">static</span> I2CMaster i2c_priv = {
-    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du contrôleur I2C.</span>
-    .intc     = intc,
+    <span class="hljs-comment">// L'adresse de base des registres du contrôleur I2C.</span>
+    .address  = <span class="hljs-number">0x84000000</span>,
     <span class="hljs-comment">// Le masque des événements de fin de trame.</span>
-    .evt_mask = INTC_EVENTS_I2C,
-    <span class="hljs-comment">// Un pointeur vers le registre de données  (voir I2C/I2C.h).</span>
-    .data     = REG(<span class="hljs-type">uint32_t</span>, I2C_ADDRESS, I2C_DATA_REG),
-    <span class="hljs-comment">// Un pointeur vers le registre de contrôle (voir I2C/I2C.h).</span>
-    .control  = REG(<span class="hljs-type">uint32_t</span>, I2C_ADDRESS, I2C_CONTROL_REG)
+    .evt_mask = EVT_MASK(<span class="hljs-number">3</span>),
+    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements du contrôleur I2C.</span>
+    .intc     = intc
 };
 
 I2CMaster *<span class="hljs-type">const</span> i2c = &amp;i2c_priv;
@@ -330,23 +289,19 @@ I2CMaster *<span class="hljs-type">const</span> i2c = &amp;i2c_priv;
 I2CDevice *<span class="hljs-type">const</span> tmp = &amp;tmp_priv;
 </code></pre>
 <h3 id="definition-des-peripheriques-uart-supplementaires" tabindex="-1">Définition des périphériques UART supplémentaires</h3>
-<p>Pour un récepteur série, ajoutez&nbsp;:</p>
-<pre><code class="icon-file language-c"><span class="hljs-type">static</span> UART recv_priv = {
-    <span class="hljs-comment">// Le contrôleur d'interruption qui gère les événements de l'UART</span>
-    .intc        = intc,
-    <span class="hljs-comment">// Le masque des événements en réception.</span>
-    .rx_evt_mask = INTC_EVENTS_RECV,
-    <span class="hljs-comment">// Le masque des événements en émission.</span>
-    .tx_evt_mask = <span class="hljs-number">0</span>,
-    <span class="hljs-comment">// Un pointeur vers le registre de données (regitre 0).</span>
-    .data        = REG(<span class="hljs-type">uint8_t</span>, RECV_ADDRESS, <span class="hljs-number">0</span>)
+<p>Pour un récepteur série destiné à communiquer avec un sonar, ajoutez&nbsp;:</p>
+<pre><code class="icon-file language-c"><span class="hljs-type">static</span> UART sonar_uart_priv = {
+    .address     = <span class="hljs-number">0x84000000</span>,
+    .rx_evt_mask = EVT_MASK(<span class="hljs-number">3</span>),
+    .tx_evt_mask = EVT_MASK_OFF, <span class="hljs-comment">// Pas d'événement en émission sur cette interface.</span>
+    .intc        = intc
 };
 
-UART *<span class="hljs-type">const</span> recv = &amp;recv_priv;
+UART *<span class="hljs-type">const</span> sonar_uart = &amp;sonar_uart_priv;
 </code></pre>
-<p>Si votre application utilise un module sonar, vous pouvez ajouter&nbsp;:</p>
+<p>Pour le module sonar proprement dit, ajoutez&nbsp;:</p>
 <pre><code class="icon-file language-c"><span class="hljs-type">static</span> Sonar sonar_priv = {
-    .uart = recv
+    .uart = sonar_uart
 };
 
 Sonar *<span class="hljs-type">const</span> sonar = &amp;sonar_priv;
@@ -604,7 +559,7 @@ __attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
 <p>La bibliothèque C fournie est très limitée.
 Par exemple, vous n’aurez pas accès aux fonctions <code>printf</code> ou <code>malloc</code>.</p>
 <p>Pour affichez des messages dans un terminal série, vous pouvez utiliser
-les fonctios <code>UART_putc</code> et <code>UART_puts</code> de la manière suivante&nbsp;:</p>
+les fonctions <code>UART_putc</code> et <code>UART_puts</code> de la manière suivante&nbsp;:</p>
 <pre><code class="icon-file language-c"><span class="hljs-comment">// Envoyer le caractère 'X' sur la liaison série désignée par la variable uart.</span>
 UART_putc(uart, <span class="hljs-string">'X'</span>);
 
