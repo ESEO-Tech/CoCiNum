@@ -107,7 +107,6 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -850,7 +849,7 @@ d'un mur"
          id="path11360" />
       <path
          id="path11362"
-         d="M -327.35173,-9.0217969 H -26.170589"
+         d="m -309.63542,-9.104962 283.464831,0.083165"
          style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotL)" />
     </g>
     <g
