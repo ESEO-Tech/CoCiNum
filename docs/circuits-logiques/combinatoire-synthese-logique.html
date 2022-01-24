@@ -173,7 +173,7 @@ sans suivre l’ordre de la numération binaire.
 Tout d’abord, lorsqu’aucun bouton n’est pressé, ou lorsque l’utilisateur presse simultanément
 deux boutons contradictoires (avancer et reculer, gauche et droite),
 nous imposons au robot de rester immobile.</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center">BA</th>
@@ -190,99 +190,99 @@ nous imposons au robot de rester immobile.</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Aucun bouton pressé, pas bouger</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Ordres contradictoires, pas bouger</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Ordres contradictoires, pas bouger</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Ordres contradictoires, pas bouger</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Ordres contradictoires, pas bouger</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Ordres contradictoires, pas bouger</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Ordres contradictoires, pas bouger</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Ordres contradictoires, pas bouger</td>
 </tr>
 </tbody>
@@ -291,7 +291,7 @@ nous imposons au robot de rester immobile.</p>
 en indiquant par un tiret les cas où la valeur d’une entrée est indifférente.
 Par exemple, lorsque BA et BR sont pressés en même temps, le robot doit rester immobile
 quelles que soient les valeurs de BG et BD.</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center">BA</th>
@@ -308,39 +308,39 @@ quelles que soient les valeurs de BG et BD.</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Aucun bouton pressé, pas bouger</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">–</td>
 <td style="text-align:center">–</td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Ordres contradictoires, pas bouger</td>
 </tr>
 <tr>
 <td style="text-align:center">–</td>
 <td style="text-align:center">–</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Ordres contradictoires, pas bouger</td>
 </tr>
 </tbody>
@@ -356,7 +356,7 @@ quelle que soit la valeur d’une <strong>entrée</strong>.</p>
 </div>
 <p>Lorsque l’utilisateur presse un seul bouton, le robot doit se déplacer en ligne droite
 (les deux roues tournent dans le même sens) ou tourner sur place (les deux roues tournent dans des sens opposés).</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center">BA</th>
@@ -373,51 +373,51 @@ quelle que soit la valeur d’une <strong>entrée</strong>.</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Avancer en ligne droite</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:left">Reculer en ligne droite</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Tourner à gauche sur place</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:left">Tourner à droite sur place</td>
 </tr>
 </tbody>
@@ -425,7 +425,7 @@ quelle que soit la valeur d’une <strong>entrée</strong>.</p>
 <p>Lorsque l’utilisateur presse deux boutons, le robot doit avancer ou
 reculer en pivotant sur une roue.
 Pour cela, il bloque une roue et fait tourner l’autre.</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center">BA</th>
@@ -442,51 +442,51 @@ Pour cela, il bloque une roue et fait tourner l’autre.</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Avancer vers la gauche</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Avancer vers la droite</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:left">Reculer vers la gauche</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Reculer vers la droite</td>
 </tr>
 </tbody>
@@ -498,7 +498,7 @@ L’étape suivante consiste à établir les équations logiques de MGA, MGR, MD
 en fonction de BA, BR, BG et BD.</p>
 <p>MGA vaut 1 sur trois lignes de la table de vérité rappelées ci-dessous.
 Elle vaut 0 dans tous les autres cas.</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center">BA</th>
@@ -511,28 +511,28 @@ Elle vaut 0 dans tous les autres cas.</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 </tbody>
 </table>
@@ -560,7 +560,7 @@ BA\cdot\overline{BR}\cdot\overline{BG}\cdot BD
 <p>En généralisant cette méthode, nous pouvons associer à chaque
 ligne de la table de vérité un terme <em>produit</em> faisant intervenir
 une entrée ou sa négation.</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center">BA</th>
@@ -572,15 +572,15 @@ une entrée ou sa négation.</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mrow><mi>B</mi><mi>A</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>R</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>G</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>D</mi></mrow><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">\overline{BA}\cdot\overline{BR}\cdot\overline{BG}\cdot\overline{BD}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">BR</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">BG</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span></span></span></span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">–</td>
 <td style="text-align:center">–</td>
 <td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>A</mi><mo>⋅</mo><mi>B</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">BA\cdot BR</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">BR</span></span></span></span></td>
@@ -588,64 +588,64 @@ une entrée ou sa négation.</p>
 <tr>
 <td style="text-align:center">–</td>
 <td style="text-align:center">–</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>G</mi><mo>⋅</mo><mi>B</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">BG\cdot BD</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">BG</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>A</mi><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>R</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>G</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>D</mi></mrow><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">BA\cdot\overline{BR}\cdot\overline{BG}\cdot\overline{BD}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">BR</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">BG</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span></span></span></span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mrow><mi>B</mi><mi>A</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mi>B</mi><mi>R</mi><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>G</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>D</mi></mrow><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">\overline{BA}\cdot BR\cdot\overline{BG}\cdot\overline{BD}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">BR</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">BG</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span></span></span></span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mrow><mi>B</mi><mi>A</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>R</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mi>B</mi><mi>G</mi><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>D</mi></mrow><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">\overline{BA}\cdot\overline{BR}\cdot BG\cdot\overline{BD}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">BR</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">BG</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span></span></span></span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mrow><mi>B</mi><mi>A</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>R</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>G</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mi>B</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">\overline{BA}\cdot\overline{BR}\cdot\overline{BG}\cdot BD</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">BR</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">BG</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>A</mi><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>R</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mi>B</mi><mi>G</mi><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>D</mi></mrow><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">BA\cdot\overline{BR}\cdot BG\cdot\overline{BD}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">BR</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">BG</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span></span></span></span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>A</mi><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>R</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>G</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mi>B</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">BA\cdot\overline{BR}\cdot\overline{BG}\cdot BD</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">BR</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">BG</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mrow><mi>B</mi><mi>A</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mi>B</mi><mi>R</mi><mo>⋅</mo><mi>B</mi><mi>G</mi><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>D</mi></mrow><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">\overline{BA}\cdot BR\cdot BG\cdot\overline{BD}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">BR</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">BG</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span></span></span></span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mrow><mi>B</mi><mi>A</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mi>B</mi><mi>R</mi><mo>⋅</mo><mover accent="true"><mrow><mi>B</mi><mi>G</mi></mrow><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mi>B</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">\overline{BA}\cdot BR\cdot\overline{BG}\cdot BD</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">BR</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8833em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8833em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">BG</span></span></span><span style="top:-3.8033em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span></td>
 </tr>
 </tbody>

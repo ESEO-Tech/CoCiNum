@@ -148,7 +148,7 @@ ce registre possédera une entrée de remise à zéro asynchrone.</li>
 <p><a href="compteur-synchrone-structure.svg"><img src="compteur-synchrone-structure.svg" alt="Structure d'un compteur synchrone modulo 6" width="600px"></a></p>
 <p>Pour aller plus loin, nous pouvons proposer une version plus <em>légère</em> de ce circuit.
 En effet, le calcul de <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>k</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">k^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6887em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span> peut être réécrit sous la forme d’une table de vérité&nbsp;:</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">k_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
@@ -162,58 +162,58 @@ En effet, le calcul de <span class="katex"><span class="katex-mathml"><math xmln
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 </tbody>
 </table>

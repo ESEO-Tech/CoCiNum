@@ -93,7 +93,7 @@ les résultats correspondants.</p>
 </section><section><h2 id="la-fonction-non" tabindex="-1">La fonction <em>NON</em></h2>
 <p>La négation logique exprime le contraire d’une proposition.
 Par exemple, «&nbsp;On appelle extraterrestre un être vivant qui <em>NE</em> provient <em>PAS</em> de la Terre.&nbsp;»</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span><br>(je proviens de la Terre)</th>
@@ -102,12 +102,12 @@ Par exemple, «&nbsp;On appelle extraterrestre un être vivant qui <em>NE</em> p
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 </tbody>
 </table>
@@ -126,7 +126,7 @@ Par exemple, «&nbsp;On appelle extraterrestre un être vivant qui <em>NE</em> p
 Elle est conforme au sens du mot «&nbsp;et&nbsp;» de la langue française.
 Par exemple, représentons la table de vérité de l’expression suivante&nbsp;:
 «&nbsp;Seuls les élèves présents <em>ET</em> silencieux seront récompensés.&nbsp;»</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span><br>(je suis présent)</th>
@@ -136,24 +136,24 @@ Par exemple, représentons la table de vérité de l’expression suivante&nbsp;
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 </tbody>
 </table>
@@ -180,7 +180,7 @@ a \cdot (b \cdot c) &amp;= (a \cdot b) \cdot c
 <p>La fonction <em>OU</em> vérifie si <strong>au moins une condition est vraie</strong>.
 Considérons, par exemple, la table de vérité correspondant à la proposition&nbsp;:
 «&nbsp;Seules les personnes majeures <em>OU</em> accompagnées d’un adulte peuvent participer.&nbsp;»</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span><br>(je suis majeur)</th>
@@ -190,24 +190,24 @@ Considérons, par exemple, la table de vérité correspondant à la proposition&
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 </tbody>
 </table>
@@ -243,7 +243,7 @@ L’opération <em>ET</em> est distributive par rapport à l’opération <em>OU
 <p>La fonction <em>OU exclusif</em> a une signification proche du mot «&nbsp;ou&nbsp;» de la langue française,
 ou plus précisément de l’expression «&nbsp;soit… soit&nbsp;».
 Par exemple, «&nbsp;Le menu à 10€ inclut soit du fromage, soit un dessert.&nbsp;»</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span><br>(je prends du fromage)</th>
@@ -253,24 +253,24 @@ Par exemple, «&nbsp;Le menu à 10€ inclut soit du fromage, soit un dessert.&n
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 </tbody>
 </table>
@@ -293,7 +293,7 @@ qui produit un résultat vrai lorsque ses opérandes sont égaux.</p>
 <p>La fonction <em>NON-OU</em> consiste simplement à prendre la négation du résultat de la fonction <em>OU</em>.
 En français, elle a la même signification que l’expression «&nbsp;ni… ni&nbsp;».
 Par exemple, «&nbsp;Seuls les véhicules qui ne sont <em>NI</em> polluants, <em>NI</em> bruyants ont le droit de circuler.&nbsp;»</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span><br>(mon véhicule pollue)</th>
@@ -303,24 +303,24 @@ Par exemple, «&nbsp;Seuls les véhicules qui ne sont <em>NI</em> polluants, <em
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 </tbody>
 </table>
@@ -342,7 +342,7 @@ En reformulant notre exemple, cela donne&nbsp;:
 Nous pouvons l’illustrer par un exemple&nbsp;:
 «&nbsp;Tout le personnel peut retourner à son poste,
 <em>SAUF</em> les personnes qui font partie de l’équipe de sécurité <em>ET</em> qui ont été embauchées cette semaine.&nbsp;»</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span><br>(je fais partie de l’équipe de sécurité)</th>
@@ -352,24 +352,24 @@ Nous pouvons l’illustrer par un exemple&nbsp;:
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 </tbody>
 </table>

@@ -88,7 +88,7 @@ Cependant, ce circuit ne permet pas de mettre à jour cette valeur.</p>
 <p>Certaines portes logiques ont la propriété de se comporter comme un inverseur
 lorsqu’une de leurs entrées est fixée à une valeur bien choisie.
 C’est le cas, par exemple, de la porte <em>NON-OU</em>, dont nous rappelons la table de vérité ci-dessous&nbsp;:</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span></th>
@@ -99,33 +99,33 @@ C’est le cas, par exemple, de la porte <em>NON-OU</em>, dont nous rappelons la
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 </tbody>
 </table>
 <p>Réécrivons cette table de vérité pour faire apparaître <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi></mrow><annotation encoding="application/x-tex">b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span> dans la colonne de sortie&nbsp;:</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span></th>
@@ -135,14 +135,14 @@ C’est le cas, par exemple, de la porte <em>NON-OU</em>, dont nous rappelons la
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
 <td style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>b</mi><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">\overline b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8944em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">b</span></span></span><span style="top:-3.8144em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span></span></span></span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 </tbody>
 </table>
@@ -168,7 +168,7 @@ Le troisième cas permet de <em>verrouiller</em> la dernière valeur qui a été
 La combinaison <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mi>S</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R = S = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span> ne vérifie pas cette propriété et n’est pas utilisée en pratique.</p>
 <p>Les entrées <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> et <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi></mrow><annotation encoding="application/x-tex">S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span></span></span></span> sont nommées d’après leur rôle&nbsp;: «&nbsp;S&nbsp;» comme «&nbsp;Set&nbsp;», utilisé dans le sens
 de «&nbsp;activer&nbsp;» (mettre à 1)&nbsp;; «&nbsp;R&nbsp;» comme «&nbsp;Reset&nbsp;», utilisé dans le sens de «&nbsp;réinitialiser&nbsp;» (mettre à 0).</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center">R</th>
@@ -180,24 +180,24 @@ de «&nbsp;activer&nbsp;» (mettre à 1)&nbsp;; «&nbsp;R&nbsp;» comme «&nbsp;
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
 <td style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Q_{prec}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">Q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight">rec</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span></td>
 <td style="text-align:left">Maintien</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:left">Écriture d’un 1 (Set)</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Écriture d’un 0 (Reset)</td>
 </tr>
 </tbody>
@@ -211,7 +211,7 @@ Il n’y a pas de séparation entre les commandes et les données.</p>
 <p>Dans un verrou D, il existe une entrée <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi></mrow><annotation encoding="application/x-tex">D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span> (<em>Data</em>) qui indique la valeur de la donnée à écrire
 et une entrée <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi></mrow><annotation encoding="application/x-tex">E</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span></span></span></span> (<em>Enable</em>) qui autorise la mise à jour de la donnée mémorisée.
 Son fonctionnement peut être résumé par le tableau suivant&nbsp;:</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center">E</th>
@@ -223,30 +223,30 @@ Son fonctionnement peut être résumé par le tableau suivant&nbsp;:</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">–</td>
 <td style="text-align:center">→</td>
 <td style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Q_{prec}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">Q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight">rec</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span></td>
 <td style="text-align:left">Maintien</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:left">Écriture d’un 0</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:left">Écriture d’un 1</td>
 </tr>
 </tbody>
 </table>
 <p>Ou plus simplement&nbsp;:</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center">E</th>
@@ -257,13 +257,13 @@ Son fonctionnement peut être résumé par le tableau suivant&nbsp;:</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
 <td style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Q_{prec}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">Q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight">rec</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span></td>
 <td style="text-align:left">Maintien</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
 <td style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi></mrow><annotation encoding="application/x-tex">D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span></td>
 <td style="text-align:left">Écriture</td>

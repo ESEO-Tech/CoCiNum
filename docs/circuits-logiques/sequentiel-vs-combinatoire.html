@@ -100,7 +100,7 @@ lorsqu’il doit être immobile.</p>
 <p><a href="robot-verrouillage-ba-chronogramme.svg"><img src="robot-verrouillage-ba-chronogramme.svg" alt="Verrouillage du déplacement du robot (chronogramme)" width="700px"></a></p>
 <p>Pouvons-nous établir la table de vérité de <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">MA</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mord mathnormal">A</span></span></span></span> en fonction de <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">BA</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span></span></span></span>&nbsp;?
 D’après le chronogramme, elle devrait ressembler à ceci&nbsp;:</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">BA</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span></span></span></span></th>
@@ -110,12 +110,12 @@ D’après le chronogramme, elle devrait ressembler à ceci&nbsp;:</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
 <td style="text-align:center">Ça dépend</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
 <td style="text-align:center">Ça dépend</td>
 </tr>
@@ -134,7 +134,7 @@ Sur la figure ci-dessous, nous les avons numérotés et nous avons mis en évide
 en bleu et les valeurs <em>courantes</em> en rouge.</p>
 <p><a href="robot-verrouillage-ba-chronogramme-memorisation.svg"><img src="robot-verrouillage-ba-chronogramme-memorisation.svg" alt="Verrouillage du déplacement du robot (chronogramme avec valeurs précédentes et courante)" with="700px"></a></p>
 <p>À présent, nous pouvons établir la table de vérité suivante&nbsp;:</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><msub><mi>A</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">BA_{prec}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight">rec</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span></th>
@@ -147,67 +147,67 @@ en bleu et les valeurs <em>courantes</em> en rouge.</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">(1)</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">(5)</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">(2)</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">(6)</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">(8)</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">(4)</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">(7)</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">(3)</td>
 </tr>
 </tbody>

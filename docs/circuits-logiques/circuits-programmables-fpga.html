@@ -141,7 +141,7 @@ Voir schéma de droite ci-dessous, où l’entrée <code>A6</code> est forcée �
 <h3 id="exemple-comparateur" tabindex="-1">Exemple&nbsp;: comparateur</h3>
 <p>Ci-dessous, nous utilisons une LUT pour vérifier si deux vecteurs <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span> et <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi></mrow><annotation encoding="application/x-tex">b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span> de trois bits
 sont égaux. Voici un extrait de la table de vérité et le schéma correspondant&nbsp;:</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">a_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
@@ -156,24 +156,24 @@ sont égaux. Voici un extrait de la table de vérité et le schéma correspondan
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
 <td style="text-align:center">⋮</td>
@@ -186,34 +186,34 @@ sont égaux. Voici un extrait de la table de vérité et le schéma correspondan
 <td style="text-align:center">⋮</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
 <td style="text-align:center">⋮</td>
@@ -226,34 +226,34 @@ sont égaux. Voici un extrait de la table de vérité et le schéma correspondan
 <td style="text-align:center">⋮</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
 <td style="text-align:center">⋮</td>
@@ -266,34 +266,34 @@ sont égaux. Voici un extrait de la table de vérité et le schéma correspondan
 <td style="text-align:center">⋮</td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
 <td style="text-align:center">⋮</td>
@@ -306,34 +306,34 @@ sont égaux. Voici un extrait de la table de vérité et le schéma correspondan
 <td style="text-align:center">⋮</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
 <td style="text-align:center">⋮</td>
@@ -346,34 +346,34 @@ sont égaux. Voici un extrait de la table de vérité et le schéma correspondan
 <td style="text-align:center">⋮</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
 <td style="text-align:center">⋮</td>
@@ -386,34 +386,34 @@ sont égaux. Voici un extrait de la table de vérité et le schéma correspondan
 <td style="text-align:center">⋮</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
 <td style="text-align:center">⋮</td>
@@ -426,24 +426,24 @@ sont égaux. Voici un extrait de la table de vérité et le schéma correspondan
 <td style="text-align:center">⋮</td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="zero">0</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">0</td>
+<td style="text-align:center"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
+<td style="text-align:center"><span class="one">1</span></td>
 <td style="text-align:center">→</td>
-<td style="text-align:center">1</td>
+<td style="text-align:center"><span class="one">1</span></td>
 </tr>
 </tbody>
 </table>
@@ -451,7 +451,7 @@ sont égaux. Voici un extrait de la table de vérité et le schéma correspondan
 <h3 id="exemple-additionneur" tabindex="-1">Exemple&nbsp;: additionneur</h3>
 <p>Dans cet autre exemple, nous utilisons les deux sorties d’une <em>LUT</em> pour calculer
 la somme de deux entiers <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span> et <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi></mrow><annotation encoding="application/x-tex">b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span> sur deux bits (ce circuit ne produira pas le bit de retenue)&nbsp;:</p>
-<table>
+<table class="truth-table">
 <thead>
 <tr>
 <th style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">a_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
@@ -465,148 +465,148 @@ la somme de deux entiers <span class="katex"><span class="katex-mathml"><math xm
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 </tr>
 <tr>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="zero">0</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 </tr>
 <tr>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">1</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="one">1</span></td>
 <td style="text-align:left">→</td>
-<td style="text-align:left">1</td>
-<td style="text-align:left">0</td>
+<td style="text-align:left"><span class="one">1</span></td>
+<td style="text-align:left"><span class="zero">0</span></td>
 </tr>
 </tbody>
 </table>

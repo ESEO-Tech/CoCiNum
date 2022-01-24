@@ -359,6 +359,26 @@ td {
     padding: 0.3rem 0.6rem;
 }
 
+.truth-table .zero {
+    background: #afdde9;
+}
+
+.truth-table .one {
+    background: #ffaaaa;
+}
+
+.truth-table .highz {
+    border: 1px dashed;
+}
+
+.truth-table .zero,
+.truth-table .one,
+.truth-table .highz {
+    border-radius: 0.3rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
 /* ------------------------------------------------------------------------- *
  * Information boxes and icons
  *
