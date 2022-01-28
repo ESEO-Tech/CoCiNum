@@ -39,6 +39,15 @@
                 <li><a href="#environnement-de-travail">Environnement de travail</a></li>
             
                 
+                    <li><ul>
+                    
+                
+                <li><a href="#installation-facultative">Installation (facultative)</a></li>
+            
+                
+                    </ul></li>
+                    
+                
                 <li><a href="#travail-a-effectuer">Travail à effectuer</a></li>
             
                 
@@ -89,11 +98,19 @@ Lorsque le joueur presse un bouton, deux cas peuvent se présenter&nbsp;:</p>
 </ul>
 </section><section><h1 id="environnement-de-travail" tabindex="-1">Environnement de travail</h1>
 <p>Nous utiliserons un logiciel de saisie de schéma et de simulation de circuits
-logiques appelé <a href="https://github.com/reds-heig/logisim-evolution">Logisim-evolution</a>.</p>
+logiques appelé <a href="https://github.com/reds-heig/logisim-evolution">Logisim-evolution</a>.
+Ce logiciel est déjà présent sur les postes de travail de certaines salles de TP à l’ESEO.
+Pour l’exécuter, démarrez votre PC sous Ubuntu, ouvrez un terminal et saisissez la
+commande suivante&nbsp;:</p>
+<pre><code class="icon-term language-bash">java -jar /opt/logisim-evolution-3.3.0-all.jar
+</code></pre>
+<p>Si vous rencontrez des difficultés, ou si vous souhaitez travailler sur votre propre PC,
+vous pouvez l’installer vous-même en suivant les instructions ci-après.</p>
 <div class="info">
 <p>La traduction française de Logisim-evolution est parfois étrange.
 Par exemple, on trouve l’expression «&nbsp;Flanc montant&nbsp;» au lieu de «&nbsp;Front montant&nbsp;».</p>
 </div>
+</section><section><h2 id="installation-facultative" tabindex="-1">Installation (facultative)</h2>
 <p>Logisim-evolution s’exécute sur la <a href="https://www.oracle.com/java/technologies/javase-downloads.html">plate-forme Java, que vous devez
 installer au préalable</a>.
 Si vous travaillez sous Linux, nous recommandons d’installer l’environnement
@@ -103,21 +120,13 @@ sous Ubuntu, installez simplement le paquet <code>default-jre</code>.</p>
 Il se présente comme un fichier <em>jar</em> que vous pouvez enregistrer
 à l’emplacement de votre choix.</p>
 <ul>
-<li><a href="https://github.com/reds-heig/logisim-evolution/releases/download/v3.3.3/logisim-evolution-3.3.3-all.jar">Télécharger Logisim-evolution 3.3.3</a></li>
+<li><a href="https://github.com/reds-heig/logisim-evolution/releases/download/v3.3.3/logisim-evolution-3.3.3-all.jar">Télécharger Logisim-evolution 3.3</a></li>
 </ul>
 <div class="warning">
-<p>Logisim-evolution nécessite Java 9 ou une version ultérieure.</p>
+<p>Logisim-evolution 3.3 nécessite Java 9 ou une version ultérieure.</p>
 <p>Si vous avez besoin de conserver une version plus ancienne de Java,
 téléchargez plutôt le logiciel <a href="../assets/logisim-generic-2.7.1.jar">Logisim 2.7</a>.</p>
 </div>
-<p class="icon-download">Dans cette activité, vous allez compléter un circuit de base que nous fournissons.
-Cliquez avec le bouton droit sur un des liens ci-dessous et choisissez
-«&nbsp;Enregistrer le lien sous…&nbsp;», ou «&nbsp;Enregistrer la cible du lien sous…&nbsp;»,
-selon le navigateur web que vous utilisez.</p>
-<ul>
-<li><a href="../assets/sources/MoleBuster.circ">Télécharger le schéma du circuit de base pour Logisim-evolution</a></li>
-<li><a href="../assets/sources/MoleBuster-logisim2.circ">Télécharger le schéma du circuit de base pour Logisim 2.7</a></li>
-</ul>
 <p class="icon-folder">Sous Windows, vous pouvez exécuter Logisim-evolution en double-cliquant sur
 son icône dans un navigateur de fichiers.</p>
 <p>Vous pouvez également l’exécuter en ligne de commande.
@@ -129,6 +138,11 @@ dossier contenant Logisim-evolution, puis&nbsp;:</p>
 <pre><code class="icon-term language-bash">java -jar logisim-generic-2.7.1.jar
 </code></pre>
 </section><section><h1 id="travail-a-effectuer" tabindex="-1">Travail à effectuer</h1>
+<p class="icon-download">Dans cette activité, vous allez compléter un circuit de base que nous fournissons.</p>
+<ul>
+<li><a href="../assets/sources/MoleBuster.circ" download="MoleBuster.circ">Télécharger le schéma du circuit de base pour Logisim-evolution</a></li>
+<li><a href="../assets/sources/MoleBuster-logisim2.circ" download="MoleBuster.circ">Télécharger le schéma du circuit de base pour Logisim 2.7</a></li>
+</ul>
 <p class="icon-folder">Ouvrez le fichier <code>MoleBuster.circ</code> avec Logisim-evolution.</p>
 </section><section><h2 id="etape-0-circuit-de-base" tabindex="-1">Étape 0&nbsp;: circuit de base</h2>
 <p>Le circuit se compose des éléments suivants&nbsp;:</p>

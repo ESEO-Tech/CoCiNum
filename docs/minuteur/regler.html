@@ -124,7 +124,7 @@ make
 Elle exécute un scénario de test et enregistre les séquences de valeurs des signaux.</p>
 </div>
 <p>Une fois la simulation terminée, affichez les chronogrammes&nbsp;:</p>
-<pre><code class="icon-term language-bash">gtkwave -S DetecteurAppui.tcl sim_build/DetecteurAppui.ghw
+<pre><code class="icon-term language-bash">gtkwave -S DetecteurAppui.tcl DetecteurAppui.ghw
 </code></pre>
 <p>Observez l’évolution des valeurs des signaux.
 S’ils sont conformes au comportement attendu, vous pouvez passer à la suite.
@@ -195,7 +195,7 @@ make
 </code></pre>
 <p>Pour arrêter la simulation, refermez la fenêtre contenant les afficheurs sept segments.
 Il est alors possible de regarder les chronogrammes plus en détail.</p>
-<pre><code class="icon-term language-bash">gtkwave -S Minuteur.tcl sim_build/Minuteur.ghw
+<pre><code class="icon-term language-bash">gtkwave -S Minuteur.tcl Minuteur.ghw
 </code></pre>
 </section>
     
