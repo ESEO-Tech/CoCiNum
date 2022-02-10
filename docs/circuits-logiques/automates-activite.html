@@ -38,6 +38,20 @@
                 
                 <li><a href="#commande-dune-barriere-automatique">Commande d’une barrière automatique</a></li>
             
+                
+                    <li><ul>
+                    
+                
+                <li><a href="#mettre-en-equations-le-graphe-detats">Mettre en équations le graphe d’états</a></li>
+            
+                
+                <li><a href="#dessiner-le-schema-du-circuit">Dessiner le schéma du circuit</a></li>
+            
+                
+                <li><a href="#simuler-son-fonctionnement">Simuler son fonctionnement</a></li>
+            
+            
+        </ul>
             
         </ul>
             
@@ -67,6 +81,36 @@ missions proposées&nbsp;:</p>
 <li>S’ouvrir à nouveau si un véhicule ou un piéton se trouve sous la barrière pendant qu’elle se ferme.</li>
 </ol>
 <p><a href="https://guillaume-savaton-eseo.github.io/Automata/automata.games.openTheGate.LetMeIn.html">Accéder à la première mission</a></p>
+</section><section><h2 id="mettre-en-equations-le-graphe-detats" tabindex="-1">Mettre en équations le graphe d’états</h2>
+<p>À présent, nous vous proposons de réaliser un circuit dont le comportement
+respectera le graphe d’états de la mission
+<a href="https://guillaume-savaton-eseo.github.io/Automata/automata.games.openTheGate.DontCrushTheFollower.html">Don’t crush the follower</a>.</p>
+<p class="icon-file">En choisissant un codage <a href="automates-synthese.html#codage-one-hot">one-hot</a> des états,
+écrivez les équations logiques de la fonction de transition et de la fonction de sortie.
+Si nécessaire, vous pouvez relire <a href="automates-synthese.html#avec-le-codage-one-hot">la méthode de synthèse que nous avons expliquée dans la page précédente</a>.</p>
+</section><section><h2 id="dessiner-le-schema-du-circuit" tabindex="-1">Dessiner le schéma du circuit</h2>
+<p class="icon-diagram">Sous Logisim, complétez le schéma ci-dessous. Les capteurs ont été remplacés par des
+boutons-poussoirs et les actionneurs par des LED.</p>
+<ul>
+<li><a href="../assets/sources/OpenTheGate.circ" download="OpenTheGate.circ">Télécharger le schéma du circuit de base pour Logisim-evolution 3.3</a></li>
+<li><a href="../assets/sources/OpenTheGate-logisim2.circ" download="OpenTheGate.circ">Télécharger le schéma du circuit de base pour Logisim 2.7</a></li>
+</ul>
+<p class="icon-question">À quoi devez-vous relier le bouton <code>init</code> pour que l’automate revienne dans
+son état initial à chaque appui&nbsp;?</p>
+<div class="info">
+<p>Logisim-evolution est déjà présent sur les postes de travail de certaines salles de TP à l’ESEO.
+Pour l’exécuter, démarrez votre PC sous Ubuntu, ouvrez un terminal et saisissez la
+commande suivante&nbsp;:</p>
+<pre><code class="icon-term language-bash">java -jar /opt/logisim-evolution-3.3.0-all.jar
+</code></pre>
+</div>
+</section><section><h2 id="simuler-son-fonctionnement" tabindex="-1">Simuler son fonctionnement</h2>
+<p class="icon-mouse">Dans le menu <em>Simulation</em>, vérifiez que l’option <em>Simulation enclenchée</em>
+est activée.
+Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-hand-pointer"></i>&nbsp;».</p>
+<p class="icon-check">Agissez sur les boutons-poussoirs et observez l’évolution de l’état et des sorties
+pour différents scénarios d’utilisation.
+Vérifiez que le comportement obtenu est conforme à votre graphe d’états.</p>
 </section>
     
         
