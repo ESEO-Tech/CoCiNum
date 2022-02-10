@@ -398,6 +398,7 @@ td {
  * icon-target:    challenge
  * icon-folder:    open a file
  * icon-diagram:   edit a diagram
+ * icon-pencil:    pen-and-paper activity
  * icon-microchip: unknown use
  * ------------------------------------------------------------------------- */
 
@@ -455,6 +456,7 @@ code[class*="icon-"]::before {
 .icon-target::before    { content: "\f140"; } /* Font Awesome 5: bullseye */
 .icon-folder::before    { content: "\f07c"; } /* Font Awesome 5: folder-open */
 .icon-diagram::before   { content: "\f542"; } /* Font Awesome 5: project-diagram */
+.icon-pencil::before    { content: "\f303"; } /* Font Awesome 5: pencil */
 .icon-microchip::before { content: "\f2db"; } /* Font Awesome 5: microchip */
 
 .info h1,

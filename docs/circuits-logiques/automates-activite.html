@@ -45,6 +45,9 @@
                 <li><a href="#mettre-en-equations-le-graphe-detats">Mettre en équations le graphe d’états</a></li>
             
                 
+                <li><a href="#tracer-les-chronogrammes">Tracer les chronogrammes</a></li>
+            
+                
                 <li><a href="#dessiner-le-schema-du-circuit">Dessiner le schéma du circuit</a></li>
             
                 
@@ -85,9 +88,14 @@ missions proposées&nbsp;:</p>
 <p>À présent, nous vous proposons de réaliser un circuit dont le comportement
 respectera le graphe d’états de la mission
 <a href="https://guillaume-savaton-eseo.github.io/Automata/automata.games.openTheGate.DontCrushTheFollower.html">Don’t crush the follower</a>.</p>
-<p class="icon-file">En choisissant un codage <a href="automates-synthese.html#codage-one-hot">one-hot</a> des états,
+<p class="icon-pencil">En choisissant un codage <a href="automates-synthese.html#codage-one-hot">one-hot</a> des états,
 écrivez les équations logiques de la fonction de transition et de la fonction de sortie.
 Si nécessaire, vous pouvez relire <a href="automates-synthese.html#avec-le-codage-one-hot">la méthode de synthèse que nous avons expliquée dans la page précédente</a>.</p>
+</section><section><h2 id="tracer-les-chronogrammes" tabindex="-1">Tracer les chronogrammes</h2>
+<p class="icon-pencil">On propose le scénario de fonctionnement suivant.
+Ajoutez les noms des signaux représentant l’état.
+En supposant que l’automate est dans son état initial au début du scénario, complétez les chronogrammes.</p>
+<p><a href="open-the-gate-waveforms.svg"><img src="open-the-gate-waveforms.svg" alt="Chronogrammes à compléter"></a></p>
 </section><section><h2 id="dessiner-le-schema-du-circuit" tabindex="-1">Dessiner le schéma du circuit</h2>
 <p class="icon-diagram">Sous Logisim, complétez le schéma ci-dessous. Les capteurs ont été remplacés par des
 boutons-poussoirs et les actionneurs par des LED.</p>
@@ -105,9 +113,13 @@ commande suivante&nbsp;:</p>
 </code></pre>
 </div>
 </section><section><h2 id="simuler-son-fonctionnement" tabindex="-1">Simuler son fonctionnement</h2>
-<p class="icon-mouse">Dans le menu <em>Simulation</em>, vérifiez que l’option <em>Simulation enclenchée</em>
-est activée.
-Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-hand-pointer"></i>&nbsp;».</p>
+<p class="icon-mouse">Dans le menu <em>Simulation</em>&nbsp;:</p>
+<ol>
+<li>Vérifiez que l’option <em>Simulation enclenchée</em> est activée.</li>
+<li>Réglez la <em>Fréquence des tics</em> à <em>16&nbsp;Hz</em>.</li>
+<li>Cochez l’option <em>Tics activés</em>.</li>
+</ol>
+<p class="icon-mouse">Dans la barre d’outils, pressez le bouton «&nbsp;<i class="fas fa-hand-pointer"></i>&nbsp;».</p>
 <p class="icon-check">Agissez sur les boutons-poussoirs et observez l’évolution de l’état et des sorties
 pour différents scénarios d’utilisation.
 Vérifiez que le comportement obtenu est conforme à votre graphe d’états.</p>
