@@ -298,14 +298,15 @@ Tous ces fichiers sont situés dans des sous-dossiers de <code>CoCiNum/src/vhdl<
 </section><section><h1 id="description" tabindex="-1">Description</h1>
 <p class="icon-file">Dans le fichier <code>StopWatch.vhd</code>, complétez l’architecture de la manière suivante&nbsp;:</p>
 <ol>
-<li><a href="../essentiel-vhdl/declarations.html#declaration-de-signaux">Déclarez les signaux internes</a>.</li>
+<li>Repérez les signaux internes sur le schéma et <a href="../essentiel-vhdl/declarations.html#declaration-de-signaux">déclarez-les dans l’architecture</a>.
+Aidez-vous de la <a href="legende.svg" target="_blank">légende des schémas.</a>.</li>
 <li>Ajoutez des <a href="../essentiel-vhdl/instructions-concurrentes.html#instanciation">instructions d’instanciation</a>
 pour créer sept compteurs et un décodeur d’afficheur 7 segments.
 Donnez des valeurs à leurs paramètres génériques et connectez leurs ports conformément au schéma.</li>
 <li>Ajoutez les <a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-de-signal">instructions d’affectation concurrentes</a>
 représentées sur le schéma par des rectangles en pointillés.</li>
 </ol>
-<p>Nous vous demandons d’utiliser les instructions suivantes&nbsp;:</p>
+<p>Pour le point 3, nous vous demandons d’utiliser les instructions suivantes&nbsp;:</p>
 <table>
 <thead>
 <tr>
@@ -342,7 +343,7 @@ représentées sur le schéma par des rectangles en pointillés.</li>
 trop longs, nous allons travailler avec une fréquence d’horloge de 1 kHz,
 nettement inférieure à la réalité.</p>
 <p>Dans le fichier <code>StopWatch.vhd</code>, faites en sorte que le compteur
-<code>counter_5ms_inst</code> ait un modulo égal à 5.</p>
+<code>divider_5ms_inst</code> ait un modulo égal à 5.</p>
 </div>
 <p class="icon-mouse">Démarrez le simulateur&nbsp;:
 <em>Flow Navigator</em> → <em>Simulation</em> → <em>Run Simulation</em> → <em>Run Behavioral Simulation</em>.</p>
@@ -379,7 +380,7 @@ Corrigez votre description, recompilez-la et recommencez la simulation.</p>
 <p>En réalité, la carte Basys3 est équipée d’un oscillateur qui produit un signal
 d’horloge à 100 MHz.</p>
 <p>Avant de passer à la suite, dans le fichier <code>StopWatch.vhd</code>, faites en sorte que
-le compteur <code>counter_5ms_inst</code> ait un modulo égal à 500000.</p>
+le compteur <code>divider_5ms_inst</code> ait un modulo égal à 500000.</p>
 </div>
 </section><section><h1 id="synthetiser-le-circuit" tabindex="-1">Synthétiser le circuit</h1>
 </section><section><h2 id="configurer-les-optimisations" tabindex="-1">Configurer les optimisations</h2>
