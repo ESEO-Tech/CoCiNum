@@ -292,6 +292,10 @@ de type entier qui sera utilisé plus tard dans la version avec anti-rebonds.</p
 <p>Le détecteur d’événements utilisera un signal interne <code>src_reg</code>, vecteur de deux
 bits, qui correspondra à deux copies retardées de l’entrée <code>src_i</code>&nbsp;:</p>
 <p><a href="EventDetector-detail.svg"><img src="EventDetector-detail.svg" alt="Détecteur d'événements simple (détail)" width="650px"></a></p>
+<p class="icon-diagram">Proposez le schéma d’un circuit réalisant ce comportement.</p>
+<div class="info">
+<p>Indice&nbsp;: vous l’avez déjà réalisé dans <a href="../circuits-logiques/sequentiel-activite.html#etape-4-compter-les-succes-et-les-coups-manques">une activité précédente</a>.</p>
+</div>
 <p class="icon-file">Dans le fichier <code>EventDetector_Simple.vhd</code>, complétez l’architecture
 <code>Simple</code> de manière à réaliser le comportement représenté sur le
 chronogramme ci-dessus.
@@ -310,6 +314,17 @@ est <code>EventDetector</code> avec l’architecture <code>Simple</code>&nbsp;:<
 <span class="hljs-keyword">run</span> <span class="hljs-number">200</span><span class="hljs-number">ns</span>
 </code></pre>
 <p class="icon-check">Vérifiez que les chronogrammes sont conformes aux attentes.</p>
+<div class="warning">
+<p>Le fait de séparer l’entité et l’architecture dans des fichiers distincts
+perturbe un peu le fonctionnement de Vivado.
+À la fin de chaque simulation, fermez le simulateur en utilisant ces deux
+commandes&nbsp;:</p>
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">close_sim</span> <span class="hljs-built_in">-force</span>
+<span class="hljs-keyword">reset_simulation</span> <span class="hljs-built_in">-simset</span> sim_1 <span class="hljs-built_in">-mode</span> behavioral
+</code></pre>
+<p>Si vous oubliez la commande <code>reset_simulation</code>, Vivado ne tiendra pas compte
+des modifications que vous ferez dans l’architecture.</p>
+</div>
 </section><section><h2 id="synthese-et-test-sur-le-materiel" tabindex="-1">Synthèse et test sur le matériel</h2>
 <p class="icon-redo">En reprenant les <a href="combinatoire-affectations-concurrentes-activite.html#synthetiser-le-circuit">indications données dans les activités précédentes</a>,
 synthétisez le circuit <code>EventDetectorDemo</code> et testez son fonctionnement sur
@@ -379,7 +394,14 @@ est <code>EventDetector</code> avec l’architecture <code>Debouncer</code> et a
 <span class="hljs-keyword">add_force</span> src_i <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">40</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">60</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">70</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">110</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">120</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">250</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">270</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">280</span><span class="hljs-number">ns</span> <span class="hljs-number">1</span> <span class="hljs-number">320</span><span class="hljs-number">ns</span> <span class="hljs-number">0</span> <span class="hljs-number">330</span><span class="hljs-number">ns</span>
 <span class="hljs-keyword">run</span> <span class="hljs-number">400</span><span class="hljs-number">ns</span>
 </code></pre>
-<p>Vérifiez que les chronogrammes sont conformes aux attentes.</p>
+<p class="icon-check">Vérifiez que les chronogrammes sont conformes aux attentes.</p>
+<div class="warning">
+<p>À la fin de chaque simulation, fermez le simulateur en utilisant ces deux
+commandes&nbsp;:</p>
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">close_sim</span> <span class="hljs-built_in">-force</span>
+<span class="hljs-keyword">reset_simulation</span> <span class="hljs-built_in">-simset</span> sim_1 <span class="hljs-built_in">-mode</span> behavioral
+</code></pre>
+</div>
 </section><section><h2 id="synthese-et-test-sur-le-materiel-1" tabindex="-1">Synthèse et test sur le matériel</h2>
 <p class="icon-file">Dans le fichier <code>EventDetectorDemo.vhd</code>, modifiez l’instance
 <code>detector_inst</code> pour qu’elle utilise l’architecture <code>Debouncer</code>.
