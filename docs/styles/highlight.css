@@ -13,13 +13,13 @@
     color: rgb(120, 120, 120);
 }
 
-.hljs-typename,
+.hljs-type,
 .hljs-built_in {
     color: rgb(130, 180, 0);
     font-weight: bold;
 }
 
-.hljs-meta-keyword,
+.hljs-meta .hljs-keyword,
 .hljs-attribute {
     color: rgb(200, 150, 0);
     font-weight: bold;
