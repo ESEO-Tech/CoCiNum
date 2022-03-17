@@ -493,10 +493,10 @@ en incluant&nbsp;:</p>
 un programme simple qui réalise un écho, c’est-à-dire qu’il retransmet
 chaque octet qu’il reçoit sur la liaison série.
 Le programme se trouve dans le dossier <code>CoCiNum/src/asm/Echo</code>.</p>
-<pre><code class="icon-file language-riscvasm">    .set INTC_ADDRESS,      <span class="hljs-number">0x81000000</span>
-    .set UART_ADDRESS,      <span class="hljs-number">0x82000000</span>
-    .set INTC_MASK_UART_RX, <span class="hljs-number">0x00000001</span>
-    .set INTC_MASK_UART_TX, <span class="hljs-number">0x00000002</span>
+<pre><code class="icon-file language-riscvasm">    .set INTC_ADDRESS,        <span class="hljs-number">0x81000000</span>
+    .set UART_ADDRESS,        <span class="hljs-number">0x82000000</span>
+    .set INTC_EVENTS_UART_RX, <span class="hljs-number">0x00000001</span>
+    .set INTC_EVENTS_UART_TX, <span class="hljs-number">0x00000002</span>
 
     .<span class="hljs-meta">global</span> main
 <span class="hljs-symbol">main</span>:
@@ -504,21 +504,21 @@ Le programme se trouve dans le dossier <code>CoCiNum/src/asm/Echo</code>.</p>
     <span class="hljs-keyword">li </span><span class="hljs-built_in">x6</span>, UART_ADDRESS
 <span class="hljs-symbol">
 main_rx_loop:</span>
-    <span class="hljs-keyword">lw </span><span class="hljs-built_in">x7</span>, <span class="hljs-number">4</span>(<span class="hljs-built_in">x5</span>)                   <span class="hljs-comment">/* Lire le registre events_reg du contrôleur d'interruptions.        */</span>
-    <span class="hljs-keyword">andi </span><span class="hljs-built_in">x7</span>, <span class="hljs-built_in">x7</span>, INTC_MASK_UART_RX <span class="hljs-comment">/* Isoler le bit indicateur de l'événement "réception" de l'UART.    */</span>
-    <span class="hljs-keyword">beqz </span><span class="hljs-built_in">x7</span>, main_rx_loop          <span class="hljs-comment">/* S'il est égal à zéro, continuer la boucle d'attente.              */</span>
-    <span class="hljs-keyword">sw </span><span class="hljs-built_in">x7</span>, <span class="hljs-number">4</span>(<span class="hljs-built_in">x5</span>)                   <span class="hljs-comment">/* Sinon, remettre à zéro l'indicateur d'événement.                  */</span>
+    <span class="hljs-keyword">lw </span><span class="hljs-built_in">x7</span>, <span class="hljs-number">4</span>(<span class="hljs-built_in">x5</span>)                     <span class="hljs-comment">/* Lire le registre events_reg du contrôleur d'interruptions.        */</span>
+    <span class="hljs-keyword">andi </span><span class="hljs-built_in">x7</span>, <span class="hljs-built_in">x7</span>, INTC_EVENTS_UART_RX <span class="hljs-comment">/* Isoler le bit indicateur de l'événement "réception" de l'UART.    */</span>
+    <span class="hljs-keyword">beqz </span><span class="hljs-built_in">x7</span>, main_rx_loop            <span class="hljs-comment">/* S'il est égal à zéro, continuer la boucle d'attente.              */</span>
+    <span class="hljs-keyword">sw </span><span class="hljs-built_in">x7</span>, <span class="hljs-number">4</span>(<span class="hljs-built_in">x5</span>)                     <span class="hljs-comment">/* Sinon, remettre à zéro l'indicateur d'événement.                  */</span>
 
-    <span class="hljs-keyword">lbu </span><span class="hljs-built_in">x8</span>, (<span class="hljs-built_in">x6</span>)                   <span class="hljs-comment">/* Lire l'octet de donnée reçu sur l'entrée série.                   */</span>
-    <span class="hljs-keyword">sb </span> <span class="hljs-built_in">x8</span>, (<span class="hljs-built_in">x6</span>)                   <span class="hljs-comment">/* Envoyer le même octet sur la sortie série.                        */</span>
+    <span class="hljs-keyword">lbu </span><span class="hljs-built_in">x8</span>, (<span class="hljs-built_in">x6</span>)                     <span class="hljs-comment">/* Lire l'octet de donnée reçu sur l'entrée série.                   */</span>
+    <span class="hljs-keyword">sb </span> <span class="hljs-built_in">x8</span>, (<span class="hljs-built_in">x6</span>)                     <span class="hljs-comment">/* Envoyer le même octet sur la sortie série.                        */</span>
 <span class="hljs-symbol">
 main_tx_loop:</span>
-    <span class="hljs-keyword">lw </span><span class="hljs-built_in">x7</span>, <span class="hljs-number">4</span>(<span class="hljs-built_in">x5</span>)                   <span class="hljs-comment">/* Lire le registre events_reg du contrôleur d'interruptions.        */</span>
-    <span class="hljs-keyword">andi </span><span class="hljs-built_in">x7</span>, <span class="hljs-built_in">x7</span>, INTC_MASK_UART_TX <span class="hljs-comment">/* Isoler le bit indicateur de l'événement "transmission" de l'UART. */</span>
-    <span class="hljs-keyword">beqz </span><span class="hljs-built_in">x7</span>, main_tx_loop          <span class="hljs-comment">/* S'il est égal à zéro, continuer la boucle d'attente.              */</span>
-    <span class="hljs-keyword">sw </span><span class="hljs-built_in">x7</span>, <span class="hljs-number">4</span>(<span class="hljs-built_in">x5</span>)                   <span class="hljs-comment">/* Sinon, remettre à zéro l'indicateur d'événement.                  */</span>
+    <span class="hljs-keyword">lw </span><span class="hljs-built_in">x7</span>, <span class="hljs-number">4</span>(<span class="hljs-built_in">x5</span>)                     <span class="hljs-comment">/* Lire le registre events_reg du contrôleur d'interruptions.        */</span>
+    <span class="hljs-keyword">andi </span><span class="hljs-built_in">x7</span>, <span class="hljs-built_in">x7</span>, INTC_EVENTS_UART_TX <span class="hljs-comment">/* Isoler le bit indicateur de l'événement "transmission" de l'UART. */</span>
+    <span class="hljs-keyword">beqz </span><span class="hljs-built_in">x7</span>, main_tx_loop            <span class="hljs-comment">/* S'il est égal à zéro, continuer la boucle d'attente.              */</span>
+    <span class="hljs-keyword">sw </span><span class="hljs-built_in">x7</span>, <span class="hljs-number">4</span>(<span class="hljs-built_in">x5</span>)                     <span class="hljs-comment">/* Sinon, remettre à zéro l'indicateur d'événement.                  */</span>
 
-    <span class="hljs-keyword">j </span>main_rx_loop                 <span class="hljs-comment">/* Retourner à la boucle d'attente de réception.                     */</span>
+    <span class="hljs-keyword">j </span>main_rx_loop                   <span class="hljs-comment">/* Retourner à la boucle d'attente de réception.                     */</span>
 </code></pre>
 <p>Les blocs d’instructions désignés par les étiquettes <code>main_rx_loop</code> et <code>main_tx_loop</code>
 réalisent des boucles d’attente dans lesquelles le programme interroge de façon
@@ -660,8 +660,8 @@ gedit Echo.c &amp;
 
 <span class="hljs-comment">// Définition des masques pour détecter et acquitter les événements.</span>
 <span class="hljs-comment">// masque = 2^(numéro de l'interruption)</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_MASK_UART_RX 1</span>
-<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_MASK_UART_TX 2</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_UART_RX 1</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> INTC_EVENTS_UART_TX 2</span>
 
 <span class="hljs-comment">/* -------------------------------------------------------------------------- *
  * Fonctions d'accès aux registres des périphériques.
@@ -696,9 +696,9 @@ gedit Echo.c &amp;
     <span class="hljs-comment">// Ecrire le caractère dans le registre de données.</span>
     write8(UART_DATA_REG, c);
     <span class="hljs-comment">// Attendre que l'envoi soit terminé.</span>
-    <span class="hljs-keyword">while</span> (!(read32(INTC_EVENTS_REG) &amp; INTC_MASK_UART_TX));
+    <span class="hljs-keyword">while</span> (!(read32(INTC_EVENTS_REG) &amp; INTC_EVENTS_UART_TX));
     <span class="hljs-comment">// Signaler que l'événement a été traité.</span>
-    write32(INTC_EVENTS_REG, INTC_MASK_UART_TX);
+    write32(INTC_EVENTS_REG, INTC_EVENTS_UART_TX);
 }
 
 <span class="hljs-comment">// Envoyer une chaîne de caractères à travers la liaison série.</span>
@@ -715,9 +715,9 @@ gedit Echo.c &amp;
 <span class="hljs-comment">// Recevoir un caractère en provenance de la liaison série.</span>
 <span class="hljs-type">char</span> <span class="hljs-title function_">UART_receive_char</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
     <span class="hljs-comment">// Attendre la réception.</span>
-    <span class="hljs-keyword">while</span> (!(read32(INTC_EVENTS_REG) &amp; INTC_MASK_UART_RX));
+    <span class="hljs-keyword">while</span> (!(read32(INTC_EVENTS_REG) &amp; INTC_EVENTS_UART_RX));
     <span class="hljs-comment">// Signaler que l'événement a été traité.</span>
-    write32(INTC_EVENTS_REG, INTC_MASK_UART_RX);
+    write32(INTC_EVENTS_REG, INTC_EVENTS_UART_RX);
     <span class="hljs-comment">// Retourner le caractère reçu.</span>
     <span class="hljs-keyword">return</span> read8(UART_DATA_REG);
 }
