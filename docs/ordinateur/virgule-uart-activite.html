@@ -493,6 +493,7 @@ en incluant&nbsp;:</p>
 un programme simple qui réalise un écho, c’est-à-dire qu’il retransmet
 chaque octet qu’il reçoit sur la liaison série.
 Le programme se trouve dans le dossier <code>CoCiNum/src/asm/Echo</code>.</p>
+<!-- TODO Améliorer ce programme pour qu'il supporte la réception pendant un envoi -->
 <pre><code class="icon-file language-riscvasm">    .set INTC_ADDRESS,        <span class="hljs-number">0x81000000</span>
     .set UART_ADDRESS,        <span class="hljs-number">0x82000000</span>
     .set INTC_EVENTS_UART_RX, <span class="hljs-number">0x00000001</span>
@@ -543,13 +544,14 @@ selon le principe de <em>l’attente active</em> (également appelée
 make
 </code></pre>
 <div class="info">
-<p>Pendant la simulation, nous utiliserons une version modifiée du paquetage
-<code>Computer_pkg</code>, située dans le dossier <code>Computer/tests-uart</code>.
-Cette version utilise le programme <code>Echo</code>&nbsp;:</p>
+<p>La simulation s’appuie sur une version alternative du paquetage <code>Computer_pkg</code>
+située dans le sous-dossier <code>Computer/tests-uart</code>.
+Vous ne devez pas modifier pas votre fichier <code>Computer_pkg.vhd</code>&nbsp;!</p>
+<p>En simulation, nous utiliserons directement le programme <code>Echo</code>&nbsp;:</p>
 <pre><code class="language-vhdl"><span class="hljs-keyword">constant</span> MEM_CONTENT : word_vector_t := work.Echo_pkg.DATA;
 </code></pre>
-<p>Pour éviter de surcharger votre PC, elle définit des fréquences d’horloge et de
-communication plus petites que celles utilisées sur le vrai matériel&nbsp;:</p>
+<p>Pour éviter de surcharger votre PC, les fréquences d’horloge et de
+communication seront plus petites que sur le vrai matériel&nbsp;:</p>
 <pre><code class="language-vhdl"><span class="hljs-keyword">constant</span> CLK_FREQUENCY_HZ : <span class="hljs-built_in">positive</span> := <span class="hljs-number">10e3</span>;
 <span class="hljs-keyword">constant</span> UART_BIT_RATE_HZ : <span class="hljs-built_in">positive</span> := <span class="hljs-number">1e3</span>;
 </code></pre>
@@ -629,6 +631,7 @@ make Echo.hex
 <p class="icon-check">GTKTerm doit afficher&nbsp;:</p>
 <pre><code>\\// Starting user program.
 </code></pre>
+<!-- TODO Utiliser plutôt la commande echo pour envoyer une chaîne -->
 <p class="icon-check">Dans la fenêtre de GTKTerm, entrez des caractères au clavier.
 Chaque caractère que vous avez entré doit s’afficher en écho.</p>
 <div class="warning">

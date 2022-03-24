@@ -588,8 +588,31 @@ qui peut se produire lors de la mémorisation de signaux dont le timing n’est
 pas maîtrisé.</li>
 </ul>
 <p class="icon-file">Dans le fichier <code>Computer.vhd</code>, ajoutez les instructions d’instanciation
-correspondant au schéma ci-dessous.</p>
+et d’affectation correspondant au schéma ci-dessous.</p>
 <p><a href="Virgule-VMemory-IO-base.svg"><img src="Virgule-VMemory-IO-base.svg" alt="Virgule : circuit de base"></a></p>
+<div class="info">
+<p>Lorsqu’on veut mettre à zéro un vecteur qui comporte un grand nombre d’éléments,
+comme <code>io_rdata(31 downto 16)</code>, plusieurs écritures sont possibles.</p>
+<ul>
+<li>Une version <em>naïve</em> consiste à écrire le vecteur en binaire entre guillements.
+Il faut juste faire attention à écrire le bon nombre de zéros&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl">io_rdata(<span class="hljs-number">31</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">16</span>) &lt;= <span class="hljs-string">"0000000000000000"</span>;
+</code></pre>
+<ul>
+<li>Lorque la largeur du vecteur est multiple de quatre, on peut l’écrire en hexadécimal,
+car on se souvient qu’un <em>digit</em> hexadécimal correspond à quatre bits&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl">io_rdata(<span class="hljs-number">31</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">16</span>) &lt;= x<span class="hljs-string">"0000"</span>;
+</code></pre>
+<ul>
+<li>Lorsque le vecteur est vraiment très large, ou si sa largeur n’est pas connue
+à l’avance, on peut l’écrire comme <a href="../essentiel-vhdl/expressions.html#valeur-de-type-tableau">une valeur de type tableau</a>
+en utilisant le mot-clé <code>others</code>&nbsp;:</li>
+</ul>
+<pre><code class="language-vhdl">io_rdata(<span class="hljs-number">31</span> <span class="hljs-keyword">downto</span> <span class="hljs-number">16</span>) &lt;= (<span class="hljs-keyword">others</span> =&gt; <span class="hljs-string">'0'</span>);
+</code></pre>
+</div>
 <p>Le contenu initial de la mémoire <code>mem_inst</code> est défini par un paramètre générique
 <code>CONTENT</code> auquel vous devez associer la constante <code>MEM_CONTENT</code>
 déclarée dans le paquetage <code>Computer_pkg</code>.
@@ -725,7 +748,7 @@ dans votre architecture&nbsp;:</p>
 est envoyée simultanément à la mémoire et aux périphériques.
 Celui dont le signal <code>valid</code> est actif traitera la demande.</p>
 <p>Pour que l’état des LED reste stable entre deux écritures, nous choisissons de
-le mémoriser dans des bascules D que nous avons regroupées pour former deux
+le mémoriser dans des bascules que nous avons regroupées pour former deux
 registres de 8 bits.
 Ces registres sont analogues à des cellules de mémoire.
 Chacun reçoit un octet du bus de données <code>wdata</code> et réagit à un bit de commande
@@ -763,11 +786,32 @@ Chacun reçoit un octet du bus de données <code>wdata</code> et réagit à un b
 </tr>
 </tbody>
 </table>
+</section><section><h2 id="acquittement-des-echanges-de-donnees" tabindex="-1">Acquittement des échanges de données</h2>
+<p>À chaque opération de lecture ou d’écriture, après avoir activé sa sortie <code>valid_o</code>,
+le processeur attend le passage à <code>'1'</code> de son entrée <code>ready_i</code>.
+De son côté, lorsqu’il détecte l’activation de son signal <code>valid</code>, chaque bloc de mémoire ou
+chaque périphérique active son signal <code>ready</code> au bout de <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> périodes d’horloge.</p>
+<p>L’entité <code>VMemory</code> possède déjà une sortie <code>ready_o</code> qui impose un cycle d’attente
+lors de chaque opération de lecture ou d’écriture.
+Nous devons compléter le circuit pour gérer les autres cas&nbsp;:</p>
+<ul>
+<li>La lecture des interrupteurs&nbsp;: elle prend effet immédiatement, dès que le signal <code>io_valid</code> est actif.</li>
+<li>L’écriture des LED&nbsp;: elle prend effet au front d’horloge où <code>io_valid</code> est actif.</li>
+<li>La lecture ou l’écriture dans une plage d’adresses non affectée&nbsp;: l’opération prend effet immédiatement.</li>
+</ul>
+<p>Dans le schéma ci-dessous, nous traitons les trois cas ensemble, dans la branche <code>else</code>
+du multiplexeur&nbsp;:</p>
+<p><a href="Virgule-VMemory-IO-ready.svg"><img src="Virgule-VMemory-IO-ready.svg" alt="Virgule : ordinateur avec entrées/sorties simples, gestion du signal ready"></a></p>
+<p class="icon-file">Complétez le fichier <code>Computer.vhd</code> de manière à respecter le schéma ci-dessus.</p>
+</section><section><h2 id="architecture-complete" tabindex="-1">Architecture complète</h2>
+<p class="icon-check">Voici le schéma complet de notre ordinateur.
+Avant de passer à la suite, vérifiez que vous n’avez rien oublié.</p>
+<p><a href="Virgule-VMemory-IO-architecture.svg"><img src="Virgule-VMemory-IO-architecture.svg" alt="Virgule : ordinateur avec entrées/sorties simples"></a></p>
 <div class="info">
-<p>Dans cette configuration, pour la même adresse, la lecture et l’écriture
-donnent accès à des informations différentes&nbsp;: la lecture retourne l’état des entrées,
-l’écriture met à jour les sorties.</p>
-<p>Proposez une modification des deux schémas précédents pour que l’on puisse
+<p>Dans cette configuration, la lecture et l’écriture à l’adresse 80000000<sub>hex</sub>
+donnent accès à des informations différentes&nbsp;: la lecture retourne l’état des
+entrées, l’écriture met à jour les sorties.</p>
+<p>Quelle modification faudrait-il apporter au schéma ci-dessus pour que l’on puisse
 relire la valeur des registres <code>leds_o</code> en respectant le plan d’adressage suivant&nbsp;:</p>
 <table class="small-font">
 <thead>
@@ -800,27 +844,6 @@ relire la valeur des registres <code>leds_o</code> en respectant le plan d’adr
 </tbody>
 </table>
 </div>
-</section><section><h2 id="acquittement-des-echanges-de-donnees" tabindex="-1">Acquittement des échanges de données</h2>
-<p>À chaque opération de lecture ou d’écriture, après avoir activé sa sortie <code>valid_o</code>,
-le processeur attend le passage à <code>'1'</code> de son entrée <code>ready_i</code>.
-De son côté, lorsqu’il détecte l’activation de son signal <code>valid</code>, chaque bloc de mémoire ou
-chaque périphérique active son signal <code>ready</code> au bout de <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> périodes d’horloge.</p>
-<p>L’entité <code>VMemory</code> possède déjà une sortie <code>ready_o</code> qui impose un cycle d’attente
-lors de chaque opération de lecture ou d’écriture.
-Nous devons compléter le circuit pour gérer les autres cas&nbsp;:</p>
-<ul>
-<li>La lecture des interrupteurs&nbsp;: elle prend effet immédiatement, dès que le signal <code>io_valid</code> est actif.</li>
-<li>L’écriture des LED&nbsp;: elle prend effet au front d’horloge où <code>io_valid</code> est actif.</li>
-<li>La lecture ou l’écriture dans une plage d’adresses non affectée&nbsp;: l’opération prend effet immédiatement.</li>
-</ul>
-<p>Dans le schéma ci-dessous, nous traitons les trois cas ensemble, dans la branche <code>else</code>
-du multiplexeur&nbsp;:</p>
-<p><a href="Virgule-VMemory-IO-ready.svg"><img src="Virgule-VMemory-IO-ready.svg" alt="Virgule : ordinateur avec entrées/sorties simples, gestion du signal ready"></a></p>
-<p class="icon-file">Complétez le fichier <code>Computer.vhd</code> de manière à respecter le schéma ci-dessus.</p>
-</section><section><h2 id="architecture-complete" tabindex="-1">Architecture complète</h2>
-<p class="icon-check">Voici le schéma complet de notre ordinateur.
-Avant de passer à la suite, vérifiez que vous n’avez rien oublié.</p>
-<p><a href="Virgule-VMemory-IO-architecture.svg"><img src="Virgule-VMemory-IO-architecture.svg" alt="Virgule : ordinateur avec entrées/sorties simples"></a></p>
 </section><section><h1 id="programme-de-demonstration" tabindex="-1">Programme de démonstration</h1>
 <p>Pour que cet ordinateur fonctionne, il faut charger un programme dans sa mémoire.
 Nous fournissons un exemple sous la forme du fichier <code>SimpleIO.s</code>
@@ -886,7 +909,8 @@ allons vérifier son fonctionnement en le simulant à l’aide
 des logiciels libres suivants&nbsp;:</p>
 <ul>
 <li><a href="https://ghdl.readthedocs.io/en/latest/">GHDL</a>, un simulateur VHDL&nbsp;;</li>
-<li><a href="https://docs.cocotb.org">cocotb</a>, un environnement pour automatiser des tests de modules VHDL ou Verilog, en utilisant le langage Python&nbsp;;</li>
+<li><a href="https://docs.cocotb.org">cocotb</a>, un environnement pour automatiser des tests
+de modules VHDL ou Verilog, en utilisant le langage Python&nbsp;;</li>
 <li>Python et tkinter, pour créer des interfaces graphiques&nbsp;;</li>
 <li><a href="http://gtkwave.sourceforge.net/">GTKWave</a>, pour afficher des chronogrammes.</li>
 </ul>

@@ -117,11 +117,13 @@ Considérons par exemple l’instruction suivante&nbsp;:</p>
     <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
 <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
 </code></pre>
-<p>Les deux exemples ci-dessus décrivent un circuit de mémorisation appelé <em>verrou</em>
+<p>Les deux exemples ci-dessus décrivent un circuit de mémorisation appelé
+<a href="../circuits-logiques/sequentiel-element-de-memorisation.html#le-verrou-d-d-latch">verrou</a>
 (ou <em>latch</em> en anglais).
-Dans un circuit synchrone, l’utilisation de verrous est interdite.
-On impose l’utilisation de bascules D qui mettent à jour leur valeur sur
-des <em>fronts</em> d’un signal d’horloge.</p>
+Dans un <a href="../circuits-logiques/sequentiel-conception-synchrone.html">circuit synchrone</a>,
+l’utilisation de verrous est interdite.
+On impose l’utilisation de <a href="../circuits-logiques/sequentiel-element-de-memorisation.html#la-bascule-d-d-flip-flop">bascules D</a>
+(ou <em>D flip-flop</em>) qui mettent à jour leur valeur sur des <em>fronts</em> d’un signal d’horloge.</p>
 <div class="warning">
 <p>L’effet mémoire apparaît dans les situations suivantes&nbsp;:</p>
 <ul>
@@ -142,10 +144,10 @@ Si vous souhaitez décrire une mémorisation, vérifiez que vous respectez les
 recommandations données ci-après.</p>
 </div>
 </section><section><h1 id="bascules-et-registres-simples" tabindex="-1">Bascules et registres simples</h1>
-<p>Pour décrire une bascule ou un registre D, il suffit de reprendre les exemples
-ci-dessus et de remplacer la condition <code>e = '1'</code> par une expression qui
-vaut <code>true</code> si un front d’horloge vient de se produire et <code>false</code> dans le cas
-contraire.</p>
+<p>Pour décrire une bascule ou un <a href="../circuits-logiques/sequentiel-registres-et-compteurs.html">registre</a>,
+il suffit de reprendre les exemples ci-dessus et de remplacer la condition
+<code>e = '1'</code> par une expression qui vaut <code>true</code> si un front d’horloge vient de se
+produire et <code>false</code> dans le cas contraire.</p>
 <p>Il existe différentes manières de décrire la détection d’un front d’horloge en VHDL.
 Dans cette page, nous nous limitons aux écritures qui seront reconnues sans
 ambiguïté par les outils de synthèse.</p>
@@ -164,7 +166,7 @@ pourra donc écrire&nbsp;:</p>
     <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
 <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
 </code></pre>
-<p>Ce processus décrit une bascule ou un registre D avec les connexions suivantes&nbsp;:</p>
+<p>Ce processus décrit une bascule ou un registre avec les connexions suivantes&nbsp;:</p>
 <ul>
 <li>Son entrée horloge est reliée au signal <code>clk_i</code>.</li>
 <li>Son entrée D est reliée au signal <code>x</code>.</li>
@@ -172,9 +174,9 @@ pourra donc écrire&nbsp;:</p>
 </ul>
 <p><a href="bascule-d-simple.svg"><img src="bascule-d-simple.svg" alt="Bascule D simple" width="500px"></a></p>
 <p>Si <code>x</code> et <code>y</code> transportent des données qui peuvent être représentées sur un seul
-bit, le circuit sera constitué d’une seule bascule D.
+bit, le circuit sera constitué d’une seule bascule.
 Si plusieurs bits sont nécessaires, les outils de synthèse sont capables de
-construire un circuit contenant le nombre approprié de bascules D.</p>
+construire un circuit contenant le nombre approprié de bascules.</p>
 <div class="info">
 <p>Observons que seul le signal <code>clk_i</code> figure dans la liste de sensibilité du processus.
 En effet, une bascule D ne réagit pas aux variations de son entrée D.
@@ -184,8 +186,8 @@ Seuls les fronts d’horloge produisent un effet.</p>
 <p>Pour un signal <code>s</code> de type <code>std_logic</code>, l’expression <code>s'event and s='1'</code> n’est
 pas fiable pour détecter un front montant.
 En effet, le type <code>std_logic</code> définit d’autres valeurs que <code>'0'</code> et <code>'1'</code>.
-Ainsi, lorsque <code>s'event and s='1'</code> est vraie, cela ne signifie pas forcément que
-<code>s</code> valait <code>'0'</code> avant de passer à <code>'1'</code>.</p>
+Ainsi, lorsque la condition <code>s'event and s='1'</code> est vraie, cela ne signifie pas
+forcément que <code>s</code> valait <code>'0'</code> avant de passer à <code>'1'</code>.</p>
 <p>Pour le type <code>std_logic</code>, il existe une fonction prédéfinie appelée <code>rising_edge</code>
 qui permet de traiter les cas problématiques.
 On l’utilise de la manière suivante&nbsp;:</p>
@@ -210,7 +212,7 @@ signal <code>y</code>&nbsp;:</p>
 <pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i, reset_i)
 <span class="hljs-keyword">begin</span>
     <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
-        y &lt;= <span class="hljs-string">'0'</span>
+        y &lt;= <span class="hljs-string">'0'</span>;
     <span class="hljs-keyword">elsif</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
         y &lt;= x;
     <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
@@ -234,7 +236,7 @@ signal <code>y</code>&nbsp;:</p>
 <span class="hljs-keyword">begin</span>
     <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
         <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
-            y &lt;= <span class="hljs-string">'0'</span>
+            y &lt;= <span class="hljs-string">'0'</span>;
         <span class="hljs-keyword">else</span>
             y &lt;= x;
         <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
@@ -248,7 +250,8 @@ signal <code>y</code>&nbsp;:</p>
 </ul>
 </section><section><h2 id="reinitialisation-dans-les-fpga" tabindex="-1">Réinitialisation dans les FPGA</h2>
 <p>À la mise sous tension, la séquence de démarrage d’un FPGA comprend souvent
-une étape d’initialisation des éléments de mémorisation, à la fin du chargement du bitstream.
+une étape d’initialisation des éléments de mémorisation, à la fin du chargement
+du bitstream.
 Les valeurs initiales des signaux, telles qu’elles sont indiquées dans le code
 source VHDL, font partie des données enregistrées dans le bitstream.</p>
 <p>Sauf indication contraire, au démarrage, les signaux prennent la valeur la plus
@@ -257,25 +260,25 @@ Les signaux de type <code>std_logic</code> se comporteront différemment dans le
 et sur le matériel&nbsp;:</p>
 <ul>
 <li>Par défaut, au démarrage d’une simulation, les signaux de type <code>std_logic</code> valent <code>'U'</code> (<em>Uninitialized</em>).</li>
-<li>À la mise sous tension du FPGA, les bascules D correspondantes sont à <code>'0'</code>.</li>
+<li>À la mise sous tension du FPGA, les bascules correspondantes sont à <code>'0'</code>.</li>
 </ul>
 <p>Voici quelques exemples&nbsp;:</p>
 <pre><code class="language-vhdl"><span class="hljs-keyword">subtype</span> temperature_t <span class="hljs-keyword">is</span> <span class="hljs-built_in">integer</span> <span class="hljs-keyword">range</span> -<span class="hljs-number">50</span> <span class="hljs-keyword">to</span> <span class="hljs-number">150</span>;
 <span class="hljs-keyword">type</span> color_enum_t     <span class="hljs-keyword">is</span> (BLACK, RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN, WHITE);
 
-                                 <span class="hljs-comment">-- Valeur initiale:</span>
-<span class="hljs-keyword">signal</span> a_reg : <span class="hljs-built_in">std_logic</span>;        <span class="hljs-comment">-- 'U' en simulation, '0' dans le FPGA</span>
-<span class="hljs-keyword">signal</span> b_reg : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'1'</span>; <span class="hljs-comment">-- '1'</span>
-<span class="hljs-keyword">signal</span> c_reg : <span class="hljs-built_in">integer</span>;          <span class="hljs-comment">-- −2 147 483 648</span>
-<span class="hljs-keyword">signal</span> z_reg : <span class="hljs-built_in">integer</span> := <span class="hljs-number">12</span>;    <span class="hljs-comment">-- 12</span>
-<span class="hljs-keyword">signal</span> t_reg : temperature_t;    <span class="hljs-comment">-- -50</span>
-<span class="hljs-keyword">signal</span> c_reg : color_enum_t;     <span class="hljs-comment">-- BLACK</span>
+                             <span class="hljs-comment">-- Valeur initiale:</span>
+<span class="hljs-keyword">signal</span> a : <span class="hljs-built_in">std_logic</span>;        <span class="hljs-comment">-- 'U' en simulation, '0' dans le FPGA</span>
+<span class="hljs-keyword">signal</span> b : <span class="hljs-built_in">std_logic</span> := <span class="hljs-string">'1'</span>; <span class="hljs-comment">-- '1'</span>
+<span class="hljs-keyword">signal</span> c : <span class="hljs-built_in">integer</span>;          <span class="hljs-comment">-- −2 147 483 648</span>
+<span class="hljs-keyword">signal</span> d : <span class="hljs-built_in">integer</span> := <span class="hljs-number">12</span>;    <span class="hljs-comment">-- 12</span>
+<span class="hljs-keyword">signal</span> e : temperature_t;    <span class="hljs-comment">-- -50</span>
+<span class="hljs-keyword">signal</span> f : color_enum_t;     <span class="hljs-comment">-- BLACK</span>
 </code></pre>
 <div class="warning">
 <p>Donner une valeur initiale à un signal combinatoire n’a pas de sens d’un point
 de vue matériel.
-Seuls les signaux à mémoire, c’est-à-dire ceux correspondant à des sorties de
-bascules D peuvent avoir une valeur initiale.</p>
+Seuls les signaux <em>à mémoire</em>, c’est-à-dire ceux correspondant à des sorties de
+bascules ou de registres peuvent avoir une valeur initiale.</p>
 <p>Les valeurs initiales des autres signaux sont ignorées par les outils de synthèse.</p>
 </div>
 <div class="info">
@@ -325,9 +328,10 @@ pour autre chose que pour créer des bascules D.</p>
 synchrone, tous les processus qui contiennent une détection de front doivent
 utiliser le même signal d’horloge.</p>
 </div>
+<!-- TODO Ajouter les registres à décalage -->
 </section><section><h1 id="exemples-a-ne-pas-suivre" tabindex="-1">Exemples à ne pas suivre</h1>
 <p>Pour les outils de synthèse, les exemples donnés dans les paragraphes précédents
-seront reconnus sans ambiguïté comme la description de bascules D.
+seront reconnus sans ambiguïté comme la description de bascules et de registres D.
 Si vous respectez les mêmes constructions dans vos propres descriptions, vous
 obtiendrez des circuits conformes à ce que vous aurez décrit.</p>
 <p>Les exemples suivants, au contraire, risquent de faire échouer la synthèse de
@@ -387,9 +391,20 @@ dédié à cet usage et non pas le résultat d’un calcul.</p>
     <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
 <span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
 </code></pre>
-<p>Dans ce cas, utiliser une réinitialisation synchrone.
-Vous pouvez également combiner les deux types de réinitialisation
-mais ce n’est pas conseillé&nbsp;:</p>
+<p>Dans ce cas, utiliser une réinitialisation synchrone.</p>
+<pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i)
+<span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">if</span> rising_edge(clk_i) <span class="hljs-keyword">then</span>
+        <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">or</span> clear = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
+            y &lt;= <span class="hljs-string">'0'</span>;
+        <span class="hljs-keyword">else</span>
+            y &lt;= x;
+        <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+    <span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">process</span> p_y;
+</code></pre>
+<p>Vous pouvez également utiliser les deux types de réinitialisation
+dans le même processus&nbsp;:</p>
 <pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i, reset_i)
 <span class="hljs-keyword">begin</span>
     <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
@@ -406,7 +421,7 @@ mais ce n’est pas conseillé&nbsp;:</p>
 </section><section><h2 id="la-valeur-initiale-dun-signal-nest-pas-une-constante" tabindex="-1">La valeur initiale d’un signal n’est pas une constante</h2>
 <p>Considérons l’exemple ci-dessous où <code>w</code> est un signal.
 La réinitialisation ne peut pas utiliser les entrées <em>set</em> et <em>reset</em> des
-bascules D puisque la valeur de <code>w</code> n’est pas connue à l’avance.</p>
+bascules puisque la valeur de <code>w</code> n’est pas connue à l’avance.</p>
 <pre><code class="language-vhdl">p_y : <span class="hljs-keyword">process</span>(clk_i, reset_i)
 <span class="hljs-keyword">begin</span>
     <span class="hljs-keyword">if</span> reset_i = <span class="hljs-string">'1'</span> <span class="hljs-keyword">then</span>
