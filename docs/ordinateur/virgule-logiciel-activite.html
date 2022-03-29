@@ -150,7 +150,7 @@ le fichier <code>Platform.h</code> aura le contenu suivant&nbsp;:</p>
 </code></pre>
 <h3 id="ajout-dun-peripherique-uart" tabindex="-1">Ajout d’un périphérique UART</h3>
 <p>Pour un périphérique récepteur série, on ajoutera des définitions de la forme&nbsp;:</p>
-<pre><code class="icon-file language-c"><span class="hljs-keyword">extern</span> UART *<span class="hljs-type">const</span> recv;
+<pre><code class="icon-file language-c"><span class="hljs-keyword">extern</span> UART *<span class="hljs-type">const</span> sonar_uart;
 </code></pre>
 <p>Si votre application utilise un module sonar, vous pouvez ajouter&nbsp;:</p>
 <pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;UART/Sonar.h&gt;</span></span>
@@ -514,7 +514,7 @@ __attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
 <span class="hljs-type">void</span> <span class="hljs-title function_">irq_handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
     <span class="hljs-comment">// Appeler le gestionnaire d'interruptions du pilote de l'interface série.</span>
     UART_irq_handler(uart);
-    UART_irq_handler(recv);
+    UART_irq_handler(sonar_uart);
 
     <span class="hljs-comment">// Incrémenter le compteur tick à chaque interruption du timer.</span>
     <span class="hljs-keyword">if</span> (Timer_has_events(timer)) {
