@@ -58,10 +58,10 @@ Il existe d’autres types de signaux qui ne seront pas présentés ici.</p>
 <span class="hljs-keyword">reg</span>  [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] d;
 </code></pre>
 <ul>
-<li><code>wire</code> déclare un signal affecté par une instruction <code>assign</code> ou connecté
-à la sortie d’une instance de module,</li>
-<li><code>reg</code> déclare un signal affecté dans un <a href="combinatoire.html#processus">processus</a>
-(instruction <code>always</code>) ou dans une instruction <code>initial</code>.</li>
+<li><code>wire</code> déclare un signal affecté par une <a href="combinatoire.html#linstruction-daffectation-concurrente">instruction d’affectation concurrente</a>
+(instruction <code>assign</code>) ou connecté à la sortie d’une <a href="structure.html#linstruction-dinstanciation">instance</a> de module,</li>
+<li><code>reg</code> déclare un signal affecté dans un <a href="combinatoire.html#processus">processus</a> (instruction <code>always</code>)
+ou dans une <a href="sequentiel.html#linstruction-initial">instruction d’initialisation</a> (instruction <code>initial</code>).</li>
 </ul>
 <div class="warning">
 <p>Dans la terminologie du langage Verilog, les signaux déclarés avec le mot-clé
@@ -70,8 +70,8 @@ Ce vocabulaire peut prêter à confusion&nbsp;:</p>
 <ul>
 <li>Si un processus décrit un circuit combinatoire, les signaux qu’il gère
 doivent être déclarés de type <code>reg</code>, bien qu’ils ne correspondent pas à des <em>registres</em>.</li>
-<li>L’utilisation des <a href="../essentiel-vhdl/instructions-sequentielles.html#affectation-dun-signal-ou-dune-variable">variables</a> en VHDL
-suit des règles différentes des <em>variables</em> en Verilog.</li>
+<li>En VHDL, l’utilisation des <a href="../essentiel-vhdl/instructions-sequentielles.html#affectation-dun-signal-ou-dune-variable">variables</a>
+suit des règles différentes des <em>variables</em> Verilog.</li>
 </ul>
 </div>
 <p>Par défaut, un signal transporte une valeur sur un bit&nbsp;:</p>
@@ -119,7 +119,7 @@ affectées dans des instructions <code>always</code> ou <code>initial</code>.</p
 </table>
 <p>Contrairement à VHDL, Verilog ne fait pas de distinction entre les types
 logiques, entiers et booléens.</p>
-<p>Dans cet exemple, les entiers 25 et 15 sont considérés comme des vecteurs.
+<p>Dans l’exemple ci-dessous, les entiers 25 et 15 sont considérés comme des vecteurs.
 Le signal <code>a</code> vaut 1 car la condition <code>c &gt; 15</code> est vraie&nbsp;:</p>
 <pre><code class="language-verilog"><span class="hljs-keyword">wire</span>       a;
 <span class="hljs-keyword">wire</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] c;
@@ -209,8 +209,9 @@ lorsqu’elle est utilisée.</li>
 <span class="hljs-meta">`<span class="hljs-keyword">define</span> RIGHT 75</span>
 
 <span class="hljs-keyword">wire</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] x
-<span class="hljs-keyword">wire</span>       in_bounds
-<span class="hljs-keyword">assign</span> in_bounds = x &gt;= `LEFT &amp;&amp; x &lt;= `RIGHT;
+<span class="hljs-keyword">wire</span>       ok
+
+<span class="hljs-keyword">assign</span> ok = x &gt;= `LEFT &amp;&amp; x &lt;= `RIGHT;
 </code></pre>
 <ul>
 <li>Avec le mot-clé <code>localparam</code>, disponible depuis Verilog 2001, qui déclare
@@ -221,8 +222,9 @@ de changer sa valeur à l’instantiation du module.</li>
 <span class="hljs-keyword">localparam</span> RIGHT = <span class="hljs-number">75</span>;
 
 <span class="hljs-keyword">wire</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] x
-<span class="hljs-keyword">wire</span>       in_bounds
-<span class="hljs-keyword">assign</span> in_bounds = x &gt;= LEFT &amp;&amp; x &lt;= RIGHT;
+<span class="hljs-keyword">wire</span>       ok
+
+<span class="hljs-keyword">assign</span> ok = x &gt;= LEFT &amp;&amp; x &lt;= RIGHT;
 </code></pre>
 </section>
     

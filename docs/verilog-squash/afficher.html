@@ -77,14 +77,14 @@ le module <code>SquashDisplay</code>.
 Il s’appuiera sur un module <code>VGAController</code> chargé de gérer le balayage
 de l’écran.</p>
 <section><h1 id="le-module-vgacontroller" tabindex="-1">Le module <code>VGAController</code></h1>
-<p>La documentation de la carte Nexys3 présente des explications détaillées
-sur le <a href="https://reference.digilentinc.com/reference/programmable-logic/basys-3/reference-manual#vga_port">fonctionnement d’un écran VGA</a>.
+<p>La documentation de la carte Basys3 présente des explications détaillées
+sur le <a href="https://reference.digilent.com/reference/programmable-logic/basys-3/reference-manual#vga_port">fonctionnement d’un écran VGA</a>.
 Initialement, le standard VGA définissait des signaux adaptés au fonctionnement
 d’un écran cathodique.
 Pour des questions de compatibilité, de nombreux écrans LCD supportent encore
 ce standard, bien que leur principe de fonctionnement soit différent.</p>
 <p>En résumé, la gestion de l’écran se passe comme si nous avions un écran
-de 800×525 pixels dans laquelle il y aurait une partie visible de 640×480
+de 800×525 pixels dans lequel il y aurait une partie visible de 640×480
 (fond bleu sur l’image ci-dessous) et une partie invisible correspondant
 aux périodes de rafraîchissement (en noir et en gris).</p>
 <p><a href="VGAController-sync.svg"><img src="VGAController-sync.svg" alt="Synchronisation d'un écran VGA" width="600px"></a></p>

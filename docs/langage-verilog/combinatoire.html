@@ -92,6 +92,7 @@ en plusieurs signaux de destination&nbsp;:</p>
 <pre><code class="language-verilog"><span class="hljs-keyword">wire</span> a;
 <span class="hljs-keyword">wire</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] b;
 <span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>] c;
+
 <span class="hljs-keyword">assign</span> {a, b, c} = <span class="hljs-number">8'b10110101</span>
 <span class="hljs-comment">// a vaut 1'b1</span>
 <span class="hljs-comment">// b vaut 3'b011</span>
@@ -220,7 +221,7 @@ En Verilog, on obtient le même effet au moyen de l’opérateur conditionnel
 <p>Dans le cas des opérateurs logiques, si deux opérandes n’ont pas la même taille,
 le plus petit est complété avec des 0 même s’il est signé.</p>
 </div>
-<p>Les opérateurs de comparaison retournent <code>x</code> si l’un des opérandes contient
+<p>Les opérateurs de comparaison retournent le bit <code>x</code> si l’un des opérandes contient
 des <code>x</code> ou des <code>z</code>.
 Il existe également les opérateurs <code>===</code> et <code>!==</code> qui incluent les <code>x</code> et <code>z</code>
 dans la comparaison.</p>
@@ -239,6 +240,7 @@ plusieurs fois en utilisant la syntaxe suivante&nbsp;:</p>
 <span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>] c;
 <span class="hljs-keyword">wire</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] d;
 <span class="hljs-keyword">wire</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] e;
+
 <span class="hljs-keyword">assign</span> a = <span class="hljs-number">1'b1</span>;
 <span class="hljs-keyword">assign</span> b = <span class="hljs-number">3'b011</span>;
 <span class="hljs-keyword">assign</span> c = <span class="hljs-number">4'b0101</span>;
