@@ -36,29 +36,19 @@
                 <li><a href="#telecharger-les-fichiers-sources-a-completer">Télécharger les fichiers sources à compléter</a></li>
             
                 
-                <li><a href="#demarrer-vivado">Démarrer Vivado</a></li>
-            
-                
                 <li><a href="#creer-un-projet-sous-vivado">Créer un projet sous Vivado</a></li>
             
             
         </ul>
             
     
-    <div class="warning">
-<p>Si vous travaillez dans le labo Marconi, l’activité se déroulera sous Windows.
-Dans les labos Taylor et Riemann, démarrez une session sous Ubuntu.</p>
-</div>
-<section><h1 id="telecharger-les-fichiers-sources-a-completer" tabindex="-1">Télécharger les fichiers sources à compléter</h1>
-<p class="icon-download"><strong>Sous Windows</strong>, <a href="https://github.com/Guillaume-Savaton-ESEO/Verilog-Squash/archive/master.zip">téléchargez les fichiers sources</a>
-(cliquez avec le bouton droit et choisissez <em>Enregistrer la cible du lien sous…</em>).
-Vous obtiendrez un fichier <code>Verilog-Squash-master.zip</code> que vous devrez
-extraire dans votre dossier personnel.</p>
-<p><strong>Sous Ubuntu</strong>, ouvrez un terminal et tapez les commandes suivantes&nbsp;:</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>
+    <section><h1 id="telecharger-les-fichiers-sources-a-completer" tabindex="-1">Télécharger les fichiers sources à compléter</h1>
+<p>Ouvrez une fenêtre <em>Git CMD</em> et exécutez les commandes suivantes&nbsp;:</p>
+<pre><code class="icon-term language-bash">Z:
 git <span class="hljs-built_in">clone</span> https://github.com/Guillaume-Savaton-ESEO/Verilog-Squash.git
 </code></pre>
-<p>Voici la liste des fichiers que nous utiliserons&nbsp;:</p>
+<p>Cette opération crée un sous-dossier <code>Verilog-Squash</code> dans votre dossier personnel.
+Voici la liste des fichiers que nous utiliserons&nbsp;:</p>
 <table>
 <thead>
 <tr>
@@ -105,13 +95,8 @@ git <span class="hljs-built_in">clone</span> https://github.com/Guillaume-Savato
 </tr>
 </tbody>
 </table>
-</section><section><h1 id="demarrer-vivado" tabindex="-1">Démarrer Vivado</h1>
-<p class="icon-mouse"><strong>Sous Windows</strong>, ouvrez Vivado 2019.1 depuis le bureau ou le menu des applications.</p>
-<p><strong>Sous Ubuntu</strong>, dans un terminal, exécutez les commandes suivantes&nbsp;:</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/Verilog-Squash
-./scripts/vivado
-</code></pre>
 </section><section><h1 id="creer-un-projet-sous-vivado" tabindex="-1">Créer un projet sous Vivado</h1>
+<p class="icon-mouse">Ouvrez Vivado 2019.1 depuis le bureau ou le menu des applications.</p>
 <p class="icon-config">Créez un nouveau projet en renseignant les informations suivantes&nbsp;:</p>
 <table>
 <thead>
@@ -130,7 +115,7 @@ git <span class="hljs-built_in">clone</span> https://github.com/Guillaume-Savato
 <tr>
 <td style="text-align:left"></td>
 <td style="text-align:left">Project location</td>
-<td style="text-align:left">Le sous-dossier <code>vivado</code> dans votre dossier de travail</td>
+<td style="text-align:left">Le sous-dossier <code>vivado</code> dans votre dossier <code>Verilog-Squash</code></td>
 </tr>
 <tr>
 <td style="text-align:left"></td>
