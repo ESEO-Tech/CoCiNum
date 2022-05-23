@@ -601,7 +601,8 @@ mark {
     background-color: rgb(200, 100, 60);
     font-family: Iwona;
     font-weight: bold;
-    font-size: 70%;
+    font-size: 85%;
+    margin-left: 0.5em;
 }
 
 .small-font {

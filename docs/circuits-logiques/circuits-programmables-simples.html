@@ -162,7 +162,7 @@ ce qui force leurs sorties à zéro.</p>
 <p>Réalisons un compteur synchrone modulo 8 avec une entrée d’autorisation de comptage <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi></mrow><annotation encoding="application/x-tex">E</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span></span></span></span> et
 une entrée de remise à zéro synchrone <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>L</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">CLR</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal">L</span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span>.
 Le fonctionnement attendu est le suivant&nbsp;:</p>
-<pre><code class="language-algofr">répéter
+<pre><code class="language-algofr"><span class="hljs-keyword">répéter</span>
     <span class="hljs-keyword">si</span> CLR = <span class="hljs-number">1</span> <span class="hljs-keyword">alors</span>
         N* ← <span class="hljs-number">0</span>
     <span class="hljs-keyword">sinon</span>, <span class="hljs-keyword">si</span> E = <span class="hljs-number">0</span> <span class="hljs-keyword">alors</span>
@@ -172,13 +172,13 @@ Le fonctionnement attendu est le suivant&nbsp;:</p>
     <span class="hljs-keyword">sinon</span>
         N* ← <span class="hljs-number">0</span>
     <span class="hljs-keyword">fin</span> <span class="hljs-keyword">si</span>
-<span class="hljs-keyword">fin</span> répéter
+<span class="hljs-keyword">fin</span> <span class="hljs-keyword">répéter</span>
 
-répéter
+<span class="hljs-keyword">répéter</span>
     <span class="hljs-keyword">si</span> front-montant(CLK) <span class="hljs-keyword">alors</span>
         N ← N*
     <span class="hljs-keyword">fin</span> <span class="hljs-keyword">si</span>
-<span class="hljs-keyword">fin</span> répéter
+<span class="hljs-keyword">fin</span> <span class="hljs-keyword">répéter</span>
 </code></pre>
 <p>Sous forme de table de vérité, nous obtenons&nbsp;:</p>
 <table class="truth-table">
@@ -413,7 +413,7 @@ configurables et qui communiquent entre eux à travers une matrice commune.</p>
         <ul class="toc">
             
                 <li>
-                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    <a href="../termes.html" >Index des termes et des mots-clés</a>
                     
     
 

@@ -711,14 +711,14 @@ la représentation binaire d’un nombre <em>à la main</em>.
 La technique des divisions successives repose sur des opérations plus simples
 (déterminer si un nombre est pair, diviser par deux) et peut être facilement programmée.</p>
 <p>Voici un algorithme pour obtenir la représentation binaire <code>b</code> d’un entier <code>K</code> sur <code>N</code> bits&nbsp;:</p>
-<pre><code class="language-algofr"><span class="hljs-keyword">pour</span> i <span class="hljs-keyword">de</span> <span class="hljs-number">0</span> à N<span class="hljs-number">-1</span> répéter
+<pre><code class="language-algofr"><span class="hljs-keyword">pour</span> i <span class="hljs-keyword">de</span> <span class="hljs-number">0</span> <span class="hljs-keyword">à</span> N<span class="hljs-number">-1</span> <span class="hljs-keyword">répéter</span>
     <span class="hljs-keyword">si</span> K est pair <span class="hljs-keyword">alors</span>
         b[i] ← <span class="hljs-number">0</span>
     <span class="hljs-keyword">sinon</span>
         b[i] ← <span class="hljs-number">1</span>
     <span class="hljs-keyword">fin</span> <span class="hljs-keyword">si</span>
     K ← partie entière(K/<span class="hljs-number">2</span>)
-<span class="hljs-keyword">fin</span> répéter
+<span class="hljs-keyword">fin</span> <span class="hljs-keyword">répéter</span>
 </code></pre>
 </section><section><h1 id="representation-des-valeurs-binaires-dans-un-circuit-electronique-numerique" tabindex="-1">Représentation des valeurs binaires dans un circuit électronique numérique</h1>
 <p>Comme en électronique analogique, un circuit numérique est construit avec des
@@ -806,7 +806,7 @@ proche de <span class="katex"><span class="katex-mathml"><math xmlns="http://www
         <ul class="toc">
             
                 <li>
-                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    <a href="../termes.html" >Index des termes et des mots-clés</a>
                     
     
 

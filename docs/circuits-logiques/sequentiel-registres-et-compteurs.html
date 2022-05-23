@@ -111,13 +111,13 @@ Un <em>décompteur</em> est un circuit qui produit la même séquence dans l’o
 Nous noterons <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span> sa valeur courante.
 La valeur suivante calculée par le circuit sera notée <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>k</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">k^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6887em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span>.
 Voici un algorithme qui détaille ce calcul&nbsp;:</p>
-<pre><code class="language-algofr">répéter
+<pre><code class="language-algofr"><span class="hljs-keyword">répéter</span>
     <span class="hljs-keyword">si</span> k = <span class="hljs-number">5</span> <span class="hljs-keyword">alors</span>
         k* ← <span class="hljs-number">0</span>
     <span class="hljs-keyword">sinon</span>
         k* ← k + <span class="hljs-number">1</span>
     <span class="hljs-keyword">fin</span> <span class="hljs-keyword">si</span>
-<span class="hljs-keyword">fin</span> répéter
+<span class="hljs-keyword">fin</span> <span class="hljs-keyword">répéter</span>
 </code></pre>
 <p>La boucle <code>répéter</code> est là pour rappeler qu’un circuit logique est en permanence à l’écoute
 de ses entrées et recalcule ses sorties dès qu’il détecte un changement.
@@ -127,13 +127,13 @@ que nous nommerons <span class="katex"><span class="katex-mathml"><math xmlns="h
 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span> devra rester stable entre deux fronts d’horloge pour que le calcul de <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>k</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">k^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6887em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span>
 donne un résultat correct.
 Nous souhaitons également pouvoir remettre <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span> à zéro dès qu’une commande <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>e</mi><mi>s</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">reset</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6151em;"></span><span class="mord mathnormal">rese</span><span class="mord mathnormal">t</span></span></span></span> est active.</p>
-<pre><code class="language-algofr">répéter
+<pre><code class="language-algofr"><span class="hljs-keyword">répéter</span>
     <span class="hljs-keyword">si</span> reset = <span class="hljs-number">1</span> <span class="hljs-keyword">alors</span>
         k ← <span class="hljs-number">0</span>
     <span class="hljs-keyword">sinon</span>, <span class="hljs-keyword">si</span> front-montant(clk) <span class="hljs-keyword">alors</span>
         k ← k*
     <span class="hljs-keyword">fin</span> <span class="hljs-keyword">si</span>
-<span class="hljs-keyword">fin</span> répéter
+<span class="hljs-keyword">fin</span> <span class="hljs-keyword">répéter</span>
 </code></pre>
 <p>À partir de ces algorithmes, nous pouvons commencer à proposer la structure d’un circuit.
 Tout d’abord, nous représenterons les valeurs de <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span> et <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>k</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">k^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6887em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span> en binaire sur trois bits.
@@ -311,7 +311,7 @@ au rythme d’un signal d’horloge.</p>
         <ul class="toc">
             
                 <li>
-                    <a href="../termes.html" >Index des termes et des mots-clés du langage VHDL</a>
+                    <a href="../termes.html" >Index des termes et des mots-clés</a>
                     
     
 
