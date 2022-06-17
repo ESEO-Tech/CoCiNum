@@ -189,6 +189,10 @@ avec les sous-dossiers suivants&nbsp;:</p>
 </tr>
 </tbody>
 </table>
+<p>Avant d’aller plus loin, nous allons désactiver certains fichiers sources du dossier <code>src</code> qui ne seront pas utilisés dans les premières étapes.
+Exécutez les commandes suivantes dans le panneau <em>Tcl Console</em> en bas de la fenêtre de Vivado&nbsp;:</p>
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">is_enabled</span> false [get_files {I2STransmitter<span class="hljs-built_in">-ref</span>.vhd MicrophoneReceiver<span class="hljs-built_in">-ref</span>.vhd Vocoder<span class="hljs-built_in">-ref</span>.vhd Oscillator.vhd Mixer.vhd}]
+</code></pre>
 </section>
     
         

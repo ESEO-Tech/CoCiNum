@@ -313,7 +313,7 @@ démarrage du simulateur et l’exécution d’une séquence de commandes&nbsp;:
 <li>Dans le menu <em>Tools</em>, choisissez <em>Run Tcl Script</em>.</li>
 <li>Allez dans le dossier <code>src/I2S</code> et sélectionnez le fichier <code>I2STransmitterTestbench.tcl</code>.</li>
 </ol>
-<p class="icon-check">Au cours de la simulation, le banc de test affiche des messages dans l’onglet
+<p class="icon-check">Au cours de la simulation, le banc de test affiche des messages dans le panneau
 <em>Tcl Console</em> lorsque le comportement de votre entité n’est pas conforme aux
 attentes.
 À cette étape, vous pouvez obtenir les messages suivants&nbsp;:</p>
@@ -350,7 +350,7 @@ carré à la fréquence souhaitée.</p>
 <p class="icon-file">Dans le fichier <code>I2STransmitterTestbench.vhd</code>, en vous inspirant du processus
 <code>p_check_master_clk</code>, ajoutez un processus de vérification de <code>serial_clk_o</code>.</p>
 <p class="icon-check">Relancez la simulation et validez le fonctionnement du circuit.
-Vérifiez les messages affichés par le banc de test dans l’onglet <em>Tcl Console</em>.
+Vérifiez les messages affichés par le banc de test dans le panneau <em>Tcl Console</em>.
 À cette étape, vous pouvez obtenir les messages suivants&nbsp;:</p>
 <table>
 <thead>
@@ -399,7 +399,7 @@ fronts montants de <code>clk_i</code>.</p>
 <p class="icon-file">Dans le fichier <code>I2STransmitterTestbench.vhd</code>, en vous inspirant du processus
 <code>p_check_master_clk</code>, ajoutez un processus de vérification de <code>left_right_clk_o</code>.</p>
 <p class="icon-check">Relancez la simulation et validez le fonctionnement du circuit.
-Vérifiez les messages affichés par le banc de test dans l’onglet <em>Tcl Console</em>.
+Vérifiez les messages affichés par le banc de test dans le panneau <em>Tcl Console</em>.
 À cette étape, vous pouvez obtenir les messages suivants&nbsp;:</p>
 <table>
 <thead>
@@ -434,7 +434,7 @@ Elle ne doit pas être synchronisée sur <code>clk_i</code>.</p>
 <p class="icon-file">Dans le fichier <code>I2STransmitterTestbench.vhd</code>, ajoutez un processus chargé de vérifier la valeur de <code>serial_data_o</code>
 à chaque front montant de <code>serial_clk_o</code>.</p>
 <p class="icon-check">Relancez la simulation et validez le fonctionnement du circuit.
-Vérifiez les messages affichés par le banc de test dans l’onglet <em>Tcl Console</em>.
+Vérifiez les messages affichés par le banc de test dans le panneau <em>Tcl Console</em>.
 À cette étape, vous pouvez obtenir le message suivant lorsque la valeur
 de <code>serial_data_o</code> n’est pas correcte&nbsp;:</p>
 <table>
@@ -473,7 +473,7 @@ t_fall := now;
 <p>On vérifiera que <code>t_high</code> est égal à la période de <code>clk</code>, et que
 <code>ready_o</code> a la même périodicité que <code>left_right_clk_o</code>.</p>
 <p class="icon-check">Relancez la simulation et validez le fonctionnement du circuit.
-Vérifiez les messages affichés par le banc de test dans l’onglet <em>Tcl Console</em>.
+Vérifiez les messages affichés par le banc de test dans le panneau <em>Tcl Console</em>.
 À cette étape, vous pouvez obtenir les messages suivants&nbsp;:</p>
 <table>
 <thead>
@@ -643,7 +643,7 @@ Elles jouent deux rôles&nbsp;: convertir les types de données (<code>std_logic
 et appliquer un facteur d’amplification (×64) aux échantillons audio.</p>
 </section><section><h2 id="configurer-un-generateur-dhorloge" tabindex="-1">Configurer un générateur d’horloge</h2>
 <p class="icon-config">Dans le panneau <em>Flow Navigator</em> de Vivado, ouvrez <em>IP Catalog</em>.
-Dans l’onglet <em>IP Catalog</em>, cherchez le composant dont le nom est <em>Clocking Wizard</em> et
+Dans le panneau <em>IP Catalog</em>, cherchez le composant dont le nom est <em>Clocking Wizard</em> et
 double-cliquez dessus.
 Renseignez les champs suivants&nbsp;:</p>
 <table>
@@ -675,7 +675,7 @@ Renseignez les champs suivants&nbsp;:</p>
 <p class="icon-mouse">Pressez <em>OK</em>, puis, dans la boîte de dialogue <em>Generate Output Products</em>, pressez le bouton <em>Generate</em>.
 Vivado va synthétiser un bloc de mémoire. Cette opération peut prendre quelques minutes.</p>
 </section><section><h2 id="configurer-les-blocs-de-memoire" tabindex="-1">Configurer les blocs de mémoire</h2>
-<p class="icon-config">Dans l’onglet <em>IP Catalog</em>, cherchez le composant dont le nom est <em>Block Memory Generator</em> et
+<p class="icon-config">Dans le panneau <em>IP Catalog</em>, cherchez le composant dont le nom est <em>Block Memory Generator</em> et
 double-cliquez dessus.
 Renseignez les champs suivants&nbsp;:</p>
 <table>
@@ -787,12 +787,8 @@ avec les paramètres suivants&nbsp;:</p>
 <p class="icon-mouse">Pressez <em>OK</em>, puis, dans la boîte de dialogue <em>Generate Output Products</em>, pressez le bouton <em>Generate</em>.
 Vivado va synthétiser un bloc de mémoire. Cette opération peut prendre quelques minutes.</p>
 </section><section><h2 id="synthetiser-et-implementer-le-circuit" tabindex="-1">Synthétiser et implémenter le circuit</h2>
-<p>Indiquez que l’entité <code>I2SDemo</code> est l’entité principale du circuit&nbsp;:</p>
+<p>Dans le panneau <em>Tcl Console</em>, indiquez que l’entité <code>I2SDemo</code> est l’entité principale du circuit&nbsp;:</p>
 <pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">top</span> I2SDemo [<span class="hljs-keyword">get_filesets</span> sources_1]
-</code></pre>
-<p>Exécutez cette commande dans la console Tcl pour réduire la gravité de
-certains messages concernant les affectations de broches&nbsp;:</p>
-<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_msg_config</span> <span class="hljs-built_in">-id</span> {Common <span class="hljs-number">17</span><span class="hljs-built_in">-</span><span class="hljs-number">55</span>} <span class="hljs-built_in">-new_severity</span> {WARNING}
 </code></pre>
 <p class="icon-mouse">Générez le fichier binaire à charger dans le FPGA&nbsp;:
 <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
@@ -829,6 +825,11 @@ Nous vous conseillons de ne pas perdre de temps à essayer de le rendre lisible.
 charger directement dans le FPGA à partir du <em>Hardware Manager</em> de Vivado.
 Effectuez l’action <em>Program Device</em> et choisissez le fichier <code>I2SDemo-ref.bit</code>.</li>
 </ul>
+<p>Dans votre projet, activez l’utilisation du fichier <code>I2STransmitter-ref.vhd</code> à l’aide
+de ces commandes dans le panneau <em>Tcl Console</em>&nbsp;:</p>
+<pre><code class="icon-keyboard language-tcl-vivado"><span class="hljs-keyword">set_property</span> <span class="hljs-attribute">is_enabled</span> false [get_files I2STransmitter.vhd]
+<span class="hljs-keyword">set_property</span> <span class="hljs-attribute">is_enabled</span> true  [get_files I2STransmitter<span class="hljs-built_in">-ref</span>.vhd]
+</code></pre>
 </section>
     
         
