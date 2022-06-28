@@ -220,16 +220,8 @@ Elle joue à la fois les rôles de consommateur et de producteur&nbsp;:</p>
 </tbody>
 </table>
 </section><section><h1 id="realisation-du-filtre" tabindex="-1">Réalisation du filtre</h1>
-<p>Nous fournissons une version complète du filtre qui fonctionne en simulation.</p>
-<div class="warning">
-<p>Vérifiez que vous possédez bien la dernière version du fichier <code>BiquadFilter.vhd</code>.</p>
-<p>Si vous travaillez sous Linux, vous pouvez exécuter les commandes suivantes&nbsp;:</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/VHDL-Audio
-git pull
-</code></pre>
-<p>Vous pouvez également <a href="https://github.com/Guillaume-Savaton-ESEO/VHDL-Audio/blob/master/src/BiquadFilter/BiquadFilter.vhd">consulter et télécharger ce fichier en utilisant votre navigateur</a>.</p>
-</div>
-<p>La gestion du protocole ready/valid est assurée par une
+<p>Nous fournissons une version complète du filtre qui fonctionne en simulation.
+La gestion du protocole ready/valid est assurée par une
 machine à trois états sur le modèle présenté dans la page
 <a href="producteur-consommateur.html#debit-et-architecture-en-pipeline">Connecter producteurs et consommateurs</a>.</p>
 <p>Dans la version que nous fournissons, tous les calculs sont effectués en une
