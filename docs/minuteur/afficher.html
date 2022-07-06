@@ -13,6 +13,10 @@
             
     <nav>
     
+        <a href="entite-principale.html">&larr;&nbsp;Entité principale</a>
+    
+    
+        <a href="decompter.html">Décompter les secondes&nbsp;&rarr;</a>
     
 </nav>
 
@@ -45,46 +49,43 @@
             
     
     <section><h1 id="decodeurs-7-segments" tabindex="-1">Décodeurs 7 segments</h1>
-<p>Dans ce projet, nous souhaitons manipuler les chiffres des minutes et des secondes
-sous la forme d’entiers.
+<p>Dans ce projet, nous souhaitons manipuler les chiffres des minutes et des secondes sous la forme d’entiers.
 De son côté, chaque afficheur sera piloté par sept signaux logiques indiquant
 quels segments devront être allumés ou éteints.
 Il est donc nécessaire d’effectuer un <em>décodage</em> afin de déterminer,
 pour chaque chiffre à afficher, l’état correspondant des segments.</p>
-<p>Le fichier <code>Decodeur7Segments.vhd</code> contient la description complète
-d’un décodeur pour afficheurs sept segments.
+<p>Le fichier <code>SegmentDisplay/SegmentDecoder.vhd</code> contient la description complète d’un décodeur pour afficheurs sept segments.
 Dans l’architecture du minuteur, nous allons devoir instancier un décodeur
 pour chacun des afficheurs.
 Sur la figure ci-dessous, nous avons représenté le circuit correspondant.
 Les décodeurs ont été câblés de manière à afficher les chiffres 1, 2, 3 et 4.</p>
-<p><a href="minuteur-etape1.svg"><img src="minuteur-etape1.svg" alt="Instanciation des décodeurs 7 segments"></a></p>
+<p><a href="Pomodoro-etape1.svg"><img src="Pomodoro-etape1.svg" alt="Instanciation des décodeurs 7 segments"></a></p>
 <p><a href="../langage-vhdl/legende.svg" target="_blank">Afficher la légende des schémas</a></p>
 </section><section><h1 id="completer-larchitecture" tabindex="-1">Compléter l’architecture</h1>
-<p class="icon-file">Dans le fichier <code>Minuteur.vhd</code>, complétez l’architecture de manière à reproduire
+<p class="icon-file">Dans le fichier <code>Pomodoro.vhd</code>, complétez l’architecture de manière à reproduire
 la structure du circuit de la figure&nbsp;:</p>
 <ol>
 <li>Déclarez les <a href="../essentiel-vhdl/declarations.html#declaration-de-signaux">signaux internes</a>.</li>
-<li>Créez quatre <a href="../essentiel-vhdl/instructions-concurrentes.html#instanciation-dune-entite">instances</a> de l’entité <code>Decodeur7Segments</code>.</li>
+<li>Créez quatre <a href="../essentiel-vhdl/instructions-concurrentes.html#instanciation-dune-entite">instances</a> de l’entité <code>SegmentDecoder</code>.</li>
 <li>Établissez les connexions entre les instances et leur environnement.</li>
-<li><a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-de-signal">Affectez</a> aux signaux <code>minutes_dizaine</code>, <code>minutes_unite</code>, <code>secondes_dizaine</code>
-et <code>secondes_unite</code> les valeurs que vous voulez afficher.</li>
+<li><a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-de-signal">Affectez</a> aux signaux <code>minutes_tens</code>, <code>minutes_ones</code>, <code>seconds_tens</code> et <code>seconds_ones</code> les valeurs que vous voulez afficher.</li>
 </ol>
 </section><section><h1 id="verifier-la-syntaxe" tabindex="-1">Vérifier la syntaxe</h1>
 <p>Dans un terminal, exécutez les commandes suivantes.
-La commande <code>cd</code> peut être omise si vous êtes déjà dans le dossier <code>Minuteur</code>.</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur/
-ghdl -a src/Decodeur7Segments.vhd src/Minuteur.vhd
+La commande <code>cd</code> peut être omise si vous êtes déjà dans le dossier <code>Pomodoro</code>.</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Pomodoro
+ghdl -a ../SegmentDisplay/SegmentDecoder.vhd Pomodoro.vhd
 </code></pre>
-<p>Si nécessaire, modifiez le fichier <code>Minuteur.vhd</code> jusqu’à ce qu’il n’y ait
+<p class="icon-check">Si nécessaire, modifiez le fichier <code>Pomodoro.vhd</code> jusqu’à ce qu’il n’y ait
 plus de message d’erreur.</p>
 </section><section><h1 id="simuler-le-fonctionnement-du-circuit" tabindex="-1">Simuler le fonctionnement du circuit</h1>
 <p>Démarrez la simulation en utilisant les commandes suivantes&nbsp;:</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur/tests/Minuteur
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Pomodoro/tests/Pomodoro
 make
 </code></pre>
-<p>Le nombre affiché sur les afficheurs sept segments doit correspondre
-à ce que vous avez indiqué dans votre fichier <code>Minuteur.vhd</code>.</p>
-<p>Si ce n’est pas le cas, vérifiez les instances de <code>Decodeur7Segments</code>
+<p class="icon-check">Le nombre affiché sur les afficheurs sept segments doit correspondre
+à ce que vous avez indiqué dans votre fichier <code>Pomodoro.vhd</code>.</p>
+<p>Si ce n’est pas le cas, vérifiez les instances de <code>SegmentDecoder</code>
 et les affectations concurrentes pour qu’elles soient conformes au schéma.
 Corrigez votre architecture et relancez la simulation jusqu’à ce que vous
 obteniez le résultat attendu.</p>
@@ -99,6 +100,10 @@ obteniez le résultat attendu.</p>
             
     <nav>
     
+        <a href="entite-principale.html">&larr;&nbsp;Entité principale</a>
+    
+    
+        <a href="decompter.html">Décompter les secondes&nbsp;&rarr;</a>
     
 </nav>
 
@@ -551,6 +556,59 @@ obteniez le résultat attendu.</p>
                 </li>
             
         </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Pratique du VHDL : description et simulation d'un minuteur électronique</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="entite-principale.html" >Entité principale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="afficher.html" class="current">Afficher quatre chiffres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="decompter.html" >Décompter les secondes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="regler.html" >Régler la durée de décompte</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="ameliorations.html" >Amélioration de l'architecture du minuteur</a>
+                    
     
 
                 </li>

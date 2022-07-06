@@ -13,6 +13,10 @@
             
     <nav>
     
+        <a href="afficher.html">&larr;&nbsp;Afficher quatre chiffres</a>
+    
+    
+        <a href="regler.html">Régler la durée de décompte&nbsp;&rarr;</a>
     
 </nav>
 
@@ -29,7 +33,7 @@
             
             
                 
-                <li><a href="#lentite-compteur">L’entité Compteur</a></li>
+                <li><a href="#lentite-updowncounter">L’entité UpDownCounter</a></li>
             
                 
                     <li><ul>
@@ -75,57 +79,56 @@ Nous aurons besoin de quatre compteurs en cascade, un pour chaque chiffre du tem
 <li>Le compteur du chiffre des unités des minutes (modulo 10).</li>
 <li>Le compteur du chiffre des dizaines des minutes (modulo 10).</li>
 </ul>
-<p>Nous allons faire l’hypothèse que l’entrée <code>clk</code> du minuteur est reliée à un oscillateur de fréquence 1 kHz.
+<p>Nous allons faire l’hypothèse que l’entrée <code>clk_i</code> du minuteur est reliée à un oscillateur de fréquence 1 kHz.
 Celui-ci constituera la seule référence pour la mesure du temps.</p>
 <p>Lors du décompte, il faudra commander la mise à jour des compteurs de temps une fois toutes les mille périodes d’horloge.
 Pour ce faire, nous utiliserons un compteur modulo 1000 placé en amont du compteur des unités des secondes.</p>
-<section><h1 id="lentite-compteur" tabindex="-1">L’entité Compteur</h1>
-<p>Nous allons créer une entité <code>Compteur</code> que nous pourrons réutiliser pour chacun des compteurs présentés
+<section><h1 id="lentite-updowncounter" tabindex="-1">L’entité <code>UpDownCounter</code></h1>
+<p>Nous allons créer une entité <code>UpDownCounter</code> que nous pourrons réutiliser pour chacun des compteurs présentés
 plus haut. Nous avons représenté ses entrées/sorties ci-dessous&nbsp;:</p>
-<p><a href="compteur-entite.svg"><img src="compteur-entite.svg" alt="L'entité Compteur"></a></p>
-<p>Les instances de l’entité <code>Compteur</code> pourront compter soit dans le sens croissant
-(en activant l’entrée <code>inc</code>), soit dans le sens décroissant (en activant l’entrée <code>dec</code>).</p>
-<p>Le paramètre générique <code>VALEUR_MAX</code> permet de régler la valeur maximale que pourra prendre chaque compteur.
-Pour créer un compteur modulo 10, il suffit de fixer <code>VALEUR_MAX</code> à 9.</p>
-<p>La sortie <code>valeur</code> donne la valeur instantanée du compteur.</p>
-<p>La sortie <code>cycle</code> passe à <code>'1'</code> pendant une période d’horloge
-à chaque fois que le compteur s’apprête à commencer un nouveau cycle de comptage, c’est-à-dire&nbsp;:</p>
+<p><a href="UpDownCounter-entity.svg"><img src="UpDownCounter-entity.svg" alt="L'entité UpDownCounter"></a></p>
+<p>Les instances de l’entité <code>UpDownCounter</code> pourront compter soit dans le sens croissant
+(en activant l’entrée <code>up_i</code>), soit dans le sens décroissant (en activant l’entrée <code>down_i</code>).</p>
+<p>Le paramètre générique <code>VALUE_MAX</code> permet de régler la valeur maximale que pourra prendre chaque compteur.
+Pour créer un compteur modulo 10, il suffit de fixer <code>VALUE_MAX</code> à 9.</p>
+<p>La sortie <code>value_o</code> donne la valeur instantanée du compteur.</p>
+<p>La sortie <code>cycle_o</code> passe à <code>'1'</code> à chaque fois que le compteur s’apprête à commencer un nouveau cycle de comptage, c’est-à-dire&nbsp;:</p>
 <ul>
-<li>lorsque <code>inc</code> vaut <code>'1'</code> et <code>valeur</code> est égale à <code>VALEUR_MAX</code>,</li>
-<li>lorsque <code>dec</code> vaut <code>'1'</code> et <code>valeur</code> est égale à 0.</li>
+<li>lorsque <code>up_i</code> vaut <code>'1'</code> et <code>value_o</code> est égale à <code>VALUE_MAX</code>,</li>
+<li>lorsque <code>down_i</code> vaut <code>'1'</code> et <code>value_o</code> est égale à 0.</li>
 </ul>
 <p>La figure ci-dessous représente une architecture possible pour ce compteur&nbsp;:</p>
-<p><a href="compteur-architecture.svg"><img src="compteur-architecture.svg" alt="Architecture du compteur/décompteur"></a></p>
+<p><a href="UpDownCounter-architecture.svg"><img src="UpDownCounter-architecture.svg" alt="Architecture du compteur/décompteur"></a></p>
 <p><a href="../langage-vhdl/legende.svg" target="_blank">Afficher la légende des schémas.</a></p>
 </section><section><h2 id="completer-la-description-du-compteur" tabindex="-1">Compléter la description du compteur</h2>
-<p>Ouvrez le fichier <code>Compteur.vhd</code>&nbsp;:</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur
-gedit src/Compteur.vhd &amp;
+<p>Ouvrez le fichier <code>UpDownCounter.vhd</code>&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Pomodoro
+gedit UpDownCounter.vhd &amp;
 </code></pre>
-<p class="icon-file">Dans le fichier <code>Compteur.vhd</code>, complétez l’architecture en vous conformant
+<p class="icon-file">Dans le fichier <code>UpDownCounter.vhd</code>, complétez l’architecture en vous conformant
 au schéma ci-dessus.
 Nous vous recommandons de procéder dans cet ordre&nbsp;:</p>
 <ol>
-<li>Commencez par la gestion des sorties <code>valeur</code> et <code>cycle</code>.
+<li>Commencez par la gestion des sorties <code>value_o</code> et <code>cycle_o</code>.
 Utilisez deux <a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-de-signal">instructions d’affectation concurrentes</a>&nbsp;:
-une <a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-simple">affectation simple</a> pour <code>valeur</code>
-et une <a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-conditionnelle">affectation conditionnelle</a> pour <code>cycle</code>.</li>
-<li>Ajoutez ensuite le <a href="../essentiel-vhdl/instructions-concurrentes.html#processus">processus</a> <code>p_valeur_reg</code> qui assure la mise à jour
-du signal <code>valeur_reg</code> (voir à ce sujet la page <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html">Compteurs et diviseurs de fréquence</a>).</li>
+une <a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-simple">affectation simple</a> pour <code>value_o</code>
+et une <a href="../essentiel-vhdl/instructions-concurrentes.html#affectation-conditionnelle">affectation conditionnelle</a> pour <code>cycle_o</code>.</li>
+<li>Ajoutez ensuite le <a href="../essentiel-vhdl/instructions-concurrentes.html#processus">processus</a> <code>p_value_reg</code> qui assure la mise à jour
+du signal <code>value_reg</code> (voir à ce sujet la page <a href="../langage-vhdl/sequentiel-compteurs-et-diviseurs-de-frequence.html">Compteurs et diviseurs de fréquence</a>).</li>
 </ol>
-<p>Expliquez l’intérêt d’utiliser un signal intermédiaire <code>valeur_reg</code>
-au lieu de manipuler directement le port <code>valeur</code>.</p>
+<p class="icon-question">Expliquez l’intérêt d’utiliser un signal intermédiaire <code>value_reg</code>
+au lieu de manipuler directement le port <code>value_o</code>.</p>
 </section><section><h2 id="verifier-la-syntaxe" tabindex="-1">Vérifier la syntaxe</h2>
 <p>Dans un terminal, exécutez les commandes suivantes.
-La commande <code>cd</code> peut être omise si vous êtes déjà dans le dossier <code>Minuteur</code>.</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur/
-ghdl -a src/Compteur.vhd
+La commande <code>cd</code> peut être omise si vous êtes déjà dans le dossier <code>Pomodoro</code>.</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Pomodoro
+ghdl -a UpDownCounter.vhd
 </code></pre>
-<p>Si nécessaire, modifiez le fichier <code>Compteur.vhd</code> jusqu’à ce qu’il n’y ait
+<p class="icon-check">Si nécessaire, modifiez le fichier <code>UpDownCounter.vhd</code> jusqu’à ce qu’il n’y ait
 plus de message d’erreur.</p>
 </section><section><h2 id="simuler-le-fonctionnement-du-compteur" tabindex="-1">Simuler le fonctionnement du compteur</h2>
 <p>Démarrez la simulation en utilisant les commandes suivantes&nbsp;:</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur/tests/Compteur
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Pomodoro/tests/UpDownCounter
 make
 </code></pre>
 <div class="info">
@@ -133,51 +136,51 @@ make
 Elle exécute un scénario de test et enregistre les séquences de valeurs des signaux.</p>
 </div>
 <p>Une fois la simulation terminée, affichez les chronogrammes&nbsp;:</p>
-<pre><code class="icon-term language-bash">gtkwave -S Compteur.tcl Compteur.ghw
+<pre><code class="icon-term language-bash">gtkwave -S UpDownCounter.tcl UpDownCounter.ghw
 </code></pre>
-<p>Observez l’évolution des valeurs des signaux.
+<p class="icon-check">Observez l’évolution des valeurs des signaux.
 S’ils sont conformes au comportement attendu, vous pouvez passer à la suite.
 Dans le cas contraire, corrigez la description du compteur et relancez
 la simulation jusqu’à ce que vous obteniez des chronogrammes corrects.</p>
 </section><section><h1 id="mise-en-place-des-compteurs-dans-le-minuteur" tabindex="-1">Mise en place des compteurs dans le minuteur</h1>
 <p>Sur la figure ci-dessous, nous avons représenté la mise en cascade de cinq compteurs.
-Pour le moment, la sortie <code>cycle</code> de chaque compteur est reliée à l’entrée <code>dec</code> du suivant.
-À l’exception du compteur modulo 1000 (tout en bas de la figure), leurs entrées <code>inc</code> sont toutes à <code>'0'</code>.
-Pour le moment, ce circuit réalise un décompte sur une durée non réglable de cent minutes.</p>
+Pour le moment, la sortie <code>cycle_o</code> de chaque compteur est reliée à l’entrée <code>down_i</code> du suivant.
+À l’exception du compteur modulo 1000 (tout en bas de la figure), leurs entrées <code>up_i</code> sont toutes à <code>'0'</code>.
+Ce circuit réalise ainsi un décompte sur une durée non réglable de cent minutes.</p>
 <p>Les sorties des compteurs des minutes et secondes sont reliées aux entrées des décodeurs sept segments
-par l’intermédiaire des signaux <code>minutes_dizaine</code>, <code>minutes_unite</code>, <code>secondes_dizaine</code>
-et <code>secondes_unite</code>.</p>
-<p><a href="minuteur-etape2.svg"><img src="minuteur-etape2.svg" alt="Instanciation des compteurs"></a></p>
+par l’intermédiaire des signaux <code>minutes_tens</code>, <code>minutes_ones</code>, <code>seconds_tens</code>
+et <code>seconds_ones</code>.</p>
+<p><a href="Pomodoro-etape2.svg"><img src="Pomodoro-etape2.svg" alt="Instanciation des compteurs"></a></p>
 <p><a href="../langage-vhdl/legende.svg" target="_blank">Afficher la légende des schémas.</a></p>
 <div class="warning">
-<p>Sur la figure, vous observez qu’entre la sortie <code>cycle</code> d’un compteur
-et l’entrée <code>dec</code> du suivant, il y a toujours deux signaux reliés ensemble
-(par exemple, <code>cycle_minutes_unite</code> et <code>dec_minutes_dizaine</code>).</p>
+<p>Sur la figure, vous observez qu’entre la sortie <code>cycle_o</code> d’un compteur
+et l’entrée <code>down_i</code> du suivant, il y a toujours deux signaux reliés ensemble
+(par exemple, <code>cycle_minutes_ones</code> et <code>down_minutes_tens</code>).</p>
 <p>En principe, un seul signal serait suffisant.
 Nous avons procédé de cette manière car dans la suite du développement,
 nous allons insérer entre ces signaux les éléments nécessaires au réglage du temps.</p>
 </div>
 </section><section><h2 id="completer-la-description-du-minuteur" tabindex="-1">Compléter la description du minuteur</h2>
-<p class="icon-file">Dans le fichier <code>Minuteur.vhd</code>, complétez l’architecture de manière à reproduire
+<p class="icon-file">Dans le fichier <code>Pomodoro.vhd</code>, complétez l’architecture de manière à reproduire
 la structure de la figure.</p>
-<p>Vous devrez retirer les affectations des signaux <code>minutes_dizaine</code>,
-<code>minutes_unite</code>, <code>secondes_dizaine</code> et <code>secondes_unite</code>.</p>
+<p>Vous devrez retirer les affectations des signaux <code>minutes_tens</code>,
+<code>minutes_ones</code>, <code>seconds_tens</code> et <code>seconds_ones</code>.</p>
 </section><section><h2 id="verifier-la-syntaxe-1" tabindex="-1">Vérifier la syntaxe</h2>
 <p>Dans un terminal, exécutez les commandes suivantes.
-La commande <code>cd</code> peut être omise si vous êtes déjà dans le dossier <code>Minuteur</code>.</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur/
-ghdl -a src/Compteur.vhd src/Decodeur7Segments.vhd src/Minuteur.vhd
+La commande <code>cd</code> peut être omise si vous êtes déjà dans le dossier <code>Pomodoro</code>.</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Pomodoro
+ghdl -a UpDownCounter.vhd ../SegmentDisplay/SegmentDecoder.vhd Pomodoro.vhd
 </code></pre>
-<p>Si nécessaire, modifiez le fichier <code>Minuteur.vhd</code> jusqu’à ce qu’il n’y ait
+<p class="icon-check">Si nécessaire, modifiez le fichier <code>Pomodoro.vhd</code> jusqu’à ce qu’il n’y ait
 plus de message d’erreur.</p>
 </section><section><h2 id="simuler-le-fonctionnement-du-circuit" tabindex="-1">Simuler le fonctionnement du circuit</h2>
 <p>Démarrez la simulation en utilisant les commandes suivantes&nbsp;:</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur/tests/Minuteur
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Pomodoro/tests/Pomodoro
 make
 </code></pre>
 <p>Pour arrêter la simulation, refermez la fenêtre contenant les afficheurs sept segments.
 Il est alors possible de regarder les chronogrammes plus en détail.</p>
-<pre><code class="icon-term language-bash">gtkwave -S Minuteur.tcl Minuteur.ghw
+<pre><code class="icon-term language-bash">gtkwave -S Pomodoro.tcl Pomodoro.ghw
 </code></pre>
 </section>
     
@@ -190,6 +193,10 @@ Il est alors possible de regarder les chronogrammes plus en détail.</p>
             
     <nav>
     
+        <a href="afficher.html">&larr;&nbsp;Afficher quatre chiffres</a>
+    
+    
+        <a href="regler.html">Régler la durée de décompte&nbsp;&rarr;</a>
     
 </nav>
 
@@ -642,6 +649,59 @@ Il est alors possible de regarder les chronogrammes plus en détail.</p>
                 </li>
             
         </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Pratique du VHDL : description et simulation d'un minuteur électronique</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="entite-principale.html" >Entité principale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="afficher.html" >Afficher quatre chiffres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="decompter.html" class="current">Décompter les secondes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="regler.html" >Régler la durée de décompte</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="ameliorations.html" >Amélioration de l'architecture du minuteur</a>
+                    
     
 
                 </li>

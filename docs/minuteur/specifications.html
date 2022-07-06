@@ -13,6 +13,10 @@
             
     <nav>
     
+        <a href="index.html">&larr;&nbsp;Pratique du VHDL : description et simulation d'un minuteur électronique</a>
+    
+    
+        <a href="entite-principale.html">Entité principale&nbsp;&rarr;</a>
     
 </nav>
 
@@ -52,13 +56,13 @@ Ce minuteur fournira les fonctionnalités suivantes&nbsp;:</p>
 </ul>
 <p>La figure ci-dessous représente les éléments de l’interface utilisateur.
 Elle comporte quatre boutons, quatre afficheurs sept segments et quatre voyants lumineux.</p>
-<p><a href="minuteur-face-avant.svg"><img src="minuteur-face-avant.svg" alt="Minuteur : interface utilisateur"></a></p>
+<p><a href="Pomodoro-face-avant.svg"><img src="Pomodoro-face-avant.svg" alt="Pomodoro : interface utilisateur"></a></p>
 <section><h1 id="reglage-de-la-duree-souhaitee" tabindex="-1">Réglage de la durée souhaitée</h1>
 <p>À la mise sous tension du minuteur, les afficheurs sont à zéro.
 Le réglage commence par le chiffre des dizaines de minutes&nbsp;:
 le voyant situé sous l’afficheur le plus à gauche est allumé
 pour indiquer que le chiffre des dizaines de minutes est sélectionné.</p>
-<p>Chaque pression sur le bouton «&nbsp;Sélection&nbsp;» a pour effet
+<p>Chaque pression sur le bouton «&nbsp;Select&nbsp;» a pour effet
 de déplacer la sélection d’un rang vers la droite.
 Lorsque le chiffre le plus à droite est sélectionné,
 un nouvel appui ramène la sélection au chiffre le plus à gauche.</p>
@@ -67,16 +71,16 @@ a pour effet d’augmenter (resp. de diminuer) d’une unité la valeur du chiff
 Lorsque le chiffre sélectionné vaut 9, un appui sur le bouton «&nbsp;+&nbsp;» le ramène à 0.
 De même, lorsque le chiffre sélectionné vaut 0, un appui sur le bouton «&nbsp;-&nbsp;» le ramène à 9.</p>
 </section><section><h1 id="decompte-du-temps" tabindex="-1">Décompte du temps</h1>
-<p>La première pression sur le bouton «&nbsp;Démarrer/arrêter&nbsp;» déclenche le décompte du temps.
+<p>La première pression sur le bouton «&nbsp;Start/Stop&nbsp;» déclenche le décompte du temps.
 Pendant le décompte, les afficheurs se mettent à jour à chaque seconde pour indiquer la durée restante.</p>
-<p>Un nouvel appui sur le bouton «&nbsp;Démarrer/arrêter&nbsp;»,
-ou un appui sur le bouton «&nbsp;Sélection&nbsp;»,
+<p>Un nouvel appui sur le bouton «&nbsp;Start/Stop&nbsp;»,
+ou un appui sur le bouton «&nbsp;Select&nbsp;»,
 interrompt le décompte et remet le minuteur en mode réglage.</p>
 </section><section><h1 id="alarme" tabindex="-1">Alarme</h1>
 <p>À la fin du décompte, tous les segments des afficheurs s’allument
 en orange et une alarme sonore se déclenche.</p>
 <p>L’alarme est maintenue jusqu’à ce que l’utilisateur presse l’un des boutons
-«&nbsp;Démarrer/arrêter&nbsp;» ou «&nbsp;Sélection&nbsp;».
+«&nbsp;Start/Stop&nbsp;» ou «&nbsp;Select&nbsp;».
 Le minuteur revient alors en mode réglage.</p>
 </section>
     
@@ -89,6 +93,10 @@ Le minuteur revient alors en mode réglage.</p>
             
     <nav>
     
+        <a href="index.html">&larr;&nbsp;Pratique du VHDL : description et simulation d'un minuteur électronique</a>
+    
+    
+        <a href="entite-principale.html">Entité principale&nbsp;&rarr;</a>
     
 </nav>
 
@@ -541,6 +549,59 @@ Le minuteur revient alors en mode réglage.</p>
                 </li>
             
         </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Pratique du VHDL : description et simulation d'un minuteur électronique</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="specifications.html" class="current">Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="entite-principale.html" >Entité principale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="afficher.html" >Afficher quatre chiffres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="decompter.html" >Décompter les secondes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="regler.html" >Régler la durée de décompte</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="ameliorations.html" >Amélioration de l'architecture du minuteur</a>
+                    
     
 
                 </li>

@@ -13,6 +13,10 @@
             
     <nav>
     
+        <a href="specifications.html">&larr;&nbsp;Présentation de l'application</a>
+    
+    
+        <a href="afficher.html">Afficher quatre chiffres&nbsp;&rarr;</a>
     
 </nav>
 
@@ -29,7 +33,7 @@
             
             
                 
-                <li><a href="#lentite-minuteur">L’entité Minuteur</a></li>
+                <li><a href="#lentite-pomodoro">L’entité Pomodoro</a></li>
             
                 
                 <li><a href="#completer-les-declarations-de-ports">Compléter les déclarations de ports</a></li>
@@ -41,29 +45,28 @@
         </ul>
             
     
-    <section><h1 id="lentite-minuteur" tabindex="-1">L’entité Minuteur</h1>
+    <section><h1 id="lentite-pomodoro" tabindex="-1">L’entité <code>Pomodoro</code></h1>
 <p>La figure ci-dessous représente les entrées/sorties de la partie commande du minuteur.</p>
-<p><a href="minuteur-entite.svg"><img src="minuteur-entite.svg" alt="Minuteur : entité principale"></a></p>
+<p><a href="Pomodoro-entity.svg"><img src="Pomodoro-entity.svg" alt="Pomodoro : entité principale"></a></p>
 <p>Voici la légende des symboles utilisés sur les schémas de ce document.</p>
 <p><a href="../langage-vhdl/legende.svg"><img src="../langage-vhdl/legende.svg" alt="Légende des symboles utilisés"></a></p>
 </section><section><h1 id="completer-les-declarations-de-ports" tabindex="-1">Compléter les déclarations de ports</h1>
-<p>Ouvrez le fichier <code>Minuteur.vhd</code>&nbsp;:</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur
-gedit src/Minuteur.vhd &amp;
+<p>Ouvrez le fichier <code>Pomodoro.vhd</code>&nbsp;:</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Pomodoro
+gedit Pomodoro.vhd &amp;
 </code></pre>
-<p>Ajoutez la <a href="../essentiel-vhdl/unites-de-conception.html#entite">déclaration des ports</a> de l’entité <code>Minuteur</code>.
+<p class="icon-file">Ajoutez la <a href="../essentiel-vhdl/unites-de-conception.html#entite">déclaration des ports</a> de l’entité <code>Pomodoro</code>.
 Les valeurs binaires simples seront de type <code>std_logic</code>&nbsp;;
 les valeurs sur plusieurs bits seront de type <code>std_logic_vector</code>
 (voir à ce sujet la section <a href="../essentiel-vhdl/types.html#types-binaires-standard">Types binaires standard</a>).</p>
 </section><section><h1 id="verifier-la-syntaxe" tabindex="-1">Vérifier la syntaxe</h1>
 <p>Dans un terminal, exécutez les commandes suivantes.
-La commande <code>cd</code> peut être omise si vous êtes déjà dans le dossier <code>Minuteur</code>.</p>
-<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/Minuteur/
-ghdl -a src/Minuteur.vhd
+La commande <code>cd</code> peut être omise si vous êtes déjà dans le dossier <code>Pomodoro</code>.</p>
+<pre><code class="icon-term language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-variable">$HOME</span>/CoCiNum/src/vhdl/Pomodoro
+ghdl -a Pomodoro.vhd
 </code></pre>
-<p>Si aucun message ne s’affiche, c’est qu’il n’y a pas d’erreur de syntaxe.
-Dans le cas contraire, modifiez le fichier <code>Minuteur.vhd</code> jusqu’à ce qu’il n’y ait
-plus de message d’erreur.</p>
+<p class="icon-check">Si aucun message ne s’affiche, c’est qu’il n’y a pas d’erreur de syntaxe.
+Dans le cas contraire, modifiez le fichier <code>Pomodoro.vhd</code> jusqu’à ce qu’il n’y ait plus de message d’erreur.</p>
 </section>
     
         
@@ -75,6 +78,10 @@ plus de message d’erreur.</p>
             
     <nav>
     
+        <a href="specifications.html">&larr;&nbsp;Présentation de l'application</a>
+    
+    
+        <a href="afficher.html">Afficher quatre chiffres&nbsp;&rarr;</a>
     
 </nav>
 
@@ -527,6 +534,59 @@ plus de message d’erreur.</p>
                 </li>
             
         </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Pratique du VHDL : description et simulation d'un minuteur électronique</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="entite-principale.html" class="current">Entité principale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="afficher.html" >Afficher quatre chiffres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="decompter.html" >Décompter les secondes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="regler.html" >Régler la durée de décompte</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="ameliorations.html" >Amélioration de l'architecture du minuteur</a>
+                    
     
 
                 </li>

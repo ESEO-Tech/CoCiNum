@@ -13,6 +13,10 @@
             
     <nav>
     
+        <a href="regler.html">&larr;&nbsp;Régler la durée de décompte</a>
+    
+    
+        <a href="../ordinateur/index.html">Pratique du VHDL : je développe mon propre ordinateur&nbsp;&rarr;</a>
     
 </nav>
 
@@ -46,7 +50,7 @@ mais «&nbsp;99:59&nbsp;».</p>
 de telle sorte que le décompte s’arrête à «&nbsp;00:00&nbsp;».</p>
 </section><section><h1 id="une-entite-generique-pour-gerer-n-decodeurs-7-segments" tabindex="-1">Une entité générique pour gérer N décodeurs 7 segments</h1>
 <p>On souhaite regrouper l’instanciation des décodeurs 7 segments dans une entité
-<code>Decodeur7SegmentsMultiple</code>.</p>
+<code>MultipleSegmentDecoder</code>.</p>
 <p>Cette entité possédera un <a href="../essentiel-vhdl/unites-de-conception.html#parametres-generiques">paramètre générique</a>&nbsp;:</p>
 <table>
 <thead>
@@ -76,20 +80,20 @@ de telle sorte que le décompte s’arrête à «&nbsp;00:00&nbsp;».</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left"><code>nombres</code></td>
+<td style="text-align:left"><code>digits_i</code></td>
 <td style="text-align:left">Entrée</td>
 <td style="text-align:left">Tableau de N entiers</td>
 <td style="text-align:left">Les N chiffres à afficher</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>segments</code></td>
+<td style="text-align:left"><code>segments_o</code></td>
 <td style="text-align:left">Sortie</td>
 <td style="text-align:left">Tableau de N vecteurs</td>
 <td style="text-align:left">Les états des segments des N afficheurs</td>
 </tr>
 </tbody>
 </table>
-<p>Les <a href="../essentiel-vhdl/declarations.html#type-tableau">types tableaux</a> seront déclarés dans un <a href="../essentiel-vhdl/unites-de-conception.html#paquetage">paquetage</a> <code>Minuteur_pkg</code>.
+<p>Les <a href="../essentiel-vhdl/declarations.html#type-tableau">types tableaux</a> seront déclarés dans un <a href="../essentiel-vhdl/unites-de-conception.html#paquetage">paquetage</a> <code>Pomodoro_pkg</code>.
 Ils respecteront les définitions suivantes&nbsp;:</p>
 <table>
 <thead>
@@ -100,23 +104,23 @@ Ils respecteront les définitions suivantes&nbsp;:</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left"><code>TableauDeChiffres_t</code></td>
+<td style="text-align:left"><code>DigitArray_t</code></td>
 <td style="text-align:left">Tableau d’entiers compris entre 0 et 9</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>TableauDeSegments_t</code></td>
+<td style="text-align:left"><code>SegmentArray_t</code></td>
 <td style="text-align:left">Tableau de vecteurs de 7 bits</td>
 </tr>
 </tbody>
 </table>
-<p class="icon-file">Dans un nouveau fichier <code>Minuteur_pkg.vhd</code>, créez le <a href="../essentiel-vhdl/unites-de-conception.html#paquetage">paquetage</a> <code>Minuteur_pkg</code>
+<p class="icon-file">Dans un nouveau fichier <code>Pomodoro_pkg.vhd</code>, créez le <a href="../essentiel-vhdl/unites-de-conception.html#paquetage">paquetage</a> <code>Pomodoro_pkg</code>
 contenant la déclaration des deux <a href="../essentiel-vhdl/declarations.html#type-tableau">types tableaux</a>.</p>
-<p class="icon-file">Dans un nouveau fichier <code>Decodeur7SegmentsMultiple.vhd</code>,
-<a href="../essentiel-vhdl/unites-de-conception.html#import-de-paquetage">importez le paquetage</a> <code>Minuteur_pkg</code> et
-décrivez l’entité <code>Decodeur7SegmentsMultiple</code> et son architecture <code>Structurelle</code>.</p>
-<p class="icon-file">Dans le fichier <code>Minuteur.vhd</code>, <a href="../essentiel-vhdl/unites-de-conception.html#import-de-paquetage">importez le paquetage</a> <code>Minuteur_pkg</code> et
+<p class="icon-file">Dans un nouveau fichier <code>MultipleSegmentDecoder.vhd</code>,
+<a href="../essentiel-vhdl/unites-de-conception.html#import-de-paquetage">importez le paquetage</a> <code>Pomodoro_pkg</code> et
+décrivez l’entité <code>MultipleSegmentDecoder</code> et son architecture <code>Structural</code>.</p>
+<p class="icon-file">Dans le fichier <code>Pomodoro.vhd</code>, <a href="../essentiel-vhdl/unites-de-conception.html#import-de-paquetage">importez le paquetage</a> <code>Pomodoro_pkg</code> et
 modifiez l’architecture en remplaçant l’instanciation
-des quatre décodeurs par une instanciation de l’entité <code>Decodeur7SegmentsMultiple</code>.
+des quatre décodeurs par une instanciation de l’entité <code>MultipleSegmentDecoder</code>.
 Il est recommandé de faire un schéma où vous ferez apparaître clairement les signaux internes utilisés.</p>
 </section>
     
@@ -129,6 +133,10 @@ Il est recommandé de faire un schéma où vous ferez apparaître clairement les
             
     <nav>
     
+        <a href="regler.html">&larr;&nbsp;Régler la durée de décompte</a>
+    
+    
+        <a href="../ordinateur/index.html">Pratique du VHDL : je développe mon propre ordinateur&nbsp;&rarr;</a>
     
 </nav>
 
@@ -581,6 +589,59 @@ Il est recommandé de faire un schéma où vous ferez apparaître clairement les
                 </li>
             
         </ul>
+    
+
+                </li>
+            
+        </ul>
+    
+
+                </li>
+            
+                <li>
+                    <a href="index.html" >Pratique du VHDL : description et simulation d'un minuteur électronique</a>
+                    
+    
+        <ul>
+            
+                <li>
+                    <a href="specifications.html" >Présentation de l'application</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="entite-principale.html" >Entité principale</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="afficher.html" >Afficher quatre chiffres</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="decompter.html" >Décompter les secondes</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="regler.html" >Régler la durée de décompte</a>
+                    
+    
+
+                </li>
+            
+                <li>
+                    <a href="ameliorations.html" class="current">Amélioration de l'architecture du minuteur</a>
+                    
     
 
                 </li>
