@@ -137,6 +137,12 @@ le fichier <code>Platform.h</code> aura le contenu suivant&nbsp;:</p>
 
 <span class="hljs-keyword">extern</span> SPIDevice *<span class="hljs-type">const</span> acl;
 </code></pre>
+<p>Si votre application utilise un écran OLED sur bus SPI, vous pouvez ajouter&nbsp;:</p>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;SPI/OLED.h&gt;</span></span>
+
+<span class="hljs-keyword">extern</span> SPIDevice *<span class="hljs-type">const</span> spi_dev;
+<span class="hljs-keyword">extern</span> OLED *<span class="hljs-type">const</span> oled;
+</code></pre>
 <h3 id="ajout-dun-peripherique-i2c" tabindex="-1">Ajout d’un périphérique I<sup>2</sup>C</h3>
 <p>Pour un périphérique I<sup>2</sup>C, on ajoutera des définitions de la forme&nbsp;:</p>
 <pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;I2C/I2C.h&gt;</span></span>
@@ -266,6 +272,26 @@ SPIDevice *<span class="hljs-type">const</span> jstk = &amp;jstk_priv;
 
 SPIDevice *<span class="hljs-type">const</span> acl = &amp;acl_priv;
 </code></pre>
+<p>Si votre application utilise un écran OLED sur bus SPI, vous pouvez ajouter&nbsp;:</p>
+<pre><code class="icon-file language-c"><span class="hljs-type">static</span> SPIDevice spi_dev_priv = {
+    .spi            = spi_master,
+    .timer          = spi_timer,
+    .polarity       = <span class="hljs-number">1</span>,
+    .phase          = <span class="hljs-number">1</span>,
+    .cycles_per_bit = CLK_FREQUENCY_HZ / <span class="hljs-number">5000000</span>, <span class="hljs-comment">// 5 Mbit/sec</span>
+    .cycles_per_gap = CLK_FREQUENCY_HZ / <span class="hljs-number">5000000</span>  <span class="hljs-comment">// 200 ns</span>
+};
+
+SPIDevice *<span class="hljs-type">const</span> spi_dev = &amp;spi_dev_priv;
+
+<span class="hljs-type">static</span> OLED oled_priv = {
+    .spi        = spi_dev,
+    .address    = <span class="hljs-number">0x80000002</span>,
+    .cycles_1ms = CLK_FREQUENCY_HZ / <span class="hljs-number">1000</span>
+};
+
+OLED *<span class="hljs-type">const</span> oled = &amp;oled_priv;
+</code></pre>
 <h3 id="definition-des-peripheriques-i2c" tabindex="-1">Définition des périphériques I<sup>2</sup>C</h3>
 <pre><code class="icon-file language-c"><span class="hljs-type">static</span> I2CMaster i2c_priv = {
     <span class="hljs-comment">// L'adresse de base des registres du contrôleur I2C.</span>
@@ -342,6 +368,11 @@ C_FLAGS_USER = -Os
 <p>Le fichier <code>MyApp.c</code> contiendra au moins la fonction <code>main</code>
 et la fonction de traitement d’interruptions <code>irq_handler</code>.</p>
 <h3 id="squelette-dapplication-utilisant-un-joystick-sur-bus-spi" tabindex="-1">Squelette d’application utilisant un joystick sur bus SPI</h3>
+<p>Le pilote de joystick fournit les fonctions suivantes (voir le fichier <code>SPI/Joystick.h</code>)&nbsp;:</p>
+<ul>
+<li><code>Joystick_init</code>&nbsp;: initialiser le périphérique SPI et le pilote de joystick.</li>
+<li><code>Joystick_update</code>&nbsp;: lire l’état du joystick.</li>
+</ul>
 <pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
 
 <span class="hljs-type">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
@@ -403,6 +434,11 @@ __attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
 }
 </code></pre>
 <h3 id="squelette-dapplication-utilisant-un-accelerometre-sur-bus-spi" tabindex="-1">Squelette d’application utilisant un accéléromètre sur bus SPI</h3>
+<p>Le pilote d’accéléromètre fournit les fonctions suivantes (voir le fichier <code>SPI/Accelerometer.h</code>)&nbsp;:</p>
+<ul>
+<li><code>Accelerometer_init</code>&nbsp;: initialiser le périphérique SPI et le pilote d’accéléromètre.</li>
+<li><code>Accelerometer_update</code>&nbsp;: lire l’état de l’accéléromètre.</li>
+</ul>
 <pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
 
 <span class="hljs-type">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
@@ -457,7 +493,112 @@ __attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
     }
 }
 </code></pre>
+<h3 id="squelette-dapplication-utilisant-un-ecran-oled-sur-bus-spi" tabindex="-1">Squelette d’application utilisant un écran OLED sur bus SPI</h3>
+<p>Le pilote d’écran OLED fournit les fonctions suivantes (voir le fichier <code>SPI/OLED.h</code>)&nbsp;:</p>
+<ul>
+<li><code>OLED_init</code>&nbsp;: initialiser le périphérique SPI et le pilote d’écran OLED.</li>
+<li><code>OLED_clear_all</code>&nbsp;: effacer l’écran.</li>
+<li><code>OLED_clear</code>&nbsp;: effacer une région rectangulaire de l’écran.</li>
+<li><code>OLED_draw_pixel</code>&nbsp;: dessiner un pixel.</li>
+<li><code>OLED_draw_line</code>&nbsp;: dessiner un segment de droite.</li>
+<li><code>OLED_draw_rect</code>&nbsp;: dessiner le contour d’un rectangle.</li>
+<li><code>OLED_fill_rect</code>&nbsp;: dessiner un rectangle plein.</li>
+<li><code>OLED_copy</code>&nbsp;: copier une région rectangulaire vers un autre endroit de l’écran.</li>
+<li><code>OLED_set_bitmap</code>&nbsp;: compacter un tableau de couleurs représentant une image.</li>
+<li><code>OLED_draw_bitmap</code>&nbsp;: afficher une image après compactage.</li>
+</ul>
+<p>L’exemple ci-dessous</p>
+<pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
+
+<span class="hljs-type">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
+
+__attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
+<span class="hljs-type">void</span> <span class="hljs-title function_">irq_handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    <span class="hljs-comment">// Appeler le gestionnaire d'interruptions du pilote de l'interface série.</span>
+    UART_irq_handler(uart);
+
+    <span class="hljs-comment">// Incrémenter le compteur tick à chaque interruption du timer.</span>
+    <span class="hljs-keyword">if</span> (Timer_has_events(timer)) {
+        Timer_clear_event(timer);
+        tick ++;
+    }
+}
+
+<span class="hljs-comment">// Définir des couleurs {Rouge, Vert, Bleu}.</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> B {0,  0,  0}</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> C {31, 31, 0}</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> W {31, 31, 31}</span>
+
+<span class="hljs-comment">// Définir la taille de l'objet à afficher.</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SPRITE_WIDTH  7</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SPRITE_HEIGHT 7</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SPRITE_SIZE_PIX   (SPRITE_WIDTH * SPRITE_HEIGHT)</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SPRITE_SIZE_BYTES (SPRITE_SIZE_PIX * 2)</span>
+
+<span class="hljs-comment">// L'image, représentée par un tableau de couleurs.</span>
+<span class="hljs-type">static</span> <span class="hljs-type">const</span> OLEDColor sprite[SPRITE_SIZE_PIX] = {
+    B, B, W, W, W, B, B,
+    B, C, W, W, W, W, B,
+    C, C, W, W, W, W, W,
+    C, C, C, W, W, W, W,
+    C, C, C, C, W, W, W,
+    B, C, C, C, C, C, B,
+    B, B, C, C, C, B, B
+};
+
+<span class="hljs-comment">// Tableau qui recevra l'image compactée.</span>
+<span class="hljs-type">static</span> <span class="hljs-type">uint8_t</span> bitmap[SPRITE_SIZE_BYTES];
+
+<span class="hljs-type">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> {
+    <span class="hljs-comment">// Initialiser le pilote de l'interface série</span>
+    <span class="hljs-comment">// et afficher un message de bienvenue.</span>
+    UART_init(uart);
+    UART_puts(uart, <span class="hljs-string">"OLED Display Demo.\n"</span>);
+
+    <span class="hljs-comment">// Configurer le timer pour demander des interruptions</span>
+    <span class="hljs-comment">// 20 fois par seconde.</span>
+    Timer_init(timer);
+    Timer_set_limit(timer, CLK_FREQUENCY_HZ / <span class="hljs-number">20</span>);
+    Timer_enable_interrupts(timer);
+
+    <span class="hljs-comment">// Initialiser le contrôleur SPI et le pilote de l'afficheur.</span>
+    OLED_init(oled);
+
+    tick = <span class="hljs-number">0</span>;
+    <span class="hljs-type">unsigned</span> tock = <span class="hljs-number">0</span>;
+
+    <span class="hljs-comment">// Définir les coordonnées initiales du sprite.</span>
+    <span class="hljs-type">uint8_t</span> x1 = <span class="hljs-number">0</span>;
+    <span class="hljs-type">uint8_t</span> y1 = <span class="hljs-number">0</span>;
+    <span class="hljs-type">uint8_t</span> x2 = x1 + SPRITE_WIDTH  - <span class="hljs-number">1</span>;
+    <span class="hljs-type">uint8_t</span> y2 = x2 + SPRITE_HEIGHT - <span class="hljs-number">1</span>;
+
+    <span class="hljs-comment">// Encoder le sprite, puis l'afficher.</span>
+    OLED_set_bitmap(bitmap, SPRITE_SIZE_PIX, sprite);
+    OLED_draw_bitmap(oled, x1, y1, x2, y2, SPRITE_SIZE_BYTES, bitmap);
+
+    <span class="hljs-comment">// Exécuter jusqu'à ce que l'utilisateur presse une touche.</span>
+    <span class="hljs-keyword">while</span> (!UART_has_data(uart)) {
+        <span class="hljs-comment">// Si une ou plusieurs interruptions du timer ont été détectées.</span>
+        <span class="hljs-keyword">if</span> (tick != tock) {
+            <span class="hljs-comment">// Calculer la nouvelle position du sprite.</span>
+            <span class="hljs-comment">// Mettre à jour x1, y1, x2 et y2.</span>
+
+            <span class="hljs-comment">// Déplacer le sprite.</span>
+            <span class="hljs-comment">// Utiliser les fonctions OLED_copy et OLED_clear</span>
+            <span class="hljs-comment">// pour copier ou effacer une région rectangulaire de l'écran.</span>
+
+            tock ++;
+        }
+    }
+}
+</code></pre>
 <h3 id="squelette-dapplication-utilisant-un-capteur-de-temperature-sur-bus-i2c" tabindex="-1">Squelette d’application utilisant un capteur de température sur bus I<sup>2</sup>C</h3>
+<p>Le pilote de capteur de température fournit les fonctions suivantes (voir le fichier <code>I2C/Thermometer.h</code>)&nbsp;:</p>
+<ul>
+<li><code>Thermometer_init</code>&nbsp;: initialiser le périphérique I<sup>2</sup>C et le pilote de capteur de température.</li>
+<li><code>Thermometer_get_temperature</code>&nbsp;: lire la température.</li>
+</ul>
 <pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
 
 <span class="hljs-type">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
@@ -506,6 +647,17 @@ __attribute__((interrupt(<span class="hljs-string">"machine"</span>)))
 }
 </code></pre>
 <h3 id="squelette-dapplication-utilisant-un-sonar" tabindex="-1">Squelette d’application utilisant un sonar</h3>
+<p>Le pilote de sonar fournit les fonctions suivantes (voir le fichier <code>UART/Sonar.h</code>)&nbsp;:</p>
+<ul>
+<li><code>Sonar_init</code>&nbsp;: initialiser le périphérique I<sup>2</sup>C et le pilote de capteur de température.</li>
+<li><code>Sonar_update</code>&nbsp;: mettre à jour la distance mesurée en lisant le dernier caractère reçu sur la liaison série.</li>
+</ul>
+<p>Le sonar envoie la valeur de la distance sous la forme d’une chaîne de caractères
+terminée par un saut de ligne.
+Pour obtenir une valeur de distance, il faut appeler <code>Sonar_update</code> de manière
+répétitive jusqu’à ce que tous les caractères de la ligne aient été traités.</p>
+<p>Dans l’exemple ci-dessous, l’utilisation des interruptions permet de mémoriser
+ces caractères au moment où ils sont reçus, en attendant qu’ils soient traités.</p>
 <pre><code class="icon-file language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"Platform.h"</span></span>
 
 <span class="hljs-type">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> tick;
