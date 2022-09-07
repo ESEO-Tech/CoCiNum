@@ -51,9 +51,9 @@
         </ul>
             
     
-    <p>Le module écran OLED <a href="https://reference.digilentinc.com/pmod/pmodoledrgb/reference-manual">PmodOLEDrgb</a>
-de Digilent est composé d’un petit écran de 96×64 pixels avec une interface SPI.
-Pour l’utiliser dans votre projet, vous devez <a href="virgule-spi-activite.html">intégrer un contrôleur de bus SPI</a>.</p>
+    <p>Le module <a href="https://reference.digilentinc.com/pmod/pmodoledrgb/reference-manual">PmodOLEDrgb</a>
+de Digilent est composé d’un petit écran OLED de 96×64 pixels avec une interface SPI.
+Pour l’utiliser dans votre projet, vous devez d’abord <a href="virgule-spi-activite.html">intégrer un contrôleur de bus SPI</a>.</p>
 <p>En plus du bus SPI, ce module possède des broches supplémentaires qui doivent être pilotées séparément.
 Elles correspondent à la rangée du bas (broches 7 à 10) des connecteurs Pmod de la carte Basys3.</p>
 <section><h2 id="entite-computer" tabindex="-1">Entité <code>Computer</code></h2>
@@ -111,7 +111,8 @@ Ils sont tous de type <code>std_logic</code>.</p>
 <p>Pour ne pas compliquer inutilement l’architecture, nous allons compléter la gestion
 des sorties que nous avons mise en place dans l’activité <a href="virgule-simple-io-activite.html">Mon premier système embarqué</a>.
 L’architecture gère déjà 16 bits de sortie sur le port <code>leds_o</code>, dont la mise à jour est
-activée par le signal <code>io_valid</code>. Nous allons simplement ajouter 4 bits de sortie supplémentaires.</p>
+activée par le signal <code>io_valid</code> (voir figure ci-dessous).
+Nous allons simplement ajouter 4 bits de sortie supplémentaires.</p>
 <p><a href="Virgule-VMemory-IO-wdata.svg"><img src="Virgule-VMemory-IO-wdata.svg" alt="Virgule : ordinateur avec entrées/sorties simples, écriture"></a></p>
 <p>Nous avons résumé ci-dessous les signaux utilisées pour piloter la mise à jour des
 sorties du point de vue du processeur (remplacer <code>pmod_X</code> par le nom du port que vous avez choisi)&nbsp;:</p>
@@ -147,7 +148,7 @@ sorties du point de vue du processeur (remplacer <code>pmod_X</code> par le nom 
 </table>
 <p class="icon-diagram">Complétez le schéma en ajoutant la gestion des quatre ports de sortie
 correspondant aux bits 7 à 10 du connecteur Pmod que vous avez choisi.</p>
-<p class="icon-question">À quelle adresse faudra-t-il écrire déclencher une mise à jour de ces quatre ports&nbsp;?</p>
+<p class="icon-question">À quelle adresse faudra-t-il écrire pour déclencher une mise à jour de ces quatre ports&nbsp;?</p>
 <p class="icon-file">Dans le fichier <code>Computer.vhd</code>, complétez l’architecture en ajoutant un processus de gestion de ces ports.
 Ils devront être mis à <code>'1'</code> lors d’une réinitialisation du système.</p>
 </section><section><h1 id="generer-le-bitstream-et-configurer-le-fpga" tabindex="-1">Générer le bitstream et configurer le FPGA</h1>
