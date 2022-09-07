@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="fr">
     <head>
-        <title>Introduction au développement d'un System-on-Chip sur circuit programmable</title>
+        <title>Activité : interfaçage d'un écran OLED</title>
         <meta charset="utf-8">
         <link rel="stylesheet" href="../assets/normalize.css/normalize.css">
         <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
@@ -13,15 +13,15 @@
             
     <nav>
     
-        <a href="../verilog-squash/deroulement.html">&larr;&nbsp;Gérer le déroulement du jeu</a>
+        <a href="virgule-spi-activite.html">&larr;&nbsp;Activité : intégration d'un contrôleur de bus SPI</a>
     
     
-        <a href="soc-tutorial.html">Prise en main de l'environnement de développement&nbsp;&rarr;</a>
+        <a href="virgule-i2c-activite.html">Activité : intégration d'un contrôleur de bus I<sup>2</sup>C&nbsp;&rarr;</a>
     
 </nav>
 
     
-                <h1>Introduction au développement d'un System-on-Chip sur circuit programmable</h1>
+                <h1>Activité : interfaçage d'un écran OLED</h1>
                 
                 
             
@@ -29,98 +29,141 @@
         </header>
         
     
-    
-    
-        
-    
         <ul class="toc">
             
-                <li>
-                    <a href="soc-tutorial.html" >Prise en main de l'environnement de développement</a>
-                    
-    
-        <ul>
             
-                <li>
-                    <a href="soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                
+                    <li><ul>
                     
-    
-
-                </li>
+                
+                <li><a href="#entite-computer">Entité Computer</a></li>
             
-                <li>
-                    <a href="soc-tutorial-os.html" >Configuration du système d'exploitation</a>
-                    
-    
-
-                </li>
+                
+                <li><a href="#architecture-structural">Architecture Structural</a></li>
             
-                <li>
-                    <a href="soc-tutorial-sw.html" >Développement logiciel</a>
+                
+                    </ul></li>
                     
-    
-
-                </li>
+                
+                <li><a href="#generer-le-bitstream-et-configurer-le-fpga">Générer le bitstream et configurer le FPGA</a></li>
+            
             
         </ul>
-    
-
-                </li>
             
-                <li>
-                    <a href="soc-projet.html" >Projet : développement d'un capteur connecté</a>
-                    
     
-        <ul>
-            
-                <li>
-                    <a href="soc-projet-hw.html" >Création d'un nouveau composant IP</a>
-                    
+    <p>Le module écran OLED <a href="https://reference.digilentinc.com/pmod/pmodoledrgb/reference-manual">PmodOLEDrgb</a>
+de Digilent est composé d’un petit écran de 96×64 pixels avec une interface SPI.
+Pour l’utiliser dans votre projet, vous devez <a href="virgule-spi-activite.html">intégrer un contrôleur de bus SPI</a>.</p>
+<p>En plus du bus SPI, ce module possède des broches supplémentaires qui doivent être pilotées séparément.
+Elles correspondent à la rangée du bas (broches 7 à 10) des connecteurs Pmod de la carte Basys3.</p>
+<section><h2 id="entite-computer" tabindex="-1">Entité <code>Computer</code></h2>
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, complétez l’entité <code>Computer</code> en déclarant
+les ports du connecteur d’extension que vous avez choisi.
+Le tableau ci-dessous donne la liste des ports disponibles et leur rôle.
+Ils sont tous de type <code>std_logic</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Rôle</th>
+<th style="text-align:left"><code>JA</code></th>
+<th style="text-align:left"><code>JB</code></th>
+<th style="text-align:left"><code>JC</code></th>
+<th style="text-align:left"><code>JXADC</code></th>
+<th style="text-align:left">Mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Data/Command</td>
+<td style="text-align:left"><code>pmod_a7</code></td>
+<td style="text-align:left"><code>pmod_b7</code></td>
+<td style="text-align:left"><code>pmod_c7</code></td>
+<td style="text-align:left"><code>pmod_xadc7</code></td>
+<td style="text-align:left"><code>out</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Reset</td>
+<td style="text-align:left"><code>pmod_a8</code></td>
+<td style="text-align:left"><code>pmod_b8</code></td>
+<td style="text-align:left"><code>pmod_c8</code></td>
+<td style="text-align:left"><code>pmod_xadc8</code></td>
+<td style="text-align:left"><code>out</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Vcc Enable</td>
+<td style="text-align:left"><code>pmod_a9</code></td>
+<td style="text-align:left"><code>pmod_b9</code></td>
+<td style="text-align:left"><code>pmod_c9</code></td>
+<td style="text-align:left"><code>pmod_xadc9</code></td>
+<td style="text-align:left"><code>out</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Pmod Enable</td>
+<td style="text-align:left"><code>pmod_a10</code></td>
+<td style="text-align:left"><code>pmod_b10</code></td>
+<td style="text-align:left"><code>pmod_c10</code></td>
+<td style="text-align:left"><code>pmod_xadc10</code></td>
+<td style="text-align:left"><code>out</code></td>
+</tr>
+</tbody>
+</table>
+</section><section><h2 id="architecture-structural" tabindex="-1">Architecture <code>Structural</code></h2>
+<p>Pour ne pas compliquer inutilement l’architecture, nous allons compléter la gestion
+des sorties que nous avons mise en place dans l’activité <a href="virgule-simple-io-activite.html">Mon premier système embarqué</a>.
+L’architecture gère déjà 16 bits de sortie sur le port <code>leds_o</code>, dont la mise à jour est
+activée par le signal <code>io_valid</code>. Nous allons simplement ajouter 4 bits de sortie supplémentaires.</p>
+<p><a href="Virgule-VMemory-IO-wdata.svg"><img src="Virgule-VMemory-IO-wdata.svg" alt="Virgule : ordinateur avec entrées/sorties simples, écriture"></a></p>
+<p>Nous avons résumé ci-dessous les signaux utilisées pour piloter la mise à jour des
+sorties du point de vue du processeur (remplacer <code>pmod_X</code> par le nom du port que vous avez choisi)&nbsp;:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Sorties</th>
+<th style="text-align:left">Validation</th>
+<th style="text-align:left">Sélection</th>
+<th style="text-align:left">Données</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>leds_o(7 downto 0)</code></td>
+<td style="text-align:left"><code>io_valid</code></td>
+<td style="text-align:left"><code>core_write(0)</code></td>
+<td style="text-align:left"><code>core_wdata(7 downto 0)</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>leds_o(15 downto 0)</code></td>
+<td style="text-align:left"><code>io_valid</code></td>
+<td style="text-align:left"><code>core_write(1)</code></td>
+<td style="text-align:left"><code>core_wdata(15 downto 8)</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>pmod_X10</code> à <code>pmod_X7</code></td>
+<td style="text-align:left"><code>io_valid</code></td>
+<td style="text-align:left"><code>core_write(2)</code></td>
+<td style="text-align:left"><code>core_wdata(19 downto 16)</code></td>
+</tr>
+</tbody>
+</table>
+<p class="icon-diagram">Complétez le schéma en ajoutant la gestion des quatre ports de sortie
+correspondant aux bits 7 à 10 du connecteur Pmod que vous avez choisi.</p>
+<p class="icon-question">À quelle adresse faudra-t-il écrire déclencher une mise à jour de ces quatre ports&nbsp;?</p>
+<p class="icon-file">Dans le fichier <code>Computer.vhd</code>, complétez l’architecture en ajoutant un processus de gestion de ces ports.
+Ils devront être mis à <code>'1'</code> lors d’une réinitialisation du système.</p>
+</section><section><h1 id="generer-le-bitstream-et-configurer-le-fpga" tabindex="-1">Générer le bitstream et configurer le FPGA</h1>
+<p class="icon-mouse">Dans Vivado, générez le fichier binaire à charger dans le FPGA&nbsp;:
+<em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Generate Bitstream</em>.</p>
+<p class="icon-hand">Si ce n’est pas déjà fait, reliez le connecteur micro-USB de la carte à un port
+USB de votre PC et mettez la carte sous tension.</p>
+<p class="icon-mouse">Connectez Vivado à votre carte Basys3&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Open Target</em> → <em>Auto-connect</em>.</p>
+<p class="icon-mouse">Configurez le FPGA&nbsp;: <em>Flow Navigator</em> → <em>Program and Debug</em> → <em>Open Hardware Manager</em> → <em>Program Device</em>.</p>
+<div class="info">
+<p>Si vous n’avez pas d’autre périphérique à ajouter, vous pouvez passer
+à la section <a href="virgule-logiciel-activite.html">Développement logiciel embarqué</a>.</p>
+</div>
+</section>
     
-
-                </li>
-            
-                <li>
-                    <a href="soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
-                    
-    
-
-                </li>
-            
-                <li>
-                    <a href="soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
-                    
-    
-
-                </li>
-            
-                <li>
-                    <a href="soc-projet-web.html" >Mise en place d'un serveur web</a>
-                    
-    
-
-                </li>
-            
-                <li>
-                    <a href="soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
-                    
-    
-
-                </li>
-            
-        </ul>
-    
-
-                </li>
-            
-                <li>
-                    <a href="soc-installation.html" >Installation et configuration des outils de développement</a>
-                    
-    
-
-                </li>
-            
-        </ul>
+        
     
 
     
@@ -129,10 +172,10 @@
             
     <nav>
     
-        <a href="../verilog-squash/deroulement.html">&larr;&nbsp;Gérer le déroulement du jeu</a>
+        <a href="virgule-spi-activite.html">&larr;&nbsp;Activité : intégration d'un contrôleur de bus SPI</a>
     
     
-        <a href="soc-tutorial.html">Prise en main de l'environnement de développement&nbsp;&rarr;</a>
+        <a href="virgule-i2c-activite.html">Activité : intégration d'un contrôleur de bus I<sup>2</sup>C&nbsp;&rarr;</a>
     
 </nav>
 
@@ -648,62 +691,62 @@
                 </li>
             
                 <li>
-                    <a href="../ordinateur/index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
+                    <a href="index.html" >Pratique du VHDL : je développe mon propre ordinateur</a>
                     
     
         <ul>
             
                 <li>
-                    <a href="../ordinateur/virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
+                    <a href="virgule-simple-io-activite.html" >Activité : mon premier système embarqué</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="../ordinateur/virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
+                    <a href="virgule-uart-activite.html" >Activité : ajout d'une interface série</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="../ordinateur/virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
+                    <a href="virgule-interruptions-activite.html" >Activité : gestion d'interruptions</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="../ordinateur/virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
+                    <a href="virgule-spi-activite.html" >Activité : intégration d'un contrôleur de bus SPI</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="../ordinateur/virgule-oled-activite.html" >Activité : interfaçage d'un écran OLED</a>
+                    <a href="virgule-oled-activite.html" class="current">Activité : interfaçage d'un écran OLED</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="../ordinateur/virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
+                    <a href="virgule-i2c-activite.html" >Activité : intégration d'un contrôleur de bus I<sup>2</sup>C</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="../ordinateur/virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
+                    <a href="virgule-sonar-activite.html" >Activité : intégration d'un récepteur série pour sonar</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="../ordinateur/virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
+                    <a href="virgule-logiciel-activite.html" >Activité : développement logiciel embarqué</a>
                     
     
 
@@ -955,33 +998,33 @@
                 </li>
             
                 <li>
-                    <a href="index.html" class="current">Introduction au développement d'un System-on-Chip sur circuit programmable</a>
+                    <a href="../soc/index.html" >Introduction au développement d'un System-on-Chip sur circuit programmable</a>
                     
     
         <ul>
             
                 <li>
-                    <a href="soc-tutorial.html" >Prise en main de l'environnement de développement</a>
+                    <a href="../soc/soc-tutorial.html" >Prise en main de l'environnement de développement</a>
                     
     
         <ul>
             
                 <li>
-                    <a href="soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
+                    <a href="../soc/soc-tutorial-hw.html" >Configuration de la plate-forme matérielle</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="soc-tutorial-os.html" >Configuration du système d'exploitation</a>
+                    <a href="../soc/soc-tutorial-os.html" >Configuration du système d'exploitation</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="soc-tutorial-sw.html" >Développement logiciel</a>
+                    <a href="../soc/soc-tutorial-sw.html" >Développement logiciel</a>
                     
     
 
@@ -993,41 +1036,41 @@
                 </li>
             
                 <li>
-                    <a href="soc-projet.html" >Projet : développement d'un capteur connecté</a>
+                    <a href="../soc/soc-projet.html" >Projet : développement d'un capteur connecté</a>
                     
     
         <ul>
             
                 <li>
-                    <a href="soc-projet-hw.html" >Création d'un nouveau composant IP</a>
+                    <a href="../soc/soc-projet-hw.html" >Création d'un nouveau composant IP</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
+                    <a href="../soc/soc-projet-spi.html" >Développement d'un contrôleur de bus SPI</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
+                    <a href="../soc/soc-projet-sw.html" >Développement d'un pilote de contrôleur SPI</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="soc-projet-web.html" >Mise en place d'un serveur web</a>
+                    <a href="../soc/soc-projet-web.html" >Mise en place d'un serveur web</a>
                     
     
 
                 </li>
             
                 <li>
-                    <a href="soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
+                    <a href="../soc/soc-projet-pmod-acl.html" >Accéléromètre sur bus SPI</a>
                     
     
 
@@ -1039,7 +1082,7 @@
                 </li>
             
                 <li>
-                    <a href="soc-installation.html" >Installation et configuration des outils de développement</a>
+                    <a href="../soc/soc-installation.html" >Installation et configuration des outils de développement</a>
                     
     
 
