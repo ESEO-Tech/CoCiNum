@@ -3,9 +3,9 @@ use ieee.std_logic_1164.all;
 
 entity td_combinatoire is
     port(
-        switches_i : in std_logic_vector(3 downto 0);
-        disp_segments_n_o : out std_logic_vector(6 downto 0);
-        disp_select_n_o : out std_logic_vector(3 downto 0)
+        switches_i : 
+        disp_segments_n_o : 
+        disp_select_n_o : 
     );
 end td_combinatoire;
 
